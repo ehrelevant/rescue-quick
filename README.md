@@ -36,3 +36,26 @@ uv run ruff check
 # Runs formatter (Ruff)
 uv run ruff format
 ```
+
+## Activating Virtual Environment
+
+In case you want to interface with Python or any of the libraries directly, you may activate the virtual environment instead of using `uv run`. 
+
+```bash
+# Activate virtual environment (for Linux)
+source .venv/bin/active
+
+# Activate virtual environment (for Windows)
+.venv\Scripts\activate
+```
+
+```bash
+# Starts a development server at `localhost:8000` by default
+python manage.py runserver
+
+# Runs linter (Ruff)
+ruff check
+
+# Runs formatter (Ruff)
+ruff format
+```
