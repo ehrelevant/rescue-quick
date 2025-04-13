@@ -12,3 +12,6 @@ dependencies = [
 dev = [
     "ruff>=0.11.5",
 ]
+
+[tool.ruff.format]
+quote-style = "single"
