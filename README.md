@@ -33,6 +33,9 @@ Before pushing a commit, you may want to run the [`ruff`](https://github.com/ast
 # Runs linter (Ruff)
 uv run ruff check
 
+# Automatically fixes simple linting errors (Ruff)
+uv run ruff check --fix
+
 # Runs formatter (Ruff)
 uv run ruff format
 ```
@@ -55,6 +58,9 @@ python manage.py runserver
 
 # Runs linter (Ruff)
 ruff check
+
+# Automatically fixes simple linting errors (Ruff)
+ruff check --fix
 
 # Runs formatter (Ruff)
 ruff format
