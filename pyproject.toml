@@ -15,3 +15,7 @@ dev = [
 
 [tool.ruff.format]
 quote-style = "single"
+
+[tool.ruff.lint]
+# Temporarily ignore unused imports until everything is setup
+ignore = ["F401"]
