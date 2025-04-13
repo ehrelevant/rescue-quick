@@ -17,6 +17,13 @@ This project's dependencies are managed using [`uv`](https://github.com/astral-s
 uv sync
 ```
 
+Before starting the application, make sure to run the necessary database migrations.
+
+```bash
+# Runs database migrations
+uv run manage.py migrate
+```
+
 For developing the application, a development server may be started which provides features such as automatic reloads.
 
 ```bash
