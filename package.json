@@ -3,7 +3,22 @@
   "version": "1.0.0",
   "description": "Severe flooding is a recurring crisis in the country, leaving countless individuals stranded and faced with the challenge of contacting the proper agencies for rescuing. Calling for rescue is often difficult due to different factors, such as network outages, overwhelming volumes of people loading emergency hotlines, and the desperate fight for survival.",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "dev": "npm run dev:django & npm run dev:tailwind",
+    "dev:django": "uv run manage.py runserver",
+    "dev:tailwind": "npx @tailwindcss/cli -i ./core/static/core/css/input.css -o ./core/static/core/css/output.css --watch",
+    "lint": "npm run lint:ruff && npm run lint:djlint",
+    "lint:fix": "npm run lint:ruff:fix",
+    "fmt": "npm run fmt:ruff && npm run fmt:djlint",
+    "fmt:fix": "npm run fmt:ruff:fix & npm run fmt:djlint:fix",
+    "lint:ruff": "uv run ruff check",
+    "lint:djlint": "uv run djlint . --extension=html.j2 --lint",
+    "lint:ruff:fix": "uv run ruff check --fix",
+    "fmt:ruff": "uv run ruff format --check",
+    "fmt:djlint": "uv run djlint . --extension=html.j2 --check",
+    "fmt:ruff:fix": "uv run ruff format",
+    "fmt:djlint:fix": "uv run djlint . --extension=html.j2 --reformat"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ehrelevant/rescue-quick.git"
