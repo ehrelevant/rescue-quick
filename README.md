@@ -75,7 +75,7 @@ uv run djlint . --extension=html.j2 --reformat
 
 ### Batching Linters & Formatters
 
-You may also choose to batch linting/formatting commands using [`npm`].
+You may also choose to batch linting/formatting commands using `npm`.
 
 ```bash
 # Check linting
