@@ -172,3 +172,9 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Ignores node_modules
+node_modules/
+
+# Ignore TailwindCSS output files
+output.css

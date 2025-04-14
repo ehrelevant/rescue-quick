@@ -1,0 +1,21 @@
+{
+  "name": "rescue-quick",
+  "version": "1.0.0",
+  "description": "Severe flooding is a recurring crisis in the country, leaving countless individuals stranded and faced with the challenge of contacting the proper agencies for rescuing. Calling for rescue is often difficult due to different factors, such as network outages, overwhelming volumes of people loading emergency hotlines, and the desperate fight for survival.",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ehrelevant/rescue-quick.git"
+  },
+  "author": "",
+  "license": "",
+  "bugs": {
+    "url": "https://github.com/ehrelevant/rescue-quick/issues"
+  },
+  "homepage": "https://github.com/ehrelevant/rescue-quick#readme",
+  "dependencies": {
+    "@tailwindcss/cli": "^4.1.3",
+    "tailwindcss": "^4.1.3"
+  }
+}
