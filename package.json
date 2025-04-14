@@ -7,6 +7,7 @@
     "dev": "npm run dev:django & npm run dev:tailwind",
     "dev:django": "uv run manage.py runserver",
     "dev:tailwind": "npx @tailwindcss/cli -i ./core/static/core/css/input.css -o ./core/static/core/css/output.css --watch",
+    "manage": "uv run manage.py",
     "lint": "npm run lint:ruff && npm run lint:djlint",
     "lint:fix": "npm run lint:ruff:fix",
     "fmt": "npm run fmt:ruff && npm run fmt:djlint",
