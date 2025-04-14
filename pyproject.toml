@@ -12,6 +12,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "djlint>=1.36.4",
     "ruff>=0.11.5",
 ]
 
@@ -21,3 +22,6 @@ quote-style = "single"
 [tool.ruff.lint]
 # Temporarily ignore unused imports until everything is setup
 ignore = ["F401"]
+
+[tool.djlint]
+ignore="H006"
