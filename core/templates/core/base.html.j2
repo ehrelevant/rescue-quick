@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="keywords" content="">
+        <meta name="description" content="">
+
+        <link rel="stylesheet" href="{% static 'core/css/styles.css' %}">
+
+        <title>Rescue Quick</title>
+
+        {% block extra_head %}
+        {% endblock extra_head %}
+
+        {% block extra_script %}
+        {% endblock extra_script %}
+    </head>
+
+    <body>
+        {% block header %}
+        {% endblock header %}
+
+        {% block container %}
+            <main>
+                {% block content %}
+                {% endblock content %}
+            </main>
+        {% endblock container %}
+
+        {% block footer %}
+        {% endblock footer %}
+
+        {% block body_script %}
+        {% endblock body_script %}
+    </body>
+</html>

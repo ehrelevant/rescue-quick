@@ -6,4 +6,4 @@ def index(request):
     camera_list = Camera.objects.all()
     context = {'camera_list': camera_list}
 
-    return render(request, 'core/index.html', context)
+    return render(request, 'core/index.html.j2', context)
