@@ -5,7 +5,7 @@
     <img src="{% static 'core/img/placeholder.jpg' %}" alt="placeholder" />
     {% if camera_list %}
         <ul>
-            {% for camera in camera_list %}<li>{{ camera.name }}</li>{% endfor %}
+            {% for camera in camera_list %}<li class="text-blue-500">{{ camera.name }}</li>{% endfor %}
         </ul>
     {% else %}
         <p>No cameras are available.</p>
