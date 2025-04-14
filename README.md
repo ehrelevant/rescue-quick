@@ -10,30 +10,43 @@ This leads to the creation of **Rescue Quick (RQ)**, an AI-powered flood monitor
 
 ## Development
 
-This project's dependencies are managed using [`uv`](https://github.com/astral-sh/uv). To install, please read the  installation guide [here](https://docs.astral.sh/uv/getting-started/installation/).
+### Python Dependencies
+This project's Python dependencies are managed using [`uv`](https://github.com/astral-sh/uv). To install, please read the installation guide [here](https://docs.astral.sh/uv/getting-started/installation/).
 
 ```bash
-# Install/sync dependencies
+# Install/sync Python dependencies
 uv sync
 ```
 
-Before starting the application, make sure to run the necessary database migrations.
+### Node Dependencies
+Similarly, Node.js dependencies are managed using [`npm`](https://www.npmjs.com/). For installation instructions, read [this](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) (it is recommended to install this via [`nvm`](https://github.com/creationix/nvm)).
+
+```bash
+# Install Node dependencies
+npm install
+```
+
+### Migrations
+
+Before starting the application, make sure to run the necessary database migrations. 
 
 ```bash
 # Runs database migrations
 uv run manage.py migrate
 ```
 
-For developing the application, a development server may be started which provides features such as automatic reloads.
+### Development Server
+
+For developing the application, a development server may be started which features automatic reloads.
 
 ```bash
-# Starts a development server at `localhost:8000` by default
-uv run manage.py runserver
+# Starts a Django & Tailwind development server at `localhost:8000` by default
+npm run dev
 ```
 
 ## Linting & Formatting
 
-Before pushing a commit, you may want to run the [`ruff`](https://github.com/astral-sh/ruff) and [`djlint`](https://github.com/djlint/djLint) linter and formatter.
+Before pushing a commit, you may want to run the [`ruff`](https://github.com/astral-sh/ruff) and [`djLint`](https://github.com/djlint/djLint) linters and formatters.
 
 ```bash
 # ========== Ruff ==========
@@ -60,46 +73,20 @@ uv run djlint . --extension=html.j2 --check
 uv run djlint . --extension=html.j2 --reformat
 ```
 
-### Batching Commands
+### Batching Linters & Formatters
 
-You may also choose to batch linting/formatting commands using [`make`](https://www.gnu.org/software/make/).
+You may also choose to batch linting/formatting commands using [`npm`].
 
 ```bash
 # Check linting
-make lint
+npm run lint
 
 # Automatic fixing of simple linting errors
-make lint-fix
+npm run lint:fix
 
 # Check formatting
-make format
+npm run fmt
 
 # Automatic reformatting
-make format-fix
-```
-
-## Activating Virtual Environment
-
-In case you want to interface with Python or any of the libraries directly, you may activate the virtual environment instead of using `uv run`. 
-
-```bash
-# Activate virtual environment (for Linux)
-source .venv/bin/active
-
-# Activate virtual environment (for Windows)
-.venv\Scripts\activate
-```
-
-```bash
-# Starts a development server at `localhost:8000` by default
-python manage.py runserver
-
-# Runs linter (Ruff)
-ruff check
-
-# Automatically fixes simple linting errors (Ruff)
-ruff check --fix
-
-# Runs formatter (Ruff)
-ruff format
+npm run fmt:fix
 ```
