@@ -1,7 +1,8 @@
 # Multiple runners
 # Runs linters
 lint:
-	make -j 2 lint-djlint lint-ruff
+	make lint-djlint 
+	make lint-ruff
 
 # Attempts to fix linting issues
 # Note that djlint does not have this feature
@@ -10,7 +11,8 @@ lint-fix:
 
 # Runs formatters
 format: 
-	make -j 2 format-djlint format-ruff
+	make format-djlint 
+	make format-ruff
 
 # Attempts to fix formatting issues
 format-fix: 
