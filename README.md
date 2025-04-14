@@ -31,20 +31,51 @@ For developing the application, a development server may be started which provid
 uv run manage.py runserver
 ```
 
-
 ## Linting & Formatting
 
-Before pushing a commit, you may want to run the [`ruff`](https://github.com/astral-sh/ruff) linter and formatter.
+Before pushing a commit, you may want to run the [`ruff`](https://github.com/astral-sh/ruff) and [`djlint`](https://github.com/djlint/djLint) linter and formatter.
 
 ```bash
-# Runs linter (Ruff)
+# ========== Ruff ==========
+# Check linting
 uv run ruff check
 
-# Automatically fixes simple linting errors (Ruff)
+# Automatic fixing of simple linting errors
 uv run ruff check --fix
 
-# Runs formatter (Ruff)
+# Check formatting
+uv run ruff format --check
+
+# Automatic reformatting
 uv run ruff format
+
+# ========== djLint ==========
+# Check linting (for `html.j2` files)
+uv run djlint . --extension=html.j2 --lint
+
+# Check formatting (for `html.j2` files)
+uv run djlint . --extension=html.j2 --check
+
+# Automatic reformatting (for `html.j2` files)
+uv run djlint . --extension=html.j2 --reformat
+```
+
+### Batching Commands
+
+You may also choose to batch linting/formatting commands using [`make`](https://www.gnu.org/software/make/).
+
+```bash
+# Check linting
+make lint
+
+# Automatic fixing of simple linting errors
+make lint-fix
+
+# Check formatting
+make format
+
+# Automatic reformatting
+make format-fix
 ```
 
 ## Activating Virtual Environment
