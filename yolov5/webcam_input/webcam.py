@@ -12,13 +12,13 @@ cap = cv2.VideoCapture(0)
 
 # Check if the webcam is opened correctly
 if not cap.isOpened():
-    print("Error: Could not open webcam.")
+    print('Error: Could not open webcam.')
     exit()
 
 # Get webcam properties (width, height, fps)
-width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-fps    = cap.get(cv2.CAP_PROP_FPS)
+fps = cap.get(cv2.CAP_PROP_FPS)
 
 # Set up video writer
 output_path = 'output_cam.mp4'
@@ -39,13 +39,22 @@ while True:
 
     # Draw boxes around detected objects
     for _, row in filtered_results.iterrows():
-        xmin, ymin, xmax, ymax = map(int, [row['xmin'], row['ymin'], row['xmax'], row['ymax']])
+        xmin, ymin, xmax, ymax = map(
+            int, [row['xmin'], row['ymin'], row['xmax'], row['ymax']]
+        )
         label = row['name']
         confidence = row['confidence']
 
         cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
-        cv2.putText(frame, f'{label} {confidence:.2f}', (xmin, ymin - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)
+        cv2.putText(
+            frame,
+            f'{label} {confidence:.2f}',
+            (xmin, ymin - 10),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (255, 255, 0),
+            2,
+        )
 
     # Display the frame with detections
     cv2.imshow('Webcam Detection', frame)

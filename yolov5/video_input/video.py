@@ -14,13 +14,13 @@ cap = cv2.VideoCapture(input_path)
 
 # Check if the video was loaded successfully
 if not cap.isOpened():
-    print("Error: Could not open video file.")
+    print('Error: Could not open video file.')
     exit()
 
 # Get video properties
-width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-fps    = cap.get(cv2.CAP_PROP_FPS)
+fps = cap.get(cv2.CAP_PROP_FPS)
 
 # Set up video writer
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
@@ -40,13 +40,22 @@ while cap.isOpened():
 
     # Draw boxes
     for _, row in filtered_results.iterrows():
-        xmin, ymin, xmax, ymax = map(int, [row['xmin'], row['ymin'], row['xmax'], row['ymax']])
+        xmin, ymin, xmax, ymax = map(
+            int, [row['xmin'], row['ymin'], row['xmax'], row['ymax']]
+        )
         label = row['name']
         confidence = row['confidence']
 
         cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
-        cv2.putText(frame, f'{label} {confidence:.2f}', (xmin, ymin - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)
+        cv2.putText(
+            frame,
+            f'{label} {confidence:.2f}',
+            (xmin, ymin - 10),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (255, 255, 0),
+            2,
+        )
 
     out.write(frame)
     # Display the frame (optional)
