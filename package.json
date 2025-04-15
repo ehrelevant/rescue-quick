@@ -8,6 +8,7 @@
     "dev:django": "uv run manage.py runserver",
     "dev:tailwind": "npx @tailwindcss/cli -i ./core/static/core/css/input.css -o ./core/static/core/css/output.css --watch",
     "manage": "uv run manage.py",
+    "build": "npm run build:tailwind && npm run build:static",
     "lint": "npm run lint:ruff && npm run lint:djlint",
     "lint:fix": "npm run lint:ruff:fix",
     "fmt": "npm run fmt:ruff && npm run fmt:djlint",
@@ -18,7 +19,9 @@
     "fmt:ruff": "uv run ruff format --check",
     "fmt:djlint": "uv run djlint . --extension=html.j2 --check",
     "fmt:ruff:fix": "uv run ruff format",
-    "fmt:djlint:fix": "uv run djlint . --extension=html.j2 --reformat"
+    "fmt:djlint:fix": "uv run djlint . --extension=html.j2 --reformat",
+    "build:tailwind": "npx @tailwindcss/cli -i ./core/static/core/css/input.css -o ./core/static/core/css/output.css",
+    "build:static": "uv run manage.py collectstatic --no-input -i input.css -i django-browser-reload"
   },
   "repository": {
     "type": "git",
