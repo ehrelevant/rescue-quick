@@ -178,3 +178,6 @@ node_modules/
 
 # Ignore TailwindCSS output files
 output.css
+
+# Ignore compiled staticfiles
+staticfiles/
