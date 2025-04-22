@@ -6,6 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="keywords" content="">
         <meta name="description" content="">
+        {# <link rel="stylesheet" href="{% static 'core/css/input.css' %}"> #}
         <link rel="stylesheet" href="{% static 'core/css/output.css' %}">
         <title>Rescue Quick</title>
         {% block extra_head %}
@@ -14,6 +15,7 @@
         {% endblock extra_script %}
     </head>
     <body>
+        {% include 'core/nav.html.j2' %}
         {% block header %}
         {% endblock header %}
         {% block container %}
