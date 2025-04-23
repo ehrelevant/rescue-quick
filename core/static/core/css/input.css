@@ -8,5 +8,13 @@
 
 @theme {
     --font-sans : "DM Sans";
+    --color-red : #f54255;
+    --color-red-light : #FDE1E4;
+    --color-green : #05AD94;
+    --color-green-light : #CDEFEA;
+    --color-yellow : #FFD971;
+    --color-yellow-light : #FFF7E3;
+    --color-gray : #666768;
+    --color-gray-light : #F0F0F0;
 }
 
