@@ -10,6 +10,7 @@
     --font-sans : "DM Sans";
     --color-red : #f54255;
     --color-red-light : #FDE1E4;
+    --color-red-light-50 : #FBC9CE;
     --color-green : #05AD94;
     --color-green-light : #CDEFEA;
     --color-yellow : #FFD971;
@@ -17,4 +18,6 @@
     --color-gray : #666768;
     --color-gray-light : #F0F0F0;
 }
+
+@custom-variant hover (&:hover);
 
