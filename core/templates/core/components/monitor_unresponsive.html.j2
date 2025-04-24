@@ -1,7 +1,8 @@
 <div class="bg-white shadow-md p-6 rounded-md w-full text-gray-300">
     <div class="grid grid-cols-5 gap-2 mb-4">
         <div class="flex gap-2 col-span-2">
-            <div class="aspect-square h-[2rem] w-auto animate-pulse bg-gray-light rounded-full flex items-center justify-center tooltip tooltip-right" data-tip="Monitor is unresponsive!">
+            <div class="aspect-square h-[2rem] w-auto animate-pulse bg-gray-light rounded-full flex items-center justify-center tooltip tooltip-right"
+                 data-tip="Monitor is unresponsive!">
                 <div class="w-[50%] h-[50%] bg-gray rounded-full"></div>
             </div>
             <div class="flex flex-col">
@@ -19,9 +20,9 @@
             <div class="flex items-center gap-2 mb-2">
                 <div class="p-1 bg-gray-300 rounded-full flex items-center aspect-square h-fit w-auto justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="white"
-                            class="size-3">
+                         viewBox="0 0 24 24"
+                         fill="white"
+                         class="size-3">
                         <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd" />
                     </svg>
                 </div>
@@ -42,9 +43,9 @@
             <div class="flex items-center gap-2 mb-2">
                 <div class="p-1 bg-gray-300 rounded-full flex items-center aspect-square h-fit w-auto justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="white"
-                            class="size-3">
+                         viewBox="0 0 24 24"
+                         fill="white"
+                         class="size-3">
                         <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd" />
                     </svg>
                 </div>
@@ -52,14 +53,14 @@
             </div>
             <div class="flex flex-col gap-2">
                 <div class="flex items-end gap-2">
-                    <span class="text-3xl font-bold">0</span>
+                    <span class="text-3xl font-bold">{{ flood_level }}</span>
                     <span class="font-medium text-gray-500">Meters</span>
                 </div>
                 <div class="tooltip tooltip-bottom" data-tip="Caution Level: X meters">
                     <progress class="progress progress-error w-full"
-                                value="40"
-                                max="100"
-                                style="color: var(--color-gray-200)"></progress>
+                              value="40"
+                              max="100"
+                              style="color: var(--color-gray-200)"></progress>
                 </div>
             </div>
         </div>

@@ -76,27 +76,27 @@
                 <div class="flex-grow"></div>
                 <a href="#"><span class="font-bold">View All</span></a>
             </div>
-
             {# Monitors #}
             <div class="overflow-y-auto flex-grow flex flex-col bg-[#F2F4F8] rounded-xl p-4 pr-6">
                 <div class="grid grid-cols-2 gap-3">
-                    {% include 'core/components/monitor_unresponsive.html.j2' with location=monitors.0.location camera_name=monitors.0.camera_name date=monitors.0.date num_people=monitors.0.num_people num_pets=monitors.0.num_pets flood_level=monitors.0.flood_level max_flood_level=monitors.0.max_flood_level %}
+                    {% include 'core/components/monitor_unresponsive.html.j2' with location=monitors.0.location camera_name=monitors.0.camera_name date=monitors.0.date num_people=monitors.0.num_people num_pets=monitors.0.num_pets flood_level=sensor_data.current_depth max_flood_level=monitors.0.max_flood_level %}
                 </div>
             </div>
             <div></div>
         </div>
         <div class="bg-white h-full overflow-y-hidden flex flex-col">
             <div class="tabs tabs-border">
-                <input type="radio" name="my_tabs_2" class="tab" aria-label="Pending Operations" checked="checked"/>
+                <input type="radio"
+                       name="my_tabs_2"
+                       class="tab"
+                       aria-label="Pending Operations"
+                       checked="checked" />
                 <div class="tab-content flex-grow border-base-300 bg-base-100 p-10">Tab content 1</div>
-
-                <input type="radio" name="my_tabs_2" class="tab" aria-label="Tab 2"/>
+                <input type="radio" name="my_tabs_2" class="tab" aria-label="Tab 2" />
                 <div class="tab-content flex-grow border-base-300 bg-base-100 p-10">Tab content 2</div>
-
                 <input type="radio" name="my_tabs_2" class="tab" aria-label="Tab 3" />
                 <div class="tab-content border-base-300 bg-base-100 p-10">Tab content 3</div>
             </div>
-            
             <div></div>
         </div>
     </div>
