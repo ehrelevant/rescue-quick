@@ -4,7 +4,7 @@
   "description": "Severe flooding is a recurring crisis in the country, leaving countless individuals stranded and faced with the challenge of contacting the proper agencies for rescuing. Calling for rescue is often difficult due to different factors, such as network outages, overwhelming volumes of people loading emergency hotlines, and the desperate fight for survival.",
   "main": "index.js",
   "scripts": {
-    "dev": "npm run dev:django & npm run dev:tailwind",
+    "dev": "npx concurrently -c \"#b4ff65,#93c5fd\" \"npm run dev:django\" \"npm run dev:tailwind\" --names=django,tailwind",
     "dev:django": "uv run manage.py runserver",
     "dev:tailwind": "npx @tailwindcss/cli -i ./core/static/core/css/input.css -o ./core/static/core/css/output.css --watch",
     "manage": "uv run manage.py",
@@ -12,7 +12,7 @@
     "lint": "npm run lint:ruff && npm run lint:djlint",
     "lint:fix": "npm run lint:ruff:fix",
     "fmt": "npm run fmt:ruff && npm run fmt:djlint",
-    "fmt:fix": "npm run fmt:ruff:fix & npm run fmt:djlint:fix",
+    "fmt:fix": "npx concurrently -c \"#fdba74,#b4ff65\" \"npm run fmt:ruff:fix\" \"npm run fmt:djlint:fix\" --names=ruff,djlint",
     "lint:ruff": "uv run ruff check",
     "lint:djlint": "uv run djlint . --extension=html.j2 --lint",
     "lint:ruff:fix": "uv run ruff check --fix",
