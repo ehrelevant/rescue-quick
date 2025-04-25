@@ -1,0 +1,16 @@
+<div class="skeleton bg-red border-md shadow-md p-6 rounded-md w-full flex flex-col gap-2 tooltip tooltip-bottom tooltip-open" data-tip="A lot of time has already passed!">
+    <div class="flex gap-2 items-center">
+        <div class="aspect-square h-[2rem] w-auto animate-pulse bg-white-light rounded-full flex items-center justify-center">
+            <div class="w-[50%] h-[50%] bg-white rounded-full"></div>
+        </div>
+        <div class="flex flex-row gap-2">
+            <span class="font-medium text-white">{{camera_name}}</span>
+            <span class="font-medium text-white-light">{{time_elapsed}}</span>
+        </div>
+    </div>
+    <span class="text-2xl text-white font-bold">{{location}}</span>
+    <div class="grid grid-cols-2 gap-2">
+        <button class="btn bg-white text-red hover:shadow-md w-full">Signal Rescue</button>
+        <button class="btn btn-outline border-white text-white hover:shadow-md w-full tooltip tooltip-left" data-tip="Only press when already safe!">Mark as Safe</button>
+    </div>
+</div>

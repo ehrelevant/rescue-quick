@@ -17,6 +17,7 @@
     --color-yellow-light : #FFF7E3;
     --color-gray : #666768;
     --color-gray-light : #F0F0F0;
+    --color-white-light : rgb(255,255,255, 0.5);
 }
 
 @custom-variant hover (&:hover);
