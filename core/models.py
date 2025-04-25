@@ -4,6 +4,7 @@ from django.db import models
 class SensorCamera(models.Model):
     pair_id = models.IntegerField(primary_key=True)
     current_depth = models.FloatField()
+    threshold_depth = models.FloatField(default=0.5)
     location = models.TextField()
     flood_number = models.IntegerField()
     timestamp = models.DateTimeField(auto_now=True)
