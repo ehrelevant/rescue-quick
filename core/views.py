@@ -12,8 +12,8 @@ import json
 def index(request):
     # Currently just taking the frst entry (i.e. assume only 1 camera)
     # Should eventually become a list of the first entry of each unique pair_id
-    sensor_data = SensorCamera.objects.order_by('-timestamp').first()
-    print(sensor_data)
+    # sensor_data = SensorCamera.objects.order_by('-timestamp').first()
+    # print(sensor_data)
     context = {
         'monitors': [
             {
