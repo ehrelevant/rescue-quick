@@ -4,13 +4,14 @@
             <div class="w-[50%] h-[50%] bg-red rounded-full"></div>
         </div>
         <div class="flex flex-row gap-2">
-            <span class="font-medium">{{camera_name}}</span>
-            <span class="font-medium text-gray-500">{{time_elapsed}}</span>
+            <span class="font-medium">{{ camera_name }}</span>
+            <span class="font-medium text-gray-500">{{ time_elapsed }}</span>
         </div>
     </div>
-    <span class="text-2xl font-bold">{{location}}</span>
+    <span class="text-2xl font-bold">{{ location }}</span>
     <div class="grid grid-cols-2 gap-2">
         <button class="btn bg-red text-white border-red hover:shadow-md w-full">Signal Rescue</button>
-        <button class="btn btn-outline border-red text-red hover:shadow-md w-full tooltip tooltip-left" data-tip="Only press when already safe!">Mark as Safe</button>
+        <button class="btn btn-outline border-red text-red hover:shadow-md w-full tooltip tooltip-left"
+                data-tip="Only press when already safe!">Mark as Safe</button>
     </div>
 </div>

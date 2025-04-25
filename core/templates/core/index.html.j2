@@ -2,10 +2,8 @@
 {% load static %}
 {% block content %}
     <div class="h-[90vh] p-6 pl-[5%] pr-[5%] grid grid-cols-3 gap-4">
-
         {# Left Panel#}
         <div class="col-span-2 h-full overflow-y-hidden flex flex-col gap-3">
-
             {# Monitors Header #}
             <div class="flex items-end">
                 <span class="text-3xl font-bold">My Monitors</span>
@@ -20,7 +18,6 @@
                     Add Monitors
                 </button>
             </div>
-
             {# Quick Stats #}
             <div class="flex flex-wrap items-end gap-2">
                 <div class="skeleton hover:scale-110 transition linear duration-100 flex p-3 pl-4 pr-4 gap-3 items-center bg-green-light rounded-md">
@@ -37,7 +34,6 @@
                         <br>
                     Safe</span>
                 </div>
-                
                 <div class="skeleton hover:scale-110 transition linear duration-100 flex p-3 pl-4 pr-4 gap-3 items-center bg-yellow-light rounded-md">
                     <div class="p-2 rounded bg-yellow rounded-full">
                         <svg xmlns="http://www.w3.org/2000/svg"
@@ -52,7 +48,6 @@
                         <br>
                     Caution</span>
                 </div>
-
                 <div class="skeleton hover:scale-110 transition linear duration-100 flex p-3 pl-4 pr-4 gap-3 items-center bg-red-light rounded-md">
                     <div class="p-2 rounded bg-red rounded-full">
                         <svg xmlns="http://www.w3.org/2000/svg"
@@ -67,7 +62,6 @@
                         <br>
                     Danger</span>
                 </div>
-
                 <div class="skeleton hover:scale-110 transition linear duration-100 flex p-3 pl-4 pr-4 gap-3 items-center bg-gray-light rounded-md">
                     <div class="p-2 rounded bg-gray rounded-full">
                         <svg xmlns="http://www.w3.org/2000/svg"
@@ -85,53 +79,49 @@
                 <div class="flex-grow"></div>
                 <a href="#"><span class="font-bold">View All</span></a>
             </div>
-
             {# Monitors Container #}
             <div class="overflow-y-auto flex-grow flex flex-col bg-[#F2F4F8] rounded-xl p-4 pr-6">
                 <div class="grid grid-cols-2 gap-3">
                     {% include 'core/components/monitor_danger.html.j2' with location=monitors.0.location camera_name=monitors.0.camera_name date=monitors.0.date num_people=monitors.0.num_people num_pets=monitors.0.num_pets flood_level=monitors.0.flood_level max_flood_level=monitors.0.max_flood_level %}
                 </div>
             </div>
-
-            <div></div> {# Stop point for `flex-grow` #}
+            <div></div>
+            {# Stop point for `flex-grow` #}
         </div>
-        
         {# Right Panel #}
         <div class="flex flex-col overflow-y-hidden h-full">
-
             {# Operations #}
             <div class="tabs tabs-border overflow-y-hidden">
-
                 {# Pending Operations #}
-                <input type="radio" name="my_tabs" class="tab font-bold mb-4 border-red" aria-label="Pending Operations" checked="checked"/>
+                <input type="radio"
+                       name="my_tabs"
+                       class="tab font-bold mb-4 border-red"
+                       aria-label="Pending Operations"
+                       checked="checked" />
                 <div class="tab-content h-full overflow-y-auto">
                     <div class="flex flex-col gap-3">
-
                         {% include 'core/components/op_new.html.j2' with camera_name=operations.0.camera_name time_elapsed=operations.0.time_elapsed location=operations.0.location %}
                         {% include 'core/components/op_timeout.html.j2' with camera_name=operations.0.camera_name time_elapsed=operations.0.time_elapsed location=operations.0.location %}
                         {% include 'core/components/op_deployed.html.j2' with camera_name=operations.0.camera_name time_elapsed=operations.0.time_elapsed location=operations.0.location %}
-                        
                         {# For scrolling #}
-                        <div class="bg-white h-[100px] w-full">
-                        </div>
+                        <div class="bg-white h-[100px] w-full"></div>
                     </div>
                 </div>
-                
                 {# Completed Operations #}
-                <input type="radio" name="my_tabs" class="tab" aria-label="Completed Operations" />
+                <input type="radio"
+                       name="my_tabs"
+                       class="tab"
+                       aria-label="Completed Operations" />
                 <div class="tab-content h-full flex-grow overflow-y-auto">
                     <div class="flex flex-col gap-3">
-                    
                         {% include 'core/components/op_done.html.j2' with camera_name=done.0.camera_name date=done.0.date marked_safe=done.0.marked_safe location=done.0.location num_people=done.0.num_people num_pets=done.0.num_pets flood_level=done.0.flood_level %}
-
                         {# For scrolling #}
-                        <div class="bg-white h-[100px] w-full">
-                        </div>
+                        <div class="bg-white h-[100px] w-full"></div>
                     </div>
                 </div>
             </div>
-            
-            <div></div> {# Stop point for `flex-grow` #}
+            <div></div>
+            {# Stop point for `flex-grow` #}
         </div>
     </div>
 {% endblock content %}
