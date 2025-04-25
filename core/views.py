@@ -45,7 +45,7 @@ def index(request):
                 'flood_level' : 0.65,
             }
         ],
-        'sensor_data': sensor_data,
+        # 'sensor_data': sensor_data,
     }
     return render(request, 'core/index.html.j2', context)
 
