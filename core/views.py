@@ -53,7 +53,7 @@ def index(request):
 # Remove csrf_exempt eventually
 @csrf_exempt
 @require_POST
-def sensor_data(request):
+def post_sensor_data(request):
     # print("=== Incoming Request ===")
     # print("Method:", request.method)
     # print("Headers:", dict(request.headers))
