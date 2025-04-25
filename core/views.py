@@ -63,13 +63,18 @@ def post_sensor_data(request):
     try:
         data = json.loads(request.body)
         print('Parsed JSON:', data)
+        
         SensorCamera.objects.update_or_create(
             pair_id=data['pair_id'],
             defaults={
                 'current_depth': data['current_depth'],
-                'location': data['location'],
-                'flood_number': data['flood_number'],
+                'flood_number': data['flood_number']
             },
+            create_defaults={
+                'current_depth': data['current_depth'],
+                'flood_number': data['flood_number'],
+                'location': ''
+            }
         )
         return JsonResponse({'status': 'success'})
     except Exception as e:
