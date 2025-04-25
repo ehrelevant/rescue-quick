@@ -14,7 +14,7 @@ class SensorCamera(models.Model):
 
 class CameraLogs(models.Model):
     # Missing Image Data
-    camera_id = models.IntegerField(primary_key=True)
+    camera_id = models.ForeignKey(SensorCamera, on_delete=models.CASCADE)
     flood_number = models.IntegerField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
@@ -23,7 +23,7 @@ class CameraLogs(models.Model):
 
 
 class SensorLogs(models.Model):
-    sensor_id = models.IntegerField(primary_key=True)
+    sensor_id = models.ForeignKey(SensorCamera, on_delete=models.CASCADE)
     depth = models.FloatField()
     timestamp = models.DateTimeField(auto_now_add=True)
     flood_number = models.IntegerField()
