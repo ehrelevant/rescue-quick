@@ -29,4 +29,4 @@ class SensorLogs(models.Model):
     flood_number = models.IntegerField()
 
     def __str__(self):
-        return f'Sensr {self.sensor_id}'
+        return f'Sensor {self.sensor_id}'
