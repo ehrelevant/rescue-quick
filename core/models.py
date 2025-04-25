@@ -6,7 +6,7 @@ class SensorCamera(models.Model):
     current_depth = models.FloatField()
     location = models.TextField()
     flood_number = models.IntegerField()
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f'{self.location}: Time {self.timestamp} - Depth {self.current_depth}'
