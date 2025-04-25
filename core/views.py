@@ -1,6 +1,6 @@
 from django.shortcuts import render
 
-from .models import SensorCamera
+from .models import SensorCamera, SensorLogs
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -63,8 +63,8 @@ def post_sensor_data(request):
     try:
         data = json.loads(request.body)
         print('Parsed JSON:', data)
-        
-        SensorCamera.objects.update_or_create(
+
+        sensor_camera, _ = SensorCamera.objects.update_or_create(
             pair_id=data['pair_id'],
             defaults={
                 'current_depth': data['current_depth'],
@@ -76,6 +76,14 @@ def post_sensor_data(request):
                 'location': ''
             }
         )
+
+        # Missing threshold condition
+        SensorLogs.objects.create(
+            sensor_id=sensor_camera,
+            depth=sensor_camera.current_depth,
+            flood_number=sensor_camera.flood_number                
+        )
+
         return JsonResponse({'status': 'success'})
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
