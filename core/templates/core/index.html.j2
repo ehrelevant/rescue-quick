@@ -1,5 +1,8 @@
 {% extends "core/base.html.j2" %}
 {% load static %}
+{% block header %}
+    {% include 'core/nav.html.j2' with selected='dashboard' %}
+{% endblock %}
 {% block content %}
     <div class="h-[90vh] p-6 pl-[5%] pr-[5%] grid grid-cols-3 gap-4">
         {# Left Panel#}

@@ -49,6 +49,28 @@ def index(request):
     }
     return render(request, 'core/index.html.j2', context)
 
+def feed(request, monitor_id:int):
+    context = {
+        'monitor_id' : monitor_id,
+        'location' : 'Alumni Engineers Centennial Hall, 4F',
+        'camera_name' : 'ESP3123',
+        'date' : 'April 20, 2025',
+        'marked_safe' : '11:00 AM',
+        'num_people' : 2,
+        'num_pets' : 3,
+        'flood_level' : 0.65,
+        
+        # For testing of pagination lang
+        'prev' : (monitor_id - 1) % 3,
+        'next' : ((monitor_id % 3) + 1) % 3,
+    }
+
+    if monitor_id == 1:
+        return render(request, 'core/feed/danger.html.j2', context)
+    elif monitor_id == 2:
+        return render(request, 'core/feed/caution.html.j2', context)
+    else:
+        return render(request, 'core/feed/safe.html.j2', context)
 
 # Remove csrf_exempt eventually
 @csrf_exempt
