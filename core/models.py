@@ -1,5 +1,10 @@
 from django.db import models
 
+from storages.backends.s3boto3 import S3Boto3Storage
+
+class CameraImageStorage(S3Boto3Storage):
+    location="camera"
+    file_overwrite=False
 
 class SensorCamera(models.Model):
     pair_id = models.IntegerField(primary_key=True)
@@ -14,10 +19,10 @@ class SensorCamera(models.Model):
 
 
 class CameraLogs(models.Model):
-    # Missing Image Data
     camera_id = models.ForeignKey(SensorCamera, on_delete=models.CASCADE)
     flood_number = models.IntegerField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    image = models.ImageField(storage=CameraImageStorage)
 
     def __str__(self):
         return f'Camera {self.camera_id}'
