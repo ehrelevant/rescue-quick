@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('core', '0002_cameralogs_id_sensorlogs_id_and_more'),
     ]

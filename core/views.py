@@ -26,43 +26,43 @@ def index(request):
                 'max_flood_level': 1.75,
             }
         ],
-        'operations' : [
+        'operations': [
             {
-                'location' : 'Alumni Engineers Centennial Hall, 4F',
-                'camera_name' : 'ESP3123',
-                'date' : 'April 20, 2025',
-                'time_elapsed' : '2 min ago',
+                'location': 'Alumni Engineers Centennial Hall, 4F',
+                'camera_name': 'ESP3123',
+                'date': 'April 20, 2025',
+                'time_elapsed': '2 min ago',
             }
         ],
-        'done' : [
+        'done': [
             {
-                'location' : 'Alumni Engineers Centennial Hall, 4F',
-                'camera_name' : 'ESP3123',
-                'date' : 'April 20, 2025',
-                'marked_safe' : '11:00 AM',
-                'num_people' : 2,
-                'num_pets' : 3,
-                'flood_level' : 0.65,
+                'location': 'Alumni Engineers Centennial Hall, 4F',
+                'camera_name': 'ESP3123',
+                'date': 'April 20, 2025',
+                'marked_safe': '11:00 AM',
+                'num_people': 2,
+                'num_pets': 3,
+                'flood_level': 0.65,
             }
         ],
         # 'sensor_data': sensor_data,
     }
     return render(request, 'core/index.html.j2', context)
 
-def feed(request, monitor_id:int):
+
+def feed(request, monitor_id: int):
     context = {
-        'monitor_id' : monitor_id,
-        'location' : 'Alumni Engineers Centennial Hall, 4F',
-        'camera_name' : 'ESP3123',
-        'date' : 'April 20, 2025',
-        'marked_safe' : '11:00 AM',
-        'num_people' : 2,
-        'num_pets' : 3,
-        'flood_level' : 0.65,
-        
+        'monitor_id': monitor_id,
+        'location': 'Alumni Engineers Centennial Hall, 4F',
+        'camera_name': 'ESP3123',
+        'date': 'April 20, 2025',
+        'marked_safe': '11:00 AM',
+        'num_people': 2,
+        'num_pets': 3,
+        'flood_level': 0.65,
         # For testing of pagination lang
-        'prev' : (monitor_id - 1) % 3,
-        'next' : ((monitor_id % 3) + 1) % 3,
+        'prev': (monitor_id - 1) % 3,
+        'next': ((monitor_id % 3) + 1) % 3,
     }
 
     if monitor_id == 1:
@@ -71,6 +71,7 @@ def feed(request, monitor_id:int):
         return render(request, 'core/feed/caution.html.j2', context)
     else:
         return render(request, 'core/feed/safe.html.j2', context)
+
 
 # Remove csrf_exempt eventually
 @csrf_exempt
@@ -90,20 +91,20 @@ def post_sensor_data(request):
             pair_id=data['pair_id'],
             defaults={
                 'current_depth': data['current_depth'],
-                'flood_number': data['flood_number']
+                'flood_number': data['flood_number'],
             },
             create_defaults={
                 'current_depth': data['current_depth'],
                 'flood_number': data['flood_number'],
-                'location': ''
-            }
+                'location': '',
+            },
         )
 
         # Missing threshold condition
         SensorLogs.objects.create(
             sensor_id=sensor_camera,
             depth=sensor_camera.current_depth,
-            flood_number=sensor_camera.flood_number                
+            flood_number=sensor_camera.flood_number,
         )
 
         return JsonResponse({'status': 'success'})
