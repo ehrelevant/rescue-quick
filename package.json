@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "npx concurrently -c \"#b4ff65,#93c5fd\" \"npm run dev:django\" \"npm run dev:tailwind\" --names=django,tailwind",
-    "dev:django": "uv run manage.py runserver",
+    "dev:django": "PYTHONUNBUFFERED=True uv run manage.py runserver",
     "dev:tailwind": "npx @tailwindcss/cli -i ./core/static/core/css/input.css -o ./core/static/core/css/output.css --watch",
     "manage": "uv run manage.py",
     "build": "npm run build:tailwind && npm run build:static",
