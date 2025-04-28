@@ -131,14 +131,18 @@ def get_flood_status(request: HttpRequest):
             sensor_cam = SensorCamera.objects.get(pair_id=pair_id_int)
 
             # Get the latest indicator
-            indicator: str = str(sensor_cam.current_depth >= sensor_cam.threshold_depth).lower()
+            indicator: str = str(
+                sensor_cam.current_depth >= sensor_cam.threshold_depth
+            ).lower()
 
             # Return as a JSON Response
             return JsonResponse({'status': 'success', 'indicator': indicator})
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     else:
-        return JsonResponse({'status': 'error', 'message': 'Invalid pair id'}, status=400)
+        return JsonResponse(
+            {'status': 'error', 'message': 'Invalid pair id'}, status=400
+        )
 
 
 @csrf_exempt
@@ -149,10 +153,12 @@ def post_image(request: HttpRequest, pair_id: str):
         sensor_cam: SensorCamera | None = None
         data = json.loads(request.body)
         img_data = data.get('image')
-        
+
         if not img_data:
-            return JsonResponse({'status': 'error', "message": "No image uploaded"}, status=400)
-        
+            return JsonResponse(
+                {'status': 'error', 'message': 'No image uploaded'}, status=400
+            )
+
         # Convert base64 image to actual image
         decoded_img = base64.b64decode(img_data)
         img_name = f'{uuid4()}.jpg'
@@ -163,15 +169,17 @@ def post_image(request: HttpRequest, pair_id: str):
             pair_id_int: int = int(pair_id)
             sensor_cam = SensorCamera.objects.get(pair_id=pair_id_int)
         else:
-            return JsonResponse({'status': 'error', 'message': 'Invalid camera ID'}, status=400)
+            return JsonResponse(
+                {'status': 'error', 'message': 'Invalid camera ID'}, status=400
+            )
 
         # Add image to camera logs
         CameraLogs.objects.create(
-            camera_id=sensor_cam,
-            flood_number=sensor_cam.flood_number,
-            image=img_file
+            camera_id=sensor_cam, flood_number=sensor_cam.flood_number, image=img_file
         )
 
-        return JsonResponse({"status": "success", "message": "Upload successful", "filename": img_name})
+        return JsonResponse(
+            {'status': 'success', 'message': 'Upload successful', 'filename': img_name}
+        )
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)

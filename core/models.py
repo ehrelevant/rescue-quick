@@ -2,9 +2,11 @@ from django.db import models
 
 from storages.backends.s3boto3 import S3Boto3Storage
 
+
 class CameraImageStorage(S3Boto3Storage):
-    location="camera"
-    file_overwrite=False
+    location = 'camera'
+    file_overwrite = False
+
 
 class SensorCamera(models.Model):
     pair_id = models.IntegerField(primary_key=True)

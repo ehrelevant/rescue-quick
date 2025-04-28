@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('core', '0004_sensorcamera_threshold_depth'),
     ]
@@ -14,7 +13,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='cameralogs',
             name='image',
-            field=models.ImageField(default=None, storage=core.models.CameraImageStorage, upload_to=''),
+            field=models.ImageField(
+                default=None, storage=core.models.CameraImageStorage, upload_to=''
+            ),
             preserve_default=False,
         ),
     ]
