@@ -7,7 +7,6 @@ from django.http import HttpRequest
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
-from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from uuid import uuid4
 
