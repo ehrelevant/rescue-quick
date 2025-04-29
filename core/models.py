@@ -10,10 +10,10 @@ class CameraImageStorage(S3Boto3Storage):
 
 class SensorCamera(models.Model):
     pair_id = models.IntegerField(primary_key=True)
-    current_depth = models.FloatField()
+    current_depth = models.FloatField(null=True)
     threshold_depth = models.FloatField(default=0.5)
-    location = models.TextField()
-    flood_number = models.IntegerField()
+    location = models.TextField(null=True)
+    flood_number = models.IntegerField(null=True)
     timestamp = models.DateTimeField(auto_now=True)
 
     def __str__(self):
