@@ -3,8 +3,7 @@ from django.shortcuts import render
 
 from .models import SensorCamera, SensorLogs, CameraLogs
 
-from django.http import HttpRequest
-from django.http import JsonResponse
+from django.http import HttpRequest, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 from django.core.files.base import ContentFile
@@ -181,5 +180,40 @@ def post_image(request: HttpRequest, pair_id: str):
         return JsonResponse(
             {'status': 'success', 'message': 'Upload successful', 'filename': img_name}
         )
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+@csrf_exempt
+@require_GET
+def get_available_pair_id(_):
+    try:
+        last_sensor_cam: SensorCamera | None = SensorCamera.objects.order_by('-pair_id').first()
+        available_id = last_sensor_cam.pair_id + 1 if last_sensor_cam else 1
+
+        return JsonResponse({'status': 'success', 'pair_id': available_id})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+@csrf_exempt
+@require_POST
+def post_reserve_pair_id(request: HttpRequest):
+    print("=== Incoming Request ===")
+    print("Method:", request.method)
+    print("Headers:", dict(request.headers))
+    print("Raw Body:", request.body)
+    print("========================")
+
+    try:
+        data = json.loads(request.body)
+        print('Parsed JSON:', data)
+        target_pair_id = data['pair_id']
+        if SensorCamera.objects.filter(pair_id=target_pair_id).exists():
+            return JsonResponse({'status': 'error', 'message': 'Pair ID has already been assigned.'}, status=400)
+
+        SensorCamera.objects.create(
+            pair_id=data['pair_id']
+        )
+        
+        return JsonResponse({'status': 'success'})
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
