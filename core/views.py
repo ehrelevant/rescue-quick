@@ -211,7 +211,8 @@ def post_reserve_pair_id(request: HttpRequest):
             return JsonResponse({'status': 'error', 'message': 'Pair ID has already been assigned.'}, status=400)
 
         SensorCamera.objects.create(
-            pair_id=data['pair_id']
+            pair_id=target_pair_id,
+            pair_name=f'Camera {target_pair_id}'
         )
         
         return JsonResponse({'status': 'success'})
