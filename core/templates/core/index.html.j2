@@ -85,7 +85,9 @@
             {# Monitors Container #}
             <div class="overflow-y-auto flex-grow flex flex-col bg-[#F2F4F8] rounded-xl p-4 pr-6">
                 <div class="grid grid-cols-2 gap-3">
-                    {% include 'core/components/monitor_danger.html.j2' with location=monitors.0.location camera_name=monitors.0.camera_name date=monitors.0.date num_people=monitors.0.num_people num_pets=monitors.0.num_pets flood_level=monitors.0.flood_level max_flood_level=monitors.0.max_flood_level %}
+                    {% for monitor in monitors %}
+                        {% include 'core/components/monitor_danger.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date num_people=monitor.num_people num_pets=monitor.num_pets flood_level=monitor.flood_level max_flood_level=monitor.max_flood_level %}
+                    {% endfor %}
                 </div>
             </div>
             <div></div>

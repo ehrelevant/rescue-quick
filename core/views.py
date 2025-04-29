@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 from django.core.files.base import ContentFile
 from uuid import uuid4
+from datetime import datetime
 
 import json
 
@@ -17,6 +18,21 @@ def index(request: HttpRequest):
     # Should eventually become a list of the first entry of each unique pair_id
     # sensor_data = SensorCamera.objects.order_by('-timestamp').first()
     # print(sensor_data)
+
+    sensor_cameras = SensorCamera.objects.all()
+    monitors = [
+        {
+            'location': sensor_camera.location,
+            'camera_name': sensor_camera.pair_name,
+            'date': sensor_camera.timestamp.strftime(r'%B %d, %Y'),
+            'num_people': 1,
+            'num_pets': 2,
+            'flood_level': sensor_camera.current_depth,
+            'max_flood_level': sensor_camera.threshold_depth
+        } for sensor_camera in sensor_cameras
+    ]
+    print(monitors)
+
     context = {
         'monitors': [
             {
@@ -27,7 +43,8 @@ def index(request: HttpRequest):
                 'num_pets': 3,
                 'flood_level': 0.65,
                 'max_flood_level': 1.75,
-            }
+            },
+            *monitors
         ],
         'operations': [
             {
