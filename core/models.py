@@ -9,6 +9,12 @@ class CameraImageStorage(S3Boto3Storage):
 
 
 class SensorCamera(models.Model):
+    class MonitorState(models.TextChoices):
+        DANGEROUS = "Dangerous"
+        CAUTION = "Caution"
+        SAFE = "Safe"
+        UNRESPONSIVE = "Unresponsive"
+
     pair_id = models.IntegerField(primary_key=True)
     pair_name = models.CharField()
     current_depth = models.FloatField(null=True)
@@ -16,6 +22,7 @@ class SensorCamera(models.Model):
     location = models.TextField(null=True)
     flood_number = models.IntegerField(null=True)
     timestamp = models.DateTimeField(auto_now=True)
+    monitor_state = models.CharField(choices=MonitorState, default=MonitorState.UNRESPONSIVE)
 
     def __str__(self):
         return f'{self.location}: Time {self.timestamp} - Depth {self.current_depth}'
