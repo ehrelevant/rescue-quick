@@ -3,7 +3,7 @@ from django.shortcuts import render
 
 from .models import SensorCamera, SensorLogs, CameraLogs
 
-from django.http import HttpRequest, JsonResponse
+from django.http import HttpRequest, HttpResponseNotFound, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 from django.core.files.base import ContentFile
@@ -71,6 +71,14 @@ def index(request: HttpRequest):
 
 
 def feed(request: HttpRequest, monitor_id: int):
+    last_camera_log = CameraLogs.objects.filter(camera_id=1).order_by('-timestamp').first()
+    print(last_camera_log)
+    if not last_camera_log:
+        return HttpResponseNotFound('Camera not found.')
+
+    processed_image_url = last_camera_log.processed_image_url 
+    print(processed_image_url)
+
     context = {
         'monitor_id': monitor_id,
         'location': 'Alumni Engineers Centennial Hall, 4F',
@@ -80,6 +88,7 @@ def feed(request: HttpRequest, monitor_id: int):
         'num_people': 2,
         'num_pets': 3,
         'flood_level': 0.65,
+        'processed_image': processed_image_url,
         # For testing of pagination lang
         'prev': (monitor_id - 1) % 3,
         'next': ((monitor_id % 3) + 1) % 3,
