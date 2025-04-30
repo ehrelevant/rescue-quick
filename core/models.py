@@ -7,6 +7,9 @@ class CameraImageStorage(S3Boto3Storage):
     location = 'camera'
     file_overwrite = False
 
+class CameraImageProcessedStorage(S3Boto3Storage):
+    location = 'processed'
+    file_overwrite = False
 
 class SensorCamera(models.Model):
     class MonitorState(models.TextChoices):
@@ -34,6 +37,7 @@ class CameraLogs(models.Model):
     flood_number = models.IntegerField()
     timestamp = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(storage=CameraImageStorage)
+    image_processed = models.ImageField(storage=CameraImageProcessedStorage)
 
     def __str__(self):
         return f'Camera {self.camera_id}'
