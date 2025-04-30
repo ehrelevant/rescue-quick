@@ -19,7 +19,7 @@ def index(request: HttpRequest):
     # sensor_data = SensorCamera.objects.order_by('-timestamp').first()
     # print(sensor_data)
 
-    sensor_cameras = SensorCamera.objects.all()
+    dangerous_sensor_cameras = SensorCamera.objects.filter(monitor_state=SensorCamera.MonitorState.DANGEROUS).all()
     monitors = [
         {
             'location': sensor_camera.location,
@@ -30,7 +30,7 @@ def index(request: HttpRequest):
             'flood_level': sensor_camera.current_depth,
             'max_flood_level': sensor_camera.threshold_depth,
         }
-        for sensor_camera in sensor_cameras
+        for sensor_camera in dangerous_sensor_cameras
     ]
     print(monitors)
 
