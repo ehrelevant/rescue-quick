@@ -39,6 +39,16 @@ class CameraLogs(models.Model):
     image = models.ImageField(storage=CameraImageStorage)
     image_processed = models.ImageField(storage=CameraImageProcessedStorage)
 
+    @property
+    def raw_image_url(self) -> str:
+        storage = CameraImageProcessedStorage()
+        return storage.url(self.image_processed.name)
+
+    @property
+    def processed_image_url(self) -> str:
+        storage = CameraImageProcessedStorage()
+        return storage.url(self.image_processed.name)
+
     def __str__(self):
         return f'Camera {self.camera_id}'
 
