@@ -189,9 +189,12 @@ def post_image(request: HttpRequest, pair_id: str):
                 {'status': 'error', 'message': 'Invalid camera ID'}, status=400
             )
 
+        # TODO: Add function for processing images 
+        processed_file = img_file
+
         # Add image to camera logs
         CameraLogs.objects.create(
-            camera_id=sensor_cam, flood_number=sensor_cam.flood_number, image=img_file
+            camera_id=sensor_cam, flood_number=sensor_cam.flood_number, image=img_file, image_processed=processed_file
         )
 
         return JsonResponse(
