@@ -12,14 +12,18 @@ from datetime import datetime
 
 import json
 
+from ultralytics import YOLO
+import cv2
+from PIL import Image
+from io import BytesIO
+import numpy as np
 
 def index(request: HttpRequest):
     # Currently just taking the frst entry (i.e. assume only 1 camera)
     # Should eventually become a list of the first entry of each unique pair_id
-    # sensor_data = SensorCamera.objects.order_by('-timestamp').first()
-    # print(sensor_data)
 
-    dangerous_sensor_cameras = SensorCamera.objects.filter(monitor_state=SensorCamera.MonitorState.DANGEROUS).all()
+    # dangerous_sensor_cameras = SensorCamera.objects.filter(monitor_state=SensorCamera.MonitorState.DANGEROUS).all()
+    sensor_cameras= SensorCamera.objects.all()
     monitors = [
         {
             'location': sensor_camera.location,
@@ -30,7 +34,7 @@ def index(request: HttpRequest):
             'flood_level': sensor_camera.current_depth,
             'max_flood_level': sensor_camera.threshold_depth,
         }
-        for sensor_camera in dangerous_sensor_cameras
+        for sensor_camera in sensor_cameras
     ]
     print(monitors)
 
@@ -71,24 +75,36 @@ def index(request: HttpRequest):
 
 
 def feed(request: HttpRequest, monitor_id: int):
+    last_camera_log = CameraLogs.objects.filter(camera_id=1).order_by('-timestamp').first()
+    last_sensor_log = SensorLogs.objects.filter(sensor_id=1).order_by('-timestamp').first()
+    sensor_camera = SensorCamera.objects.filter(pair_id=1).first()
+    print(last_camera_log)
+    print(last_sensor_log)
+    print(sensor_camera)
+
+    if not last_camera_log:
+        return HttpResponseNotFound('Camera not found.')
+    if not last_sensor_log:
+        return HttpResponseNotFound('Sensor not found.')
+    
     # last_camera_log = CameraLogs.objects.filter(camera_id=1).order_by('-timestamp').first()
     # print(last_camera_log)
     # if not last_camera_log:
     #     return HttpResponseNotFound('Camera not found.')
 
-    # processed_image_url = last_camera_log.processed_image_url 
-    processed_image_url = 'https://t4.ftcdn.net/jpg/01/62/69/25/360_F_162692511_SidIKVCDnt5UKHPNqpCb2MSKvfBlx1lG.jpg'
+    processed_image_url = last_camera_log.processed_image_url 
+    #processed_image_url = 'https://t4.ftcdn.net/jpg/01/62/69/25/360_F_162692511_SidIKVCDnt5UKHPNqpCb2MSKvfBlx1lG.jpg'
     print(processed_image_url)
 
     context = {
         'monitor_id': monitor_id,
-        'location': 'Alumni Engineers Centennial Hall, 4F',
-        'camera_name': 'ESP3123',
-        'date': 'April 20, 2025',
+        'location': sensor_camera.location,
+        'camera_name': sensor_camera.pair_name,
+        'date': last_camera_log.timestamp,
         'marked_safe': '11:00 AM',
         'num_people': 2,
         'num_pets': 3,
-        'flood_level': 0.65,
+        'flood_level': last_sensor_log.depth,
         'processed_image': processed_image_url,
         # For testing of pagination lang
         'prev': (monitor_id - 1) % 3,
@@ -107,12 +123,6 @@ def feed(request: HttpRequest, monitor_id: int):
 @csrf_exempt
 @require_POST
 def post_sensor_data(request: HttpRequest):
-    # print("=== Incoming Request ===")
-    # print("Method:", request.method)
-    # print("Headers:", dict(request.headers))
-    # print("Raw Body:", request.body)
-    # print("========================")
-
     try:
         data = json.loads(request.body)
         print('Parsed JSON:', data)
@@ -120,22 +130,23 @@ def post_sensor_data(request: HttpRequest):
         sensor_camera, _ = SensorCamera.objects.update_or_create(
             pair_id=data['pair_id'],
             defaults={
-                'current_depth': data['current_depth'],
-                'flood_number': data['flood_number'],
+                'current_depth': max(data['current_depth'], 0),
             },
             create_defaults={
-                'current_depth': data['current_depth'],
-                'flood_number': data['flood_number'],
-                'location': '',
+                'pair_name': "Pair 1",
+                'current_depth': max(data['current_depth'], 0),
+                'threshold_depth': 10,
+                'location': 'Depths of Hell',
+                'flood_number': 1,
             },
         )
 
-        # Missing threshold condition
-        SensorLogs.objects.create(
-            sensor_id=sensor_camera,
-            depth=sensor_camera.current_depth,
-            flood_number=sensor_camera.flood_number,
-        )
+        if sensor_camera.current_depth > sensor_camera.threshold_depth:
+            SensorLogs.objects.create(
+                sensor_id=sensor_camera,
+                depth=sensor_camera.current_depth,
+                flood_number=sensor_camera.flood_number,
+            )
 
         return JsonResponse({'status': 'success'})
     except Exception as e:
@@ -158,7 +169,7 @@ def get_flood_status(request: HttpRequest):
 
             # Get the latest indicator
             indicator: str = str(
-                sensor_cam.current_depth >= sensor_cam.threshold_depth
+                sensor_cam.current_depth > sensor_cam.threshold_depth
             ).lower()
 
             # Return as a JSON Response
@@ -199,12 +210,20 @@ def post_image(request: HttpRequest, pair_id: str):
                 {'status': 'error', 'message': 'Invalid camera ID'}, status=400
             )
 
-        # TODO: Add function for processing images 
-        processed_file = img_file
+        # Convert to a format YOLO can use
+        pil_image = Image.open(BytesIO(decoded_img)).convert("RGB")
+        img_array = np.array(pil_image)
+        # Choose and apply model
+        model = YOLO("yolo11n.pt")
+        model_results = model(img_array)
+        rendered_img = model_results[0].plot()
+        # Encode image
+        _, encoded_img = cv2.imencode(".jpg", rendered_img)
+        img_processed_file = ContentFile(encoded_img.tobytes(), name=f'processed_{img_name}.jpg')
 
         # Add image to camera logs
         CameraLogs.objects.create(
-            camera_id=sensor_cam, flood_number=sensor_cam.flood_number, image=img_file, image_processed=processed_file
+            camera_id=sensor_cam, flood_number=sensor_cam.flood_number, image=img_file, image_processed=img_processed_file
         )
 
         return JsonResponse(
