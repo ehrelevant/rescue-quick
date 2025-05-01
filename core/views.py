@@ -91,8 +91,8 @@ def feed(request: HttpRequest, pair_id: int | None = None):
     sensor_camera = SensorCamera.objects.get(pk=pair_id)    
 
     # Determines next/previous pair_id
-    next_sensor_camera = SensorCamera.objects.filter(pair_id__gt=pair_id).last() or SensorCamera.objects.filter(pair_id__lt=pair_id).first()
-    prev_sensor_camera = SensorCamera.objects.filter(pair_id__lt=pair_id).first() or SensorCamera.objects.filter(pair_id__gt=pair_id).last()
+    next_sensor_camera = SensorCamera.objects.filter(pair_id__gt=pair_id).first() or SensorCamera.objects.filter(pair_id__lt=pair_id).first()
+    prev_sensor_camera = SensorCamera.objects.filter(pair_id__lt=pair_id).last() or SensorCamera.objects.filter(pair_id__gt=pair_id).last()
     next_pair_id = pair_id
     prev_pair_id = pair_id
     if next_sensor_camera:
