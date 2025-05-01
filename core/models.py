@@ -26,6 +26,8 @@ class SensorCamera(models.Model):
     threshold_depth = models.FloatField(default=1)
     location = models.TextField()
     flood_number = models.IntegerField(default=1)
+    person_count = models.IntegerField(default=0)
+    pet_count = models.IntegerField(default=0)
     timestamp = models.DateTimeField(auto_now=True)
     monitor_state = models.CharField(
         choices=MonitorState, default=MonitorState.SAFE
