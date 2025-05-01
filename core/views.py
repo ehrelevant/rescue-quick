@@ -92,8 +92,8 @@ def feed(request: HttpRequest, monitor_id: int):
     # if not last_camera_log:
     #     return HttpResponseNotFound('Camera not found.')
 
-    processed_image_url = last_camera_log.processed_image_url 
-    #processed_image_url = 'https://t4.ftcdn.net/jpg/01/62/69/25/360_F_162692511_SidIKVCDnt5UKHPNqpCb2MSKvfBlx1lG.jpg'
+    # processed_image_url = last_camera_log.processed_image_url 
+    processed_image_url = 'https://t4.ftcdn.net/jpg/01/62/69/25/360_F_162692511_SidIKVCDnt5UKHPNqpCb2MSKvfBlx1lG.jpg'
     print(processed_image_url)
 
     context = {
