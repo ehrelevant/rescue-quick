@@ -1,9 +1,12 @@
 {% load static %}
-<div class="h-[10vh] w-full p-3 flex flex-row gap-4 items-center border-b-1 border-gray-200">
+<div class="h-[64px] lg:[10vh] w-full p-3 flex flex-row gap-4 justify-center lg:justify-start items-center border-b-1 border-gray-200">
     <img alt="RQ Logo"
-         class="h-full"
+         class="h-full hidden lg:inline-block"
          src="{% static 'core/img/rq-logo.png' %}">
-    <a href="/">
+    <img alt="RQ Logo"
+        class="h-[75%] lg:hidden"
+        src="{% static 'core/img/rq.svg' %}">
+    <a class="hidden lg:inline-block" href="/">
         {% if selected == 'dashboard' %}
             <button class="btn btn-sm pt-4 pb-4 rounded-lg flex items-center gap-4 btn-active">
                 <svg xmlns="http://www.w3.org/2000/svg"
@@ -28,7 +31,7 @@
             </button>
         {% endif %}
     </a>
-    <a href="/feed/1/">
+    <a class="hidden lg:inline-block" href="/feed/1/">
         {% if selected == 'feed' %}
             <button class="btn btn-sm pt-4 pb-4 rounded-lg flex items-center gap-4 btn-active">
                 <svg xmlns="http://www.w3.org/2000/svg"
@@ -51,6 +54,7 @@
             </button>
         {% endif %}
     </a>
+    <a class="hidden lg:inline-block">
     {% if selected == 'monitors' %}
         <button class="btn btn-sm pt-4 pb-4 rounded-lg flex items-center gap-4 btn-active">
             <svg xmlns="http://www.w3.org/2000/svg"
@@ -72,4 +76,5 @@
             Configure Monitors
         </button>
     {% endif %}
+    </a>
 </div>
