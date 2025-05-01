@@ -29,9 +29,7 @@ class SensorCamera(models.Model):
     person_count = models.IntegerField(default=0)
     pet_count = models.IntegerField(default=0)
     timestamp = models.DateTimeField(auto_now=True)
-    monitor_state = models.CharField(
-        choices=MonitorState, default=MonitorState.SAFE
-    )
+    monitor_state = models.CharField(choices=MonitorState, default=MonitorState.SAFE)
     state_change_timestamp = models.DateTimeField(default=timezone.now)
 
     @property
@@ -57,7 +55,7 @@ class SensorCamera(models.Model):
             return f'{d} days ago'
         else:
             return self.state_change_timestamp.strftime(r'on %Y/%m/%d')
-    
+
     @property
     def is_long_time(self) -> bool:
         # Checks if at least an hour has passed

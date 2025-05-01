@@ -58,7 +58,8 @@
                     <span class="text-3xl font-bold">{{ flood_level }}</span>
                     <span class="font-medium text-gray-500">Meters</span>
                 </div>
-                <div class="tooltip tooltip-bottom" data-tip="Caution Level: {{ max_flood_level }} meters">
+                <div class="tooltip tooltip-bottom"
+                     data-tip="Caution Level: {{ max_flood_level }} meters">
                     <progress class="progress progress-error w-full"
                               value="{{ flood_level }}"
                               max="{{ max_flood_level }}"

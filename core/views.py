@@ -18,6 +18,7 @@ from PIL import Image
 from io import BytesIO
 import numpy as np
 
+
 def index(request: HttpRequest):
     dangerous_sensor_cameras = SensorCamera.objects.filter(
         monitor_state=SensorCamera.MonitorState.DANGEROUS
@@ -30,15 +31,18 @@ def index(request: HttpRequest):
     ).all()
 
     def collect_monitors(sensor_cameras: QuerySet[SensorCamera, SensorCamera]):
-        return [{
-            'location': sensor_camera.location,
-            'camera_name': sensor_camera.pair_name,
-            'date': sensor_camera.timestamp.strftime(r'%B %d, %Y'),
-            'num_people': sensor_camera.person_count,
-            'num_pets': sensor_camera.pet_count,
-            'flood_level': sensor_camera.current_depth,
-            'max_flood_level': sensor_camera.threshold_depth,
-        } for sensor_camera in sensor_cameras]
+        return [
+            {
+                'location': sensor_camera.location,
+                'camera_name': sensor_camera.pair_name,
+                'date': sensor_camera.timestamp.strftime(r'%B %d, %Y'),
+                'num_people': sensor_camera.person_count,
+                'num_pets': sensor_camera.pet_count,
+                'flood_level': sensor_camera.current_depth,
+                'max_flood_level': sensor_camera.threshold_depth,
+            }
+            for sensor_camera in sensor_cameras
+        ]
 
     monitors = {
         'danger': collect_monitors(dangerous_sensor_cameras),
@@ -46,14 +50,19 @@ def index(request: HttpRequest):
         'safe': collect_monitors(safe_sensor_cameras),
     }
 
-    operations = [{
-        'location': sensor_camera.location,
-        'camera_name': sensor_camera.pair_name,
-        'date': sensor_camera.timestamp.strftime(r'%B %d, %Y'),
-        'time_elapsed': sensor_camera.elapsed_time,
-        'is_long_time': sensor_camera.is_long_time,
-        'is_deployed': False
-    } for sensor_camera in dangerous_sensor_cameras.order_by('state_change_timestamp').all()]
+    operations = [
+        {
+            'location': sensor_camera.location,
+            'camera_name': sensor_camera.pair_name,
+            'date': sensor_camera.timestamp.strftime(r'%B %d, %Y'),
+            'time_elapsed': sensor_camera.elapsed_time,
+            'is_long_time': sensor_camera.is_long_time,
+            'is_deployed': False,
+        }
+        for sensor_camera in dangerous_sensor_cameras.order_by(
+            'state_change_timestamp'
+        ).all()
+    ]
 
     context = {
         'monitors': monitors,
@@ -64,7 +73,7 @@ def index(request: HttpRequest):
                 'date': 'May 2, 2025',
                 'time_elapsed': '17 minutes ago',
                 'is_long_time': False,
-                'is_deployed': False
+                'is_deployed': False,
             },
             {
                 'location': 'Location Y',
@@ -72,7 +81,7 @@ def index(request: HttpRequest):
                 'date': 'May 2, 2025',
                 'time_elapsed': '2 hours ago',
                 'is_long_time': True,
-                'is_deployed': False
+                'is_deployed': False,
             },
             {
                 'location': 'Location Z',
@@ -80,9 +89,9 @@ def index(request: HttpRequest):
                 'date': 'May 2, 2025',
                 'time_elapsed': '2 hours ago',
                 'is_long_time': True,
-                'is_deployed': True
+                'is_deployed': True,
             },
-            *operations
+            *operations,
         ],
         'done': [
             {
@@ -98,8 +107,8 @@ def index(request: HttpRequest):
         'counts': {
             'danger': dangerous_sensor_cameras.count(),
             'caution': caution_sensor_cameras.count(),
-            'safe': safe_sensor_cameras.count()
-        }
+            'safe': safe_sensor_cameras.count(),
+        },
     }
     return render(request, 'core/index.html.j2', context)
 
@@ -183,9 +192,9 @@ def post_sensor_data(request: HttpRequest):
                 'current_depth': max(data['current_depth'], 0),
             },
             create_defaults={
-                'pair_name': f'Camera {data['pair_id']}',
+                'pair_name': f'Camera {data["pair_id"]}',
                 'current_depth': max(data['current_depth'], 0),
-                'location': f'Location {data['pair_id']}',
+                'location': f'Location {data["pair_id"]}',
             },
         )
 
@@ -259,19 +268,24 @@ def post_image(request: HttpRequest, pair_id: str):
             )
 
         # Convert to a format YOLO can use
-        pil_image = Image.open(BytesIO(decoded_img)).convert("RGB")
+        pil_image = Image.open(BytesIO(decoded_img)).convert('RGB')
         img_array = np.array(pil_image)
         # Choose and apply model
-        model = YOLO("yolo11n.pt")
+        model = YOLO('yolo11n.pt')
         model_results = model(img_array)
         rendered_img = model_results[0].plot()
         # Encode image
-        _, encoded_img = cv2.imencode(".jpg", rendered_img)
-        img_processed_file = ContentFile(encoded_img.tobytes(), name=f'processed_{img_name}.jpg')
+        _, encoded_img = cv2.imencode('.jpg', rendered_img)
+        img_processed_file = ContentFile(
+            encoded_img.tobytes(), name=f'processed_{img_name}.jpg'
+        )
 
         # Add image to camera logs
         CameraLogs.objects.create(
-            camera_id=sensor_cam, flood_number=sensor_cam.flood_number, image=img_file, image_processed=img_processed_file
+            camera_id=sensor_cam,
+            flood_number=sensor_cam.flood_number,
+            image=img_file,
+            image_processed=img_processed_file,
         )
 
         return JsonResponse(
