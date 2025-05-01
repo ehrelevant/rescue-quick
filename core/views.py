@@ -19,9 +19,6 @@ from io import BytesIO
 import numpy as np
 
 def index(request: HttpRequest):
-    # Currently just taking the frst entry (i.e. assume only 1 camera)
-    # Should eventually become a list of the first entry of each unique pair_id
-
     dangerous_sensor_cameras = SensorCamera.objects.filter(
         monitor_state=SensorCamera.MonitorState.DANGEROUS
     ).all()
