@@ -40,6 +40,8 @@ class CameraLogs(models.Model):
     camera_id = models.ForeignKey(SensorCamera, on_delete=models.CASCADE)
     flood_number = models.IntegerField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    person_count = models.IntegerField(default=0)
+    pet_count = models.IntegerField(default=0)
     image = models.ImageField(storage=CameraImageStorage)
     image_processed = models.ImageField(storage=CameraImageProcessedStorage)
 
