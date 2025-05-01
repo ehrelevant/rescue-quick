@@ -34,8 +34,8 @@ def index(request: HttpRequest):
             'location': sensor_camera.location,
             'camera_name': sensor_camera.pair_name,
             'date': sensor_camera.timestamp.strftime(r'%B %d, %Y'),
-            'num_people': 1,
-            'num_pets': 2,
+            'num_people': sensor_camera.person_count,
+            'num_pets': sensor_camera.pet_count,
             'flood_level': sensor_camera.current_depth,
             'max_flood_level': sensor_camera.threshold_depth,
         } for sensor_camera in sensor_cameras]
@@ -124,8 +124,8 @@ def feed(request: HttpRequest, pair_id: int | None = None):
         'marked_safe': sensor_camera.state_change_timestamp.strftime(
             r'%Y/%m/%d %H:%M:%S $p'
         ),
-        'num_people': 123,
-        'num_pets': 123,
+        'num_people': sensor_camera.person_count,
+        'num_pets': sensor_camera.pet_count,
         'flood_level': sensor_camera.current_depth,
         'processed_image': processed_image_url,
         # For testing of pagination lang
