@@ -19,7 +19,9 @@ def index(request: HttpRequest):
     # sensor_data = SensorCamera.objects.order_by('-timestamp').first()
     # print(sensor_data)
 
-    dangerous_sensor_cameras = SensorCamera.objects.filter(monitor_state=SensorCamera.MonitorState.DANGEROUS).all()
+    dangerous_sensor_cameras = SensorCamera.objects.filter(
+        monitor_state=SensorCamera.MonitorState.DANGEROUS
+    ).all()
     monitors = [
         {
             'location': sensor_camera.location,
@@ -69,30 +71,39 @@ def index(request: HttpRequest):
     }
     return render(request, 'core/index.html.j2', context)
 
+
 def feed(request: HttpRequest, pair_id: int | None = None):
     if not pair_id:
         sensor_camera = SensorCamera.objects.first()
-        
+
         # Return a 404 error if the table is empty
         if not sensor_camera:
             return HttpResponseNotFound('No cameras found')
-        
+
         # For consistency, redirect to page
         return redirect(f'/feed/{sensor_camera.pair_id}/')
 
-    last_camera_log = CameraLogs.objects.filter(camera_id=pair_id).order_by('-timestamp').first()
+    last_camera_log = (
+        CameraLogs.objects.filter(camera_id=pair_id).order_by('-timestamp').first()
+    )
 
     # Returns a 404 error if the queried pair_id does not exist
     if not last_camera_log:
         return HttpResponseNotFound('Camera not found')
 
-    processed_image_url = last_camera_log.processed_image_url 
+    processed_image_url = last_camera_log.processed_image_url
 
-    sensor_camera = SensorCamera.objects.get(pk=pair_id)    
+    sensor_camera = SensorCamera.objects.get(pk=pair_id)
 
     # Determines next/previous pair_id
-    next_sensor_camera = SensorCamera.objects.filter(pair_id__gt=pair_id).first() or SensorCamera.objects.filter(pair_id__lt=pair_id).first()
-    prev_sensor_camera = SensorCamera.objects.filter(pair_id__lt=pair_id).last() or SensorCamera.objects.filter(pair_id__gt=pair_id).last()
+    next_sensor_camera = (
+        SensorCamera.objects.filter(pair_id__gt=pair_id).first()
+        or SensorCamera.objects.filter(pair_id__lt=pair_id).first()
+    )
+    prev_sensor_camera = (
+        SensorCamera.objects.filter(pair_id__lt=pair_id).last()
+        or SensorCamera.objects.filter(pair_id__gt=pair_id).last()
+    )
     next_pair_id = pair_id
     prev_pair_id = pair_id
     if next_sensor_camera:
@@ -100,18 +111,19 @@ def feed(request: HttpRequest, pair_id: int | None = None):
     if prev_sensor_camera:
         prev_pair_id = prev_sensor_camera.pair_id
 
-    # Collates values 
+    # Collates values
     context = {
         'pair_id': pair_id,
         'location': sensor_camera.location,
         'camera_name': sensor_camera.pair_name,
         'date': sensor_camera.timestamp.strftime(r'%Y/%m/%d'),
-        'marked_safe': sensor_camera.state_change_timestamp.strftime(r'%Y/%m/%d %H:%M:%S $p'),
+        'marked_safe': sensor_camera.state_change_timestamp.strftime(
+            r'%Y/%m/%d %H:%M:%S $p'
+        ),
         'num_people': 123,
         'num_pets': 123,
         'flood_level': sensor_camera.current_depth,
         'processed_image': processed_image_url,
-        
         # For testing of pagination lang
         'prev': prev_pair_id,
         'next': next_pair_id,
@@ -221,12 +233,15 @@ def post_image(request: HttpRequest, pair_id: str):
                 {'status': 'error', 'message': 'Invalid camera ID'}, status=400
             )
 
-        # TODO: Add function for processing images 
+        # TODO: Add function for processing images
         processed_file = img_file
 
         # Add image to camera logs
         CameraLogs.objects.create(
-            camera_id=sensor_cam, flood_number=sensor_cam.flood_number, image=img_file, image_processed=processed_file
+            camera_id=sensor_cam,
+            flood_number=sensor_cam.flood_number,
+            image=img_file,
+            image_processed=processed_file,
         )
 
         return JsonResponse(

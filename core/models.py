@@ -3,20 +3,23 @@ from django.db import models
 from storages.backends.s3boto3 import S3Boto3Storage
 from django.utils import timezone
 
+
 class CameraImageStorage(S3Boto3Storage):
     location = 'camera'
     file_overwrite = False
+
 
 class CameraImageProcessedStorage(S3Boto3Storage):
     location = 'processed'
     file_overwrite = False
 
+
 class SensorCamera(models.Model):
     class MonitorState(models.TextChoices):
-        DANGEROUS = "Dangerous"
-        CAUTION = "Caution"
-        SAFE = "Safe"
-        UNRESPONSIVE = "Unresponsive"
+        DANGEROUS = 'Dangerous'
+        CAUTION = 'Caution'
+        SAFE = 'Safe'
+        UNRESPONSIVE = 'Unresponsive'
 
     pair_id = models.IntegerField(primary_key=True)
     pair_name = models.CharField()
@@ -25,7 +28,9 @@ class SensorCamera(models.Model):
     location = models.TextField(null=True)
     flood_number = models.IntegerField(null=True)
     timestamp = models.DateTimeField(auto_now=True)
-    monitor_state = models.CharField(choices=MonitorState, default=MonitorState.UNRESPONSIVE)
+    monitor_state = models.CharField(
+        choices=MonitorState, default=MonitorState.UNRESPONSIVE
+    )
     state_change_timestamp = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
