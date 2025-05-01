@@ -1,4 +1,5 @@
 import base64
+from django.db.models import QuerySet
 from django.shortcuts import redirect, render
 
 from .models import SensorCamera, SensorLogs, CameraLogs
@@ -28,8 +29,8 @@ def index(request: HttpRequest):
         monitor_state=SensorCamera.MonitorState.SAFE
     ).all()
 
-    monitors = [
-        {
+    def collect_monitors(sensor_cameras: QuerySet[SensorCamera, SensorCamera]):
+        return [{
             'location': sensor_camera.location,
             'camera_name': sensor_camera.pair_name,
             'date': sensor_camera.timestamp.strftime(r'%B %d, %Y'),
@@ -37,9 +38,13 @@ def index(request: HttpRequest):
             'num_pets': 2,
             'flood_level': sensor_camera.current_depth,
             'max_flood_level': sensor_camera.threshold_depth,
-        }
-        for sensor_camera in dangerous_sensor_cameras
-    ]
+        } for sensor_camera in sensor_cameras]
+
+    monitors = {
+        'danger': collect_monitors(dangerous_sensor_cameras),
+        'caution': collect_monitors(caution_sensor_cameras),
+        'safe': collect_monitors(safe_sensor_cameras),
+    }
 
     context = {
         'monitors': monitors,

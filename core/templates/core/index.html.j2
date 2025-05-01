@@ -85,8 +85,14 @@
             {# Monitors Container #}
             <div class="overflow-y-auto flex-grow flex flex-col bg-[#F2F4F8] rounded-xl p-4 pr-6">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                    {% for monitor in monitors %}
+                    {% for monitor in monitors.danger %}
                         {% include 'core/components/monitor_danger.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date num_people=monitor.num_people num_pets=monitor.num_pets flood_level=monitor.flood_level max_flood_level=monitor.max_flood_level %}
+                    {% endfor %}
+                    {% for monitor in monitors.caution %}
+                        {% include 'core/components/monitor_caution.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date num_people=monitor.num_people num_pets=monitor.num_pets flood_level=monitor.flood_level max_flood_level=monitor.max_flood_level %}
+                    {% endfor %}
+                    {% for monitor in monitors.safe %}
+                        {% include 'core/components/monitor_safe.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date num_people=monitor.num_people num_pets=monitor.num_pets flood_level=monitor.flood_level max_flood_level=monitor.max_flood_level %}
                     {% endfor %}
                 </div>
             </div>
