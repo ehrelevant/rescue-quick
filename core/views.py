@@ -71,12 +71,13 @@ def index(request: HttpRequest):
 
 
 def feed(request: HttpRequest, monitor_id: int):
-    last_camera_log = CameraLogs.objects.filter(camera_id=1).order_by('-timestamp').first()
-    print(last_camera_log)
-    if not last_camera_log:
-        return HttpResponseNotFound('Camera not found.')
+    # last_camera_log = CameraLogs.objects.filter(camera_id=1).order_by('-timestamp').first()
+    # print(last_camera_log)
+    # if not last_camera_log:
+    #     return HttpResponseNotFound('Camera not found.')
 
-    processed_image_url = last_camera_log.processed_image_url 
+    # processed_image_url = last_camera_log.processed_image_url 
+    processed_image_url = 'https://t4.ftcdn.net/jpg/01/62/69/25/360_F_162692511_SidIKVCDnt5UKHPNqpCb2MSKvfBlx1lG.jpg'
     print(processed_image_url)
 
     context = {
