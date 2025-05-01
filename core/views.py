@@ -3,12 +3,12 @@ from django.shortcuts import render
 
 from .models import SensorCamera, SensorLogs, CameraLogs
 
-from django.http import HttpRequest
-from django.http import JsonResponse
+from django.http import HttpRequest, HttpResponseNotFound, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 from django.core.files.base import ContentFile
 from uuid import uuid4
+from datetime import datetime
 
 import json
 
@@ -18,6 +18,22 @@ def index(request: HttpRequest):
     # Should eventually become a list of the first entry of each unique pair_id
     # sensor_data = SensorCamera.objects.order_by('-timestamp').first()
     # print(sensor_data)
+
+    dangerous_sensor_cameras = SensorCamera.objects.filter(monitor_state=SensorCamera.MonitorState.DANGEROUS).all()
+    monitors = [
+        {
+            'location': sensor_camera.location,
+            'camera_name': sensor_camera.pair_name,
+            'date': sensor_camera.timestamp.strftime(r'%B %d, %Y'),
+            'num_people': 1,
+            'num_pets': 2,
+            'flood_level': sensor_camera.current_depth,
+            'max_flood_level': sensor_camera.threshold_depth,
+        }
+        for sensor_camera in dangerous_sensor_cameras
+    ]
+    print(monitors)
+
     context = {
         'monitors': [
             {
@@ -28,7 +44,8 @@ def index(request: HttpRequest):
                 'num_pets': 3,
                 'flood_level': 0.65,
                 'max_flood_level': 1.75,
-            }
+            },
+            *monitors,
         ],
         'operations': [
             {
@@ -49,12 +66,19 @@ def index(request: HttpRequest):
                 'flood_level': 0.65,
             }
         ],
-        # 'sensor_data': sensor_data,
     }
     return render(request, 'core/index.html.j2', context)
 
 
 def feed(request: HttpRequest, monitor_id: int):
+    last_camera_log = CameraLogs.objects.filter(camera_id=1).order_by('-timestamp').first()
+    print(last_camera_log)
+    if not last_camera_log:
+        return HttpResponseNotFound('Camera not found.')
+
+    processed_image_url = last_camera_log.processed_image_url 
+    print(processed_image_url)
+
     context = {
         'monitor_id': monitor_id,
         'location': 'Alumni Engineers Centennial Hall, 4F',
@@ -64,6 +88,7 @@ def feed(request: HttpRequest, monitor_id: int):
         'num_people': 2,
         'num_pets': 3,
         'flood_level': 0.65,
+        'processed_image': processed_image_url,
         # For testing of pagination lang
         'prev': (monitor_id - 1) % 3,
         'next': ((monitor_id % 3) + 1) % 3,
@@ -173,13 +198,60 @@ def post_image(request: HttpRequest, pair_id: str):
                 {'status': 'error', 'message': 'Invalid camera ID'}, status=400
             )
 
+        # TODO: Add function for processing images 
+        processed_file = img_file
+
         # Add image to camera logs
         CameraLogs.objects.create(
-            camera_id=sensor_cam, flood_number=sensor_cam.flood_number, image=img_file
+            camera_id=sensor_cam, flood_number=sensor_cam.flood_number, image=img_file, image_processed=processed_file
         )
 
         return JsonResponse(
             {'status': 'success', 'message': 'Upload successful', 'filename': img_name}
         )
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
+@csrf_exempt
+@require_GET
+def get_available_pair_id(_):
+    """
+    Returns a pair ID that is currently unreserved.
+    Specifically, this returns the largest pair ID plus 1.
+    """
+    try:
+        last_sensor_cam: SensorCamera | None = SensorCamera.objects.order_by(
+            '-pair_id'
+        ).first()
+        available_id = last_sensor_cam.pair_id + 1 if last_sensor_cam else 1
+
+        return JsonResponse({'status': 'success', 'pair_id': available_id})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
+@csrf_exempt
+@require_POST
+def post_reserve_pair_id(request: HttpRequest):
+    """
+    Reserves the requested pair ID in the database.
+    This allows a pair ID to be held by a sensor without sending sensor data.
+    """
+    try:
+        data = json.loads(request.body)
+        target_pair_id = data['pair_id']
+        if SensorCamera.objects.filter(pair_id=target_pair_id).exists():
+            # Errors if requested pair ID is already reserved for a different resource
+            return JsonResponse(
+                {'status': 'error', 'message': 'Pair ID has already been assigned.'},
+                status=400,
+            )
+
+        SensorCamera.objects.create(
+            pair_id=target_pair_id, pair_name=f'Camera {target_pair_id}'
+        )
+
+        return JsonResponse({'status': 'success'})
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
