@@ -3,30 +3,64 @@ from django.db import models
 from storages.backends.s3boto3 import S3Boto3Storage
 from django.utils import timezone
 
+
 class CameraImageStorage(S3Boto3Storage):
     location = 'camera'
     file_overwrite = False
+
 
 class CameraImageProcessedStorage(S3Boto3Storage):
     location = 'processed'
     file_overwrite = False
 
+
 class SensorCamera(models.Model):
     class MonitorState(models.TextChoices):
-        DANGEROUS = "Dangerous"
-        CAUTION = "Caution"
-        SAFE = "Safe"
-        UNRESPONSIVE = "Unresponsive"
+        DANGEROUS = 'Dangerous'
+        CAUTION = 'Caution'
+        SAFE = 'Safe'
 
     pair_id = models.IntegerField(primary_key=True)
     pair_name = models.CharField()
     current_depth = models.FloatField(null=True)
-    threshold_depth = models.FloatField(default=0.5)
-    location = models.TextField(null=True)
-    flood_number = models.IntegerField(null=True)
+    threshold_depth = models.FloatField(default=1)
+    location = models.TextField()
+    flood_number = models.IntegerField(default=1)
+    person_count = models.IntegerField(default=0)
+    pet_count = models.IntegerField(default=0)
     timestamp = models.DateTimeField(auto_now=True)
-    monitor_state = models.CharField(choices=MonitorState, default=MonitorState.UNRESPONSIVE)
+    monitor_state = models.CharField(choices=MonitorState, default=MonitorState.SAFE)
     state_change_timestamp = models.DateTimeField(default=timezone.now)
+
+    @property
+    def elapsed_time(self) -> str:
+        delta = timezone.now() - self.state_change_timestamp
+        s = delta.seconds
+        d = delta.days
+        if s <= 1:
+            return 'Just now'
+        elif s < 60:
+            return f'{s} seconds ago'
+        elif s < 120:
+            return '1 minute ago'
+        elif s < 3600:
+            return f'{s // 60} minutes ago'
+        elif s < 7200:
+            return '1 hour ago'
+        elif s < 86400:
+            return f'{s // 3600} hours ago'
+        elif d == 1:
+            return '1 day ago'
+        elif d > 1:
+            return f'{d} days ago'
+        else:
+            return self.state_change_timestamp.strftime(r'on %Y/%m/%d')
+
+    @property
+    def is_long_time(self) -> bool:
+        # Checks if at least an hour has passed
+        delta = timezone.now() - self.state_change_timestamp
+        return delta.seconds >= 3600
 
     def __str__(self):
         return f'{self.location}: Time {self.timestamp} - Depth {self.current_depth}'
@@ -36,6 +70,8 @@ class CameraLogs(models.Model):
     camera_id = models.ForeignKey(SensorCamera, on_delete=models.CASCADE)
     flood_number = models.IntegerField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    person_count = models.IntegerField(default=0)
+    pet_count = models.IntegerField(default=0)
     image = models.ImageField(storage=CameraImageStorage)
     image_processed = models.ImageField(storage=CameraImageProcessedStorage)
 

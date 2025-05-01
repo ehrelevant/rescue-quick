@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('core', '0007_sensorcamera_pair_name'),
     ]
@@ -13,6 +12,14 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='sensorcamera',
             name='monitor_state',
-            field=models.CharField(choices=[('Dangerous', 'Dangerous'), ('Caution', 'Caution'), ('Safe', 'Safe'), ('Unresponsive', 'Unresponsive')], default='Unresponsive'),
+            field=models.CharField(
+                choices=[
+                    ('Dangerous', 'Dangerous'),
+                    ('Caution', 'Caution'),
+                    ('Safe', 'Safe'),
+                    ('Unresponsive', 'Unresponsive'),
+                ],
+                default='Unresponsive',
+            ),
         ),
     ]

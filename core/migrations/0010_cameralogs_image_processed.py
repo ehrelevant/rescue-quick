@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('core', '0009_sensorcamera_state_change_timestamp'),
     ]
@@ -14,7 +13,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='cameralogs',
             name='image_processed',
-            field=models.ImageField(default=None, storage=core.models.CameraImageProcessedStorage, upload_to=''),
+            field=models.ImageField(
+                default=None,
+                storage=core.models.CameraImageProcessedStorage,
+                upload_to='',
+            ),
             preserve_default=False,
         ),
     ]

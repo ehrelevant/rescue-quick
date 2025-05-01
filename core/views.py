@@ -1,5 +1,6 @@
 import base64
-from django.shortcuts import render
+from django.db.models import QuerySet
+from django.shortcuts import redirect, render
 
 from .models import SensorCamera, SensorLogs, CameraLogs
 
@@ -8,7 +9,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 from django.core.files.base import ContentFile
 from uuid import uuid4
-from datetime import datetime
 
 import json
 
@@ -18,46 +18,80 @@ from PIL import Image
 from io import BytesIO
 import numpy as np
 
-def index(request: HttpRequest):
-    # Currently just taking the frst entry (i.e. assume only 1 camera)
-    # Should eventually become a list of the first entry of each unique pair_id
 
-    # dangerous_sensor_cameras = SensorCamera.objects.filter(monitor_state=SensorCamera.MonitorState.DANGEROUS).all()
-    sensor_cameras= SensorCamera.objects.all()
-    monitors = [
+def index(request: HttpRequest):
+    dangerous_sensor_cameras = SensorCamera.objects.filter(
+        monitor_state=SensorCamera.MonitorState.DANGEROUS
+    ).all()
+    caution_sensor_cameras = SensorCamera.objects.filter(
+        monitor_state=SensorCamera.MonitorState.CAUTION
+    ).all()
+    safe_sensor_cameras = SensorCamera.objects.filter(
+        monitor_state=SensorCamera.MonitorState.SAFE
+    ).all()
+
+    def collect_monitors(sensor_cameras: QuerySet[SensorCamera, SensorCamera]):
+        return [
+            {
+                'location': sensor_camera.location,
+                'camera_name': sensor_camera.pair_name,
+                'date': sensor_camera.timestamp.strftime(r'%B %d, %Y'),
+                'num_people': sensor_camera.person_count,
+                'num_pets': sensor_camera.pet_count,
+                'flood_level': sensor_camera.current_depth,
+                'max_flood_level': sensor_camera.threshold_depth,
+            }
+            for sensor_camera in sensor_cameras
+        ]
+
+    monitors = {
+        'danger': collect_monitors(dangerous_sensor_cameras),
+        'caution': collect_monitors(caution_sensor_cameras),
+        'safe': collect_monitors(safe_sensor_cameras),
+    }
+
+    operations = [
         {
             'location': sensor_camera.location,
             'camera_name': sensor_camera.pair_name,
             'date': sensor_camera.timestamp.strftime(r'%B %d, %Y'),
-            'num_people': 1,
-            'num_pets': 2,
-            'flood_level': sensor_camera.current_depth,
-            'max_flood_level': sensor_camera.threshold_depth,
+            'time_elapsed': sensor_camera.elapsed_time,
+            'is_long_time': sensor_camera.is_long_time,
+            'is_deployed': False,
         }
-        for sensor_camera in sensor_cameras
+        for sensor_camera in dangerous_sensor_cameras.order_by(
+            'state_change_timestamp'
+        ).all()
     ]
-    print(monitors)
 
     context = {
-        'monitors': [
-            {
-                'location': 'Alumni Engineers Centennial Hall, 4F',
-                'camera_name': 'ESP3123',
-                'date': 'April 20, 2025',
-                'num_people': 2,
-                'num_pets': 3,
-                'flood_level': 0.65,
-                'max_flood_level': 1.75,
-            },
-            *monitors,
-        ],
+        'monitors': monitors,
         'operations': [
             {
-                'location': 'Alumni Engineers Centennial Hall, 4F',
-                'camera_name': 'ESP3123',
-                'date': 'April 20, 2025',
-                'time_elapsed': '2 min ago',
-            }
+                'location': 'Location X',
+                'camera_name': 'ESP3123 Test 1',
+                'date': 'May 2, 2025',
+                'time_elapsed': '17 minutes ago',
+                'is_long_time': False,
+                'is_deployed': False,
+            },
+            {
+                'location': 'Location Y',
+                'camera_name': 'ESP3123 Test 2',
+                'date': 'May 2, 2025',
+                'time_elapsed': '2 hours ago',
+                'is_long_time': True,
+                'is_deployed': False,
+            },
+            {
+                'location': 'Location Z',
+                'camera_name': 'ESP3123 Test 3',
+                'date': 'May 2, 2025',
+                'time_elapsed': '2 hours ago',
+                'is_long_time': True,
+                'is_deployed': True,
+            },
+            *operations,
         ],
         'done': [
             {
@@ -70,50 +104,75 @@ def index(request: HttpRequest):
                 'flood_level': 0.65,
             }
         ],
+        'counts': {
+            'danger': dangerous_sensor_cameras.count(),
+            'caution': caution_sensor_cameras.count(),
+            'safe': safe_sensor_cameras.count(),
+        },
     }
     return render(request, 'core/index.html.j2', context)
 
 
-def feed(request: HttpRequest, monitor_id: int):
-    last_camera_log = CameraLogs.objects.filter(camera_id=1).order_by('-timestamp').first()
-    last_sensor_log = SensorLogs.objects.filter(sensor_id=1).order_by('-timestamp').first()
-    sensor_camera = SensorCamera.objects.filter(pair_id=1).first()
-    print(last_camera_log)
-    print(last_sensor_log)
-    print(sensor_camera)
+def feed(request: HttpRequest, pair_id: int | None = None):
+    if not pair_id:
+        sensor_camera = SensorCamera.objects.first()
 
+        # Return a 404 error if the table is empty
+        if not sensor_camera:
+            return HttpResponseNotFound('No cameras found')
+
+        # For consistency, redirect to page
+        return redirect(f'/feed/{sensor_camera.pair_id}/')
+
+    last_camera_log = (
+        CameraLogs.objects.filter(camera_id=pair_id).order_by('-timestamp').first()
+    )
+
+    # Returns a 404 error if the queried pair_id does not exist
     if not last_camera_log:
-        return HttpResponseNotFound('Camera not found.')
-    if not last_sensor_log:
-        return HttpResponseNotFound('Sensor not found.')
-    
-    # last_camera_log = CameraLogs.objects.filter(camera_id=1).order_by('-timestamp').first()
-    # print(last_camera_log)
-    # if not last_camera_log:
-    #     return HttpResponseNotFound('Camera not found.')
+        return HttpResponseNotFound('Camera not found')
 
-    # processed_image_url = last_camera_log.processed_image_url 
-    processed_image_url = 'https://t4.ftcdn.net/jpg/01/62/69/25/360_F_162692511_SidIKVCDnt5UKHPNqpCb2MSKvfBlx1lG.jpg'
-    print(processed_image_url)
+    processed_image_url = last_camera_log.processed_image_url
 
+    sensor_camera = SensorCamera.objects.get(pk=pair_id)
+
+    # Determines next/previous pair_id
+    next_sensor_camera = (
+        SensorCamera.objects.filter(pair_id__gt=pair_id).first()
+        or SensorCamera.objects.filter(pair_id__lt=pair_id).first()
+    )
+    prev_sensor_camera = (
+        SensorCamera.objects.filter(pair_id__lt=pair_id).last()
+        or SensorCamera.objects.filter(pair_id__gt=pair_id).last()
+    )
+    next_pair_id = pair_id
+    prev_pair_id = pair_id
+    if next_sensor_camera:
+        next_pair_id = next_sensor_camera.pair_id
+    if prev_sensor_camera:
+        prev_pair_id = prev_sensor_camera.pair_id
+
+    # Collates values
     context = {
-        'monitor_id': monitor_id,
+        'pair_id': pair_id,
         'location': sensor_camera.location,
         'camera_name': sensor_camera.pair_name,
-        'date': last_camera_log.timestamp,
-        'marked_safe': '11:00 AM',
-        'num_people': 2,
-        'num_pets': 3,
-        'flood_level': last_sensor_log.depth,
+        'date': sensor_camera.timestamp.strftime(r'%Y/%m/%d'),
+        'marked_safe': sensor_camera.state_change_timestamp.strftime(
+            r'%Y/%m/%d %H:%M:%S %p'
+        ),
+        'num_people': sensor_camera.person_count,
+        'num_pets': sensor_camera.pet_count,
+        'flood_level': sensor_camera.current_depth,
         'processed_image': processed_image_url,
         # For testing of pagination lang
-        'prev': (monitor_id - 1) % 3,
-        'next': ((monitor_id % 3) + 1) % 3,
+        'prev': prev_pair_id,
+        'next': next_pair_id,
     }
 
-    if monitor_id == 1:
+    if sensor_camera.monitor_state == SensorCamera.MonitorState.DANGEROUS:
         return render(request, 'core/feed/danger.html.j2', context)
-    elif monitor_id == 2:
+    elif sensor_camera.monitor_state == SensorCamera.MonitorState.CAUTION:
         return render(request, 'core/feed/caution.html.j2', context)
     else:
         return render(request, 'core/feed/safe.html.j2', context)
@@ -133,11 +192,9 @@ def post_sensor_data(request: HttpRequest):
                 'current_depth': max(data['current_depth'], 0),
             },
             create_defaults={
-                'pair_name': "Pair 1",
+                'pair_name': f'Camera {data["pair_id"]}',
                 'current_depth': max(data['current_depth'], 0),
-                'threshold_depth': 10,
-                'location': 'Depths of Hell',
-                'flood_number': 1,
+                'location': f'Location {data["pair_id"]}',
             },
         )
 
@@ -211,19 +268,24 @@ def post_image(request: HttpRequest, pair_id: str):
             )
 
         # Convert to a format YOLO can use
-        pil_image = Image.open(BytesIO(decoded_img)).convert("RGB")
+        pil_image = Image.open(BytesIO(decoded_img)).convert('RGB')
         img_array = np.array(pil_image)
         # Choose and apply model
-        model = YOLO("yolo11n.pt")
+        model = YOLO('yolo11n.pt')
         model_results = model(img_array)
         rendered_img = model_results[0].plot()
         # Encode image
-        _, encoded_img = cv2.imencode(".jpg", rendered_img)
-        img_processed_file = ContentFile(encoded_img.tobytes(), name=f'processed_{img_name}.jpg')
+        _, encoded_img = cv2.imencode('.jpg', rendered_img)
+        img_processed_file = ContentFile(
+            encoded_img.tobytes(), name=f'processed_{img_name}.jpg'
+        )
 
         # Add image to camera logs
         CameraLogs.objects.create(
-            camera_id=sensor_cam, flood_number=sensor_cam.flood_number, image=img_file, image_processed=img_processed_file
+            camera_id=sensor_cam,
+            flood_number=sensor_cam.flood_number,
+            image=img_file,
+            image_processed=img_processed_file,
         )
 
         return JsonResponse(
