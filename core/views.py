@@ -1,5 +1,5 @@
 import base64
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 
 from .models import SensorCamera, SensorLogs, CameraLogs
 
@@ -69,34 +69,57 @@ def index(request: HttpRequest):
     }
     return render(request, 'core/index.html.j2', context)
 
+def feed(request: HttpRequest, pair_id: int | None = None):
+    if not pair_id:
+        sensor_camera = SensorCamera.objects.first()
+        
+        # Return a 404 error if the table is empty
+        if not sensor_camera:
+            return HttpResponseNotFound('No cameras found')
+        
+        # For consistency, redirect to page
+        return redirect(f'/feed/{sensor_camera.pair_id}/')
 
-def feed(request: HttpRequest, monitor_id: int):
-    last_camera_log = CameraLogs.objects.filter(camera_id=1).order_by('-timestamp').first()
-    print(last_camera_log)
+    last_camera_log = CameraLogs.objects.filter(camera_id=pair_id).order_by('-timestamp').first()
+
+    # Returns a 404 error if the queried pair_id does not exist
     if not last_camera_log:
-        return HttpResponseNotFound('Camera not found.')
+        return HttpResponseNotFound('Camera not found')
 
     processed_image_url = last_camera_log.processed_image_url 
-    print(processed_image_url)
 
+    sensor_camera = SensorCamera.objects.get(pk=pair_id)    
+
+    # Determines next/previous pair_id
+    next_sensor_camera = SensorCamera.objects.filter(pair_id__gt=pair_id).last() or SensorCamera.objects.filter(pair_id__lt=pair_id).first()
+    prev_sensor_camera = SensorCamera.objects.filter(pair_id__lt=pair_id).first() or SensorCamera.objects.filter(pair_id__gt=pair_id).last()
+    next_pair_id = pair_id
+    prev_pair_id = pair_id
+    if next_sensor_camera:
+        next_pair_id = next_sensor_camera.pair_id
+    if prev_sensor_camera:
+        prev_pair_id = prev_sensor_camera.pair_id
+
+    # Collates values 
     context = {
-        'monitor_id': monitor_id,
-        'location': 'Alumni Engineers Centennial Hall, 4F',
-        'camera_name': 'ESP3123',
-        'date': 'April 20, 2025',
-        'marked_safe': '11:00 AM',
-        'num_people': 2,
-        'num_pets': 3,
-        'flood_level': 0.65,
+        'pair_id': pair_id,
+        'location': sensor_camera.location,
+        'camera_name': sensor_camera.pair_name,
+        'date': sensor_camera.timestamp.strftime(r'%Y/%m/%d'),
+        'marked_safe': sensor_camera.state_change_timestamp.strftime(r'%Y/%m/%d %H:%M:%S $p'),
+        'num_people': 123,
+        'num_pets': 123,
+        'flood_level': sensor_camera.current_depth,
         'processed_image': processed_image_url,
+        
         # For testing of pagination lang
-        'prev': (monitor_id - 1) % 3,
-        'next': ((monitor_id % 3) + 1) % 3,
+        'prev': prev_pair_id,
+        'next': next_pair_id,
     }
 
-    if monitor_id == 1:
+    if sensor_camera.monitor_state == SensorCamera.MonitorState.DANGEROUS:
         return render(request, 'core/feed/danger.html.j2', context)
-    elif monitor_id == 2:
+    elif sensor_camera.monitor_state == SensorCamera.MonitorState.CAUTION:
         return render(request, 'core/feed/caution.html.j2', context)
     else:
         return render(request, 'core/feed/safe.html.j2', context)
