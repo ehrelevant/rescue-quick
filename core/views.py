@@ -122,7 +122,7 @@ def feed(request: HttpRequest, pair_id: int | None = None):
         'camera_name': sensor_camera.pair_name,
         'date': sensor_camera.timestamp.strftime(r'%Y/%m/%d'),
         'marked_safe': sensor_camera.state_change_timestamp.strftime(
-            r'%Y/%m/%d %H:%M:%S $p'
+            r'%Y/%m/%d %H:%M:%S %p'
         ),
         'num_people': sensor_camera.person_count,
         'num_pets': sensor_camera.pet_count,
