@@ -46,15 +46,43 @@ def index(request: HttpRequest):
         'safe': collect_monitors(safe_sensor_cameras),
     }
 
+    operations = [{
+        'location': sensor_camera.location,
+        'camera_name': sensor_camera.pair_name,
+        'date': sensor_camera.timestamp.strftime(r'%B %d, %Y'),
+        'time_elapsed': sensor_camera.elapsed_time,
+        'is_long_time': sensor_camera.is_long_time,
+        'is_deployed': False
+    } for sensor_camera in dangerous_sensor_cameras.order_by('state_change_timestamp').all()]
+
     context = {
         'monitors': monitors,
         'operations': [
             {
-                'location': 'Alumni Engineers Centennial Hall, 4F',
-                'camera_name': 'ESP3123',
-                'date': 'April 20, 2025',
-                'time_elapsed': '2 min ago',
-            }
+                'location': 'Location X',
+                'camera_name': 'ESP3123 Test 1',
+                'date': 'May 2, 2025',
+                'time_elapsed': '17 minutes ago',
+                'is_long_time': False,
+                'is_deployed': False
+            },
+            {
+                'location': 'Location Y',
+                'camera_name': 'ESP3123 Test 2',
+                'date': 'May 2, 2025',
+                'time_elapsed': '2 hours ago',
+                'is_long_time': True,
+                'is_deployed': False
+            },
+            {
+                'location': 'Location Z',
+                'camera_name': 'ESP3123 Test 3',
+                'date': 'May 2, 2025',
+                'time_elapsed': '2 hours ago',
+                'is_long_time': True,
+                'is_deployed': True
+            },
+            *operations
         ],
         'done': [
             {

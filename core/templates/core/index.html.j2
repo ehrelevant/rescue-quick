@@ -111,9 +111,15 @@
                        checked="checked" />
                 <div class="tab-content h-full overflow-y-auto">
                     <div class="flex flex-col gap-3">
-                        {% include 'core/components/op_new.html.j2' with camera_name=operations.0.camera_name time_elapsed=operations.0.time_elapsed location=operations.0.location %}
-                        {% include 'core/components/op_timeout.html.j2' with camera_name=operations.0.camera_name time_elapsed=operations.0.time_elapsed location=operations.0.location %}
-                        {% include 'core/components/op_deployed.html.j2' with camera_name=operations.0.camera_name time_elapsed=operations.0.time_elapsed location=operations.0.location %}
+                        {% for operation in operations %}
+                            {% if operation.is_deployed %}
+                                {% include 'core/components/op_deployed.html.j2' with camera_name=operation.camera_name time_elapsed=operation.time_elapsed location=operation.location %}
+                            {% elif operation.is_long_time %}
+                                {% include 'core/components/op_timeout.html.j2' with camera_name=operation.camera_name time_elapsed=operation.time_elapsed location=operation.location %}
+                            {% else %}
+                                {% include 'core/components/op_new.html.j2' with camera_name=operation.camera_name time_elapsed=operation.time_elapsed location=operation.location %}
+                            {% endif %}
+                        {% endfor %}
                         {# For scrolling #}
                         <div class="bg-white h-[100px] w-full"></div>
                     </div>
