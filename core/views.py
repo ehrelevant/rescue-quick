@@ -157,6 +157,7 @@ def post_sensor_data(request: HttpRequest):
                 'flood_number': data['flood_number'],
             },
             create_defaults={
+                'pair_name': f'Camera {data['pair_id']}',
                 'current_depth': data['current_depth'],
                 'flood_number': data['flood_number'],
                 'location': '',
