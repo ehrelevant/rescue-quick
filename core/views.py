@@ -68,6 +68,11 @@ def index(request: HttpRequest):
                 'flood_level': 0.65,
             }
         ],
+        'counts': {
+            'dangerous': dangerous_sensor_cameras.count(),
+            'caution': caution_sensor_cameras.count(),
+            'safe': safe_sensor_cameras.count()
+        }
     }
     return render(request, 'core/index.html.j2', context)
 
