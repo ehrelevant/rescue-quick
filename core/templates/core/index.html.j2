@@ -4,18 +4,18 @@
     {% include 'core/nav.html.j2' with selected='dashboard' %}
 {% endblock %}
 {% block content %}
-    <div class="h-[90vh] p-6 pl-[5%] pr-[5%] grid grid-cols-3 gap-4">
+    <div class="h-[90vh] w-full pt-2 p-3 lg:p-6 lg:pl-[5%] lg:pr-[5%] grid grid-cols-1 lg:grid-cols-3 gap-4">
         {# Left Panel#}
-        <div class="col-span-2 h-full overflow-y-hidden flex flex-col gap-3">
+        <div class="order-2 lg:order-1 col-span-1 md:col-span-2 h-full overflow-y-hidden flex flex-col gap-3">
             {# Monitors Header #}
             <div class="flex items-end">
-                <span class="text-3xl font-bold">My Monitors</span>
+                <span class="text-xl lg:text-3xl font-bold">My Monitors</span>
                 <div class="flex-grow"></div>
-                <button class="hover:shadow-md btn bg-red text-white rounded-lg">
+                <button class="hidden hover:shadow-md btn btn-sm lg:btn-md bg-red text-white rounded-sm lg:rounded-lg">
                     <svg xmlns="http://www.w3.org/2000/svg"
                          viewBox="0 0 24 24"
                          fill="currentColor"
-                         class="size-6">
+                         class="size-4">
                         <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 9a.75.75 0 0 0-1.5 0v2.25H9a.75.75 0 0 0 0 1.5h2.25V15a.75.75 0 0 0 1.5 0v-2.25H15a.75.75 0 0 0 0-1.5h-2.25V9Z" clip-rule="evenodd" />
                     </svg>
                     Add Monitors
@@ -23,49 +23,49 @@
             </div>
             {# Quick Stats #}
             <div class="flex flex-wrap items-end gap-2">
-                <div class="skeleton hover:scale-110 transition linear duration-100 flex p-3 pl-4 pr-4 gap-3 items-center bg-green-light rounded-md">
-                    <div class="p-2 rounded bg-green rounded-full">
+                <div class="skeleton hover:scale-110 transition linear duration-100 flex p-1 md:p-3 pl-2 md:pl-4 pr-2 md:pr-4 gap-1 md:gap-3 items-center bg-green-light rounded-md">
+                    <div class="p-1 md:p-2 rounded bg-green rounded-full">
                         <svg xmlns="http://www.w3.org/2000/svg"
                              viewBox="0 0 24 24"
                              fill="white"
-                             class="size-5">
+                             class="size-3 md:size-5">
                             <path fill-rule="evenodd" d="M12.516 2.17a.75.75 0 0 0-1.032 0 11.209 11.209 0 0 1-7.877 3.08.75.75 0 0 0-.722.515A12.74 12.74 0 0 0 2.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 0 0 .374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 0 0-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08Zm3.094 8.016a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clip-rule="evenodd" />
                         </svg>
                     </div>
-                    <span class="text-3xl font-bold">0</span>
-                    <span class="text-sm/4 font-medium">Currently
+                    <span class="text-lg md:text-3xl font-bold">0</span>
+                    <span class="text-[6pt]/2 md:text-sm/4 font-medium">Currently
                         <br>
                     Safe</span>
                 </div>
-                <div class="skeleton hover:scale-110 transition linear duration-100 flex p-3 pl-4 pr-4 gap-3 items-center bg-yellow-light rounded-md">
-                    <div class="p-2 rounded bg-yellow rounded-full">
+                <div class="skeleton hover:scale-110 transition linear duration-100 flex p-1 md:p-3 pl-2 md:pl-4 pr-2 md:pr-4 gap-1 md:gap-3 items-center bg-yellow-light rounded-md">
+                    <div class="p-1 md:p-2 rounded bg-yellow rounded-full">
                         <svg xmlns="http://www.w3.org/2000/svg"
                              viewBox="0 0 24 24"
                              fill="white"
-                             class="size-5">
+                             class="size-3 md:size-5">
                             <path fill-rule="evenodd" d="M12.516 2.17a.75.75 0 0 0-1.032 0 11.209 11.209 0 0 1-7.877 3.08.75.75 0 0 0-.722.515A12.74 12.74 0 0 0 2.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 0 0 .374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 0 0-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08Zm3.094 8.016a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clip-rule="evenodd" />
                         </svg>
                     </div>
-                    <span class="text-3xl font-bold">0</span>
-                    <span class="text-sm/4 font-medium">Requires
+                    <span class="text-lg md:text-3xl font-bold">0</span>
+                    <span class="text-[6pt]/2 md:text-sm/4 font-medium">Requires
                         <br>
                     Caution</span>
                 </div>
-                <div class="skeleton hover:scale-110 transition linear duration-100 flex p-3 pl-4 pr-4 gap-3 items-center bg-red-light rounded-md">
-                    <div class="p-2 rounded bg-red rounded-full">
+                <div class="skeleton hover:scale-110 transition linear duration-100 flex p-1 md:p-3 pl-2 md:pl-4 pr-2 md:pr-4 gap-1 md:gap-3 items-center bg-red-light rounded-md">
+                    <div class="p-1 md:p-2 rounded bg-red rounded-full">
                         <svg xmlns="http://www.w3.org/2000/svg"
                              viewBox="0 0 24 24"
                              fill="white"
-                             class="size-5">
+                             class="size-3 md:size-5">
                             <path fill-rule="evenodd" d="M12.516 2.17a.75.75 0 0 0-1.032 0 11.209 11.209 0 0 1-7.877 3.08.75.75 0 0 0-.722.515A12.74 12.74 0 0 0 2.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 0 0 .374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 0 0-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08Zm3.094 8.016a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clip-rule="evenodd" />
                         </svg>
                     </div>
-                    <span class="text-3xl font-bold">0</span>
-                    <span class="text-sm/4 font-medium">In
+                    <span class="text-lg md:text-3xl font-bold">0</span>
+                    <span class="text-[6pt]/2 md:text-sm/4 font-medium">In
                         <br>
                     Danger</span>
                 </div>
-                <div class="skeleton hover:scale-110 transition linear duration-100 flex p-3 pl-4 pr-4 gap-3 items-center bg-gray-light rounded-md">
+                <div class="hidden skeleton hover:scale-110 transition linear duration-100 flex p-3 pl-4 pr-4 gap-3 items-center bg-gray-light rounded-md">
                     <div class="p-2 rounded bg-gray rounded-full">
                         <svg xmlns="http://www.w3.org/2000/svg"
                              viewBox="0 0 24 24"
@@ -80,11 +80,11 @@
                     Unresponsive</span>
                 </div>
                 <div class="flex-grow"></div>
-                <a href="#"><span class="font-bold">View All</span></a>
+                <a href="#"><span class="hidden lg:block font-bold">View All</span></a>
             </div>
             {# Monitors Container #}
             <div class="overflow-y-auto flex-grow flex flex-col bg-[#F2F4F8] rounded-xl p-4 pr-6">
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
                     {% for monitor in monitors %}
                         {% include 'core/components/monitor_danger.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date num_people=monitor.num_people num_pets=monitor.num_pets flood_level=monitor.flood_level max_flood_level=monitor.max_flood_level %}
                     {% endfor %}
@@ -94,7 +94,7 @@
             {# Stop point for `flex-grow` #}
         </div>
         {# Right Panel #}
-        <div class="flex flex-col overflow-y-hidden h-full">
+        <div class="order-1 :order-2 flex flex-col overflow-y-hidden h-full">
             {# Operations #}
             <div class="tabs tabs-border overflow-y-hidden">
                 {# Pending Operations #}
@@ -128,5 +128,6 @@
             <div></div>
             {# Stop point for `flex-grow` #}
         </div>
+        {% include 'core/nav_footer.html.j2' %}
     </div>
 {% endblock content %}

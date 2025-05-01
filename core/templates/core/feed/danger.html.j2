@@ -4,26 +4,27 @@
     {% include 'core/nav.html.j2' with selected='feed' %}
 {% endblock %}
 {% block content %}
-    <div class="h-[90vh] p-6 pl-[5%] pr-[5%]">
+    <div class="h-[90vh] pt-2 p-3 lg:p-6 lg:pl-[5%] lg:pr-[5%]">
         <div class="h-full w-full flex flex-col">
-            <div class="bg-white h-[90%] grid grid-cols-10 gap-4">
+            <div class="bg-white h-[90%] grid grid-cols-10 gap-4 mb-4">
                 {# Container for the image #}
-                <div class="col-span-7 flex-grow w-full bg-[#F2F4F8] flex items-center justify-center overflow-y-hidden">
+                <div class="aspect-3/2 lg:aspect-auto col-span-10 lg:col-span-7 flex-shrink lg:flex-grow w-full bg-[#F2F4F8] flex items-center justify-center overflow-y-hidden">
                     <img class="h-full object-contain"
-                         src="{{ processed_image }}"">
+                         src="{{ processed_image }}">
                 </div>
                 {# Container for camera data #}
-                <div class="col-span-3 h-full flex flex-col overflow-y-hidden">
+                <div class="col-span-10 lg:col-span-3 h-full flex flex-col overflow-y-hidden">
                     {# 'Go Home' button #}
                     <a href="/"
-                       class="flex items-center gap-3 flex-row mb-4 hover:opacity-50">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 48 48">
-                            <g fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="4">
-                            <path d="M24 44c11.046 0 20-8.954 20-20S35.046 4 24 4S4 12.954 4 24s8.954 20 20 20Z" />
-                            <path stroke-linecap="round" d="m27 33l-9-9l9-9" />
-                            </g>
-                        </svg>
-                        <span class="font-medium">Back to Dashboard</span>
+                       class="hidden lg:inline flex items-center gap-3 flex-row mb-4 hover:opacity-50">
+                        <span class="font-medium">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 48 48">
+                                <g fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="4">
+                                <path d="M24 44c11.046 0 20-8.954 20-20S35.046 4 24 4S4 12.954 4 24s8.954 20 20 20Z" />
+                                <path stroke-linecap="round" d="m27 33l-9-9l9-9" />
+                                </g>
+                            </svg>
+                        Back to Dashboard</span>
                     </a>
                     <div class="grid grid-cols-2 gap-2 mb-2">
                         {# Detected entities #}
@@ -90,23 +91,60 @@
                                 </div>
                                 <span class="font-bold">Location</span>
                             </div>
-                            <span class="text-xl font-bold">{{ location }}</span>
+                            <span class="lg:text-xl font-bold">{{ location }}</span>
                         </div>
                         {# Action buttons #}
                         <button class="btn bg-red text-white border-red hover:shadow-md w-full">Signal Rescue</button>
                         <button class="btn btn-outline border-red text-red hover:shadow-md w-full tooltip tooltip-left"
                                 data-tip="Only press when already safe!">Mark as Safe</button>
                     </div>
-                    {# Logs section #}
-                    <span class="text-lg font-bold mb-2">Logs</span>
-                    <div class="overflow-y-auto flex-grow flex flex-col gap-1">
-                        {% include 'core/components/log_detect.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
-                        {% include 'core/components/log_flood.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
+                    {# Logs Section -- Larger Views #}
+                    <div class="hidden lg:block">
+                        <span class="text-lg font-bold mb-2">Logs</span>
+                        <div class="overflow-y-auto flex-grow flex flex-col gap-1">
+                            {% include 'core/components/log_detect.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
+                            {% include 'core/components/log_flood.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
+                        </div>
                     </div>
+                    {# Logs Section -- Smaller Views #}
+                    <button class="lg:hidden btn" onclick="my_modal_2.showModal()">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             width="24"
+                             height="24"
+                             class="size-5"
+                             viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2m0 15c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1s1 .45 1 1v4c0 .55-.45 1-1 1m1-8h-2V7h2z" />
+                        </svg>
+                        Check Logs
+                    </button>
+                    <dialog id="my_modal_2" class="modal">
+                        <div class="modal-box max-h-[50vh]">
+                            <span class="text-lg font-bold mb-2">Logs</span>
+                            <div class="overflow-y-auto flex-grow flex flex-col gap-1">
+                                {% include 'core/components/log_detect.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
+                                {% include 'core/components/log_flood.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
+                                {% include 'core/components/log_detect.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
+                                {% include 'core/components/log_flood.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
+                                {% include 'core/components/log_detect.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
+                                {% include 'core/components/log_flood.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
+                                {% include 'core/components/log_detect.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
+                                {% include 'core/components/log_flood.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
+                                {% include 'core/components/log_detect.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
+                                {% include 'core/components/log_flood.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
+                                {% include 'core/components/log_detect.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
+                                {% include 'core/components/log_flood.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
+                            </div>
+                        </div>
+                        <form method="dialog" class="modal-backdrop">
+                            <button>Close</button>
+                        </form>
+                    </dialog>
                     <div></div>
                 </div>
             </div>
-            <div class="flex-grow flex items-end justify-center">
+            <div class="flex-grow"></div>
+            {# Monitor Info #}
+            <div class="flex items-end justify-center mb-4 lg:mb-[0]">
                 <div class="flex items-center gap-4">
                     <a href="/feed/{{ prev }}/" class="hover:opacity-50">
                         <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 48 48">
@@ -133,6 +171,8 @@
                     </a>
                 </div>
             </div>
+            <div class="flex-grow"></div>
+            {% include 'core/nav_footer.html.j2' %}
         </div>
     </div>
 {% endblock %}
