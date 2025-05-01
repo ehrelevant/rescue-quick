@@ -19,17 +19,16 @@ class SensorCamera(models.Model):
         DANGEROUS = 'Dangerous'
         CAUTION = 'Caution'
         SAFE = 'Safe'
-        UNRESPONSIVE = 'Unresponsive'
 
     pair_id = models.IntegerField(primary_key=True)
     pair_name = models.CharField()
     current_depth = models.FloatField(null=True)
-    threshold_depth = models.FloatField(default=0.5)
-    location = models.TextField(null=True)
-    flood_number = models.IntegerField(null=True)
+    threshold_depth = models.FloatField(default=1)
+    location = models.TextField()
+    flood_number = models.IntegerField(default=1)
     timestamp = models.DateTimeField(auto_now=True)
     monitor_state = models.CharField(
-        choices=MonitorState, default=MonitorState.UNRESPONSIVE
+        choices=MonitorState, default=MonitorState.SAFE
     )
     state_change_timestamp = models.DateTimeField(default=timezone.now)
 
