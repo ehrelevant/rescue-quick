@@ -12,12 +12,15 @@ from datetime import datetime
 
 import json
 
+from ultralytics import YOLO
+import cv2
+from PIL import Image
+from io import BytesIO
+import numpy as np
 
 def index(request: HttpRequest):
     # Currently just taking the frst entry (i.e. assume only 1 camera)
     # Should eventually become a list of the first entry of each unique pair_id
-    # sensor_data = SensorCamera.objects.order_by('-timestamp').first()
-    # print(sensor_data)
 
     dangerous_sensor_cameras = SensorCamera.objects.filter(
         monitor_state=SensorCamera.MonitorState.DANGEROUS
@@ -28,6 +31,7 @@ def index(request: HttpRequest):
     safe_sensor_cameras = SensorCamera.objects.filter(
         monitor_state=SensorCamera.MonitorState.SAFE
     ).all()
+
     monitors = [
         {
             'location': sensor_camera.location,
@@ -140,12 +144,6 @@ def feed(request: HttpRequest, pair_id: int | None = None):
 @csrf_exempt
 @require_POST
 def post_sensor_data(request: HttpRequest):
-    # print("=== Incoming Request ===")
-    # print("Method:", request.method)
-    # print("Headers:", dict(request.headers))
-    # print("Raw Body:", request.body)
-    # print("========================")
-
     try:
         data = json.loads(request.body)
         print('Parsed JSON:', data)
@@ -153,23 +151,21 @@ def post_sensor_data(request: HttpRequest):
         sensor_camera, _ = SensorCamera.objects.update_or_create(
             pair_id=data['pair_id'],
             defaults={
-                'current_depth': data['current_depth'],
-                'flood_number': data['flood_number'],
+                'current_depth': max(data['current_depth'], 0),
             },
             create_defaults={
                 'pair_name': f'Camera {data['pair_id']}',
-                'current_depth': data['current_depth'],
-                'flood_number': data['flood_number'],
-                'location': '',
+                'current_depth': max(data['current_depth'], 0),
+                'location': f'Location {data['pair_id']}',
             },
         )
 
-        # Missing threshold condition
-        SensorLogs.objects.create(
-            sensor_id=sensor_camera,
-            depth=sensor_camera.current_depth,
-            flood_number=sensor_camera.flood_number,
-        )
+        if sensor_camera.current_depth > sensor_camera.threshold_depth:
+            SensorLogs.objects.create(
+                sensor_id=sensor_camera,
+                depth=sensor_camera.current_depth,
+                flood_number=sensor_camera.flood_number,
+            )
 
         return JsonResponse({'status': 'success'})
     except Exception as e:
@@ -192,7 +188,7 @@ def get_flood_status(request: HttpRequest):
 
             # Get the latest indicator
             indicator: str = str(
-                sensor_cam.current_depth >= sensor_cam.threshold_depth
+                sensor_cam.current_depth > sensor_cam.threshold_depth
             ).lower()
 
             # Return as a JSON Response
@@ -233,15 +229,20 @@ def post_image(request: HttpRequest, pair_id: str):
                 {'status': 'error', 'message': 'Invalid camera ID'}, status=400
             )
 
-        # TODO: Add function for processing images
-        processed_file = img_file
+        # Convert to a format YOLO can use
+        pil_image = Image.open(BytesIO(decoded_img)).convert("RGB")
+        img_array = np.array(pil_image)
+        # Choose and apply model
+        model = YOLO("yolo11n.pt")
+        model_results = model(img_array)
+        rendered_img = model_results[0].plot()
+        # Encode image
+        _, encoded_img = cv2.imencode(".jpg", rendered_img)
+        img_processed_file = ContentFile(encoded_img.tobytes(), name=f'processed_{img_name}.jpg')
 
         # Add image to camera logs
         CameraLogs.objects.create(
-            camera_id=sensor_cam,
-            flood_number=sensor_cam.flood_number,
-            image=img_file,
-            image_processed=processed_file,
+            camera_id=sensor_cam, flood_number=sensor_cam.flood_number, image=img_file, image_processed=img_processed_file
         )
 
         return JsonResponse(
