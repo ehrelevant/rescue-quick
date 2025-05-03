@@ -11,6 +11,7 @@ from django.core.files.base import ContentFile
 from uuid import uuid4
 
 import json
+from collections import Counter
 
 from ultralytics import YOLO
 import cv2
@@ -274,20 +275,36 @@ def post_image(request: HttpRequest, pair_id: str):
         # Convert to a format YOLO can use
         pil_image = Image.open(BytesIO(decoded_img)).convert('RGB')
         img_array = np.array(pil_image)
+
         # Choose and apply model
         model = YOLO('yolo11n.pt')
-        model_results = model(img_array)
+        model_results = model(img_array, classes=[0,15,16])
+        detections = model_results[0]
         rendered_img = model_results[0].plot()
+
+        # Convert to BGR for OpenCV encoding
+        rendered_img_bgr = cv2.cvtColor(rendered_img, cv2.COLOR_RGB2BGR)
+
         # Encode image
-        _, encoded_img = cv2.imencode('.jpg', rendered_img)
+        _, encoded_img = cv2.imencode('.jpg', rendered_img_bgr)
         img_processed_file = ContentFile(
             encoded_img.tobytes(), name=f'processed_{img_name}.jpg'
         )
+
+        # Get class IDs from detections
+        class_ids = detections.boxes.cls.cpu().numpy().astype(int)
+
+        # Count each class
+        class_counts = Counter(class_ids)
+        print(class_counts)
 
         # Add image to camera logs
         CameraLogs.objects.create(
             camera_id=sensor_cam,
             flood_number=sensor_cam.flood_number,
+            person_count=class_counts.get(0, 0),
+            dog_count=class_counts.get(16, 0),
+            cat_count=class_counts.get(15, 0),
             image=img_file,
             image_processed=img_processed_file,
         )
