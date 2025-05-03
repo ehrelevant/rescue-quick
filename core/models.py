@@ -32,6 +32,8 @@ class SensorCamera(models.Model):
     timestamp = models.DateTimeField(auto_now=True)
     monitor_state = models.CharField(choices=MonitorState, default=MonitorState.SAFE)
     state_change_timestamp = models.DateTimeField(default=timezone.now)
+    last_sensor_report = models.DateTimeField(default=timezone.now)
+    last_camera_report = models.DateTimeField(default=timezone.now)
 
     @property
     def elapsed_time(self) -> str:
