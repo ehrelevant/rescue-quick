@@ -17,15 +17,21 @@ HTTP_TYPE: str = "http" # http or https
 
 DOMAIN_URL: str = f"{HTTP_TYPE}://{HOST}:{PORT}"
 GET_PATH = "/api/get-flood-status/"
-POST_PATH = "/api/upload-image/"
+IMG_POST_PATH = "/api/upload-image/"
+HEALTH_POST_PATH = "/api/post-cam-health/"
 FULL_GET_PATH = f"{DOMAIN_URL}{GET_PATH}?pair_id={CAMERA_ID}"
-FULL_POST_PATH = f"{DOMAIN_URL}{POST_PATH}{CAMERA_ID}"
+FULL_POST_IMG_PATH = f"{DOMAIN_URL}{IMG_POST_PATH}{CAMERA_ID}"
+FULL_POST_HEALTH_PATH = f"{DOMAIN_URL}{HEALTH_POST_PATH}{CAMERA_ID}"
 
 # Authentication
 AUTH_TOKEN: str = ""
 
 # LED PIN
 LED_PIN: int = 18
+
+# Time delays (in seconds)
+IMG_DELAY: int = 5
+HEALTH_DELAY: int = 10
 
 def get_flood_status() -> bool:
     """Function to send an HTTP GET request to the server to retrieve the current flood status"""
@@ -51,6 +57,7 @@ def send_image(picam):
         # Capture image
         img_array = picam.capture_array()
         picam.stop()
+        print("Image has been captured")
 
         # Convert to base64 jpeg
         buffer = io.BytesIO()
@@ -58,6 +65,7 @@ def send_image(picam):
         image.save(buffer, format='JPEG')
         img_bytes = buffer.getvalue()
         encodedImage = base64.b64encode(img_bytes).decode("utf-8")
+        print("Image has been encoded")
     except Exception as e:
         print(f"Failed to capture image: {e}")
         return
@@ -75,7 +83,28 @@ def send_image(picam):
         }
 
         # Send POST request
-        response = requests.post(FULL_POST_PATH, headers=headers, data=json.dumps(payload))
+        print("POST request ready to be sent")
+        response = requests.post(FULL_POST_IMG_PATH, headers=headers, data=json.dumps(payload))
+        print(f"POST status: {response.status_code}")
+        print(f"Response: {response.text}")
+    except Exception as e:
+        print(f"POST error: {e}")
+
+def send_health():
+    try:
+        payload = {
+            "state": "alive",
+            "content_type": "text/plain"
+        }
+
+        headers = {
+            # "Authorization": f"Bearer {AUTH_TOKEN}",
+            "Content-Type": "application/json"
+        }
+
+        # Send POST request
+        print("POST request ready to be sent")
+        response = requests.post(FULL_POST_HEALTH_PATH, headers=headers, data=json.dumps(payload))
         print(f"POST status: {response.status_code}")
         print(f"Response: {response.text}")
     except Exception as e:
@@ -97,8 +126,9 @@ def main():
         picam = Picamera2()
         config = picam.create_still_configuration()
         picam.configure(config)
+        picam.set_controls({"AfMode": 2}) # set to autofocus
         picam.start()
-        sleep(1) # ready the camera
+        sleep(2) # ready the camera
         print("Camera successfully initialized")
         picam.stop() # stop the camera's current activity
 
@@ -118,15 +148,17 @@ def main():
             if(status):
                 print("--in the if statement--")
                 send_image(picam)
+                # # Update LED light
+                # update_light(status)
                 print("--end of if statement")
+                sleep(IMG_DELAY)
+            # Send the health update
+            else:
+                print("--sending health update--")
+                send_health()
+                print("--end of health update")
+                sleep(HEALTH_DELAY)
             
-            # Update LED light
-            update_light(status)
-
-            # Delay
-            # sleep(1) # loop every second
-            sleep(5) # loop every 5 seconds
-            # sleep(10)
     except KeyboardInterrupt:
         print("\nKeyboard Interrupt occurred! Stopping the camera and GPIO pins....")
     except Exception as e:
