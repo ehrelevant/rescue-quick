@@ -162,6 +162,8 @@ def feed(request: HttpRequest, pair_id: int | None = None):
             r'%Y/%m/%d %H:%M:%S %p'
         ),
         'num_people': sensor_camera.person_count,
+        # 'num_dogs': sensor_camera.dog_count,
+        # 'num_cats': sensor_camera.cat_count,
         'num_pets': sensor_camera.pet_count,
         'flood_level': sensor_camera.current_depth,
         'processed_image': processed_image_url,
