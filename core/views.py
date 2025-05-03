@@ -114,6 +114,8 @@ def index(request: HttpRequest):
 
 
 def feed(request: HttpRequest, pair_id: int | None = None):
+    sensor_camera: SensorCamera | None = None
+
     if not pair_id:
         sensor_camera = SensorCamera.objects.first()
 
@@ -125,7 +127,7 @@ def feed(request: HttpRequest, pair_id: int | None = None):
         return redirect(f'/feed/{sensor_camera.pair_id}/')
 
     last_camera_log = (
-        CameraLogs.objects.filter(camera_id=pair_id).order_by('-timestamp').first()
+        CameraLogs.objects.filter(camera_id=pair_id, flood_number=sensor_camera.flood_number).order_by('-timestamp').first()
     )
 
     # Returns a 404 error if the queried pair_id does not exist
