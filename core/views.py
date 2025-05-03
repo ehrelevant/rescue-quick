@@ -11,13 +11,21 @@ from django.core.files.base import ContentFile
 from uuid import uuid4
 
 import json
+import typing
+from collections import Counter
 
-from ultralytics import YOLO
 import cv2
 from PIL import Image
 from io import BytesIO
 import numpy as np
 
+# Imports for the SAHI
+from sahi.predict import get_sliced_prediction
+from sahi.utils.cv import visualize_object_predictions
+from core.load_model import get_detection_model
+
+# Define allowed classes for prediction
+allowed_classes = {"person", "dog", "cat"}
 
 def index(request: HttpRequest):
     dangerous_sensor_cameras = SensorCamera.objects.filter(
@@ -37,7 +45,9 @@ def index(request: HttpRequest):
                 'camera_name': sensor_camera.pair_name,
                 'date': sensor_camera.timestamp.strftime(r'%B %d, %Y'),
                 'num_people': sensor_camera.person_count,
-                'num_pets': sensor_camera.pet_count,
+                'num_dogs': sensor_camera.dog_count,
+                'num_cats': sensor_camera.cat_count,
+                'num_pets': 0, # TO REMOVE
                 'flood_level': sensor_camera.current_depth,
                 'max_flood_level': sensor_camera.threshold_depth,
             }
@@ -246,6 +256,7 @@ def get_flood_status(request: HttpRequest):
 @csrf_exempt
 @require_POST
 def post_image(request: HttpRequest, pair_id: str):
+    print("POST Request has arrived")
     try:
         # Get Sensor Camera Pair ID
         sensor_cam: SensorCamera | None = None
@@ -261,6 +272,7 @@ def post_image(request: HttpRequest, pair_id: str):
         decoded_img = base64.b64decode(img_data)
         img_name = f'{uuid4()}.jpg'
         img_file = ContentFile(decoded_img, name=img_name)
+        print("Image has been decoded")
 
         # Find appropriate Sensor Camera Pair
         if pair_id.isdigit():
@@ -274,22 +286,61 @@ def post_image(request: HttpRequest, pair_id: str):
         # Convert to a format YOLO can use
         pil_image = Image.open(BytesIO(decoded_img)).convert('RGB')
         img_array = np.array(pil_image)
+        sahi_rendered_img: np.ndarray[typing.Any, typing.Any] | None = None
 
-        # Choose and apply model
-        model = YOLO('yolo11n.pt')
-        model_results = model(img_array)
-        rendered_img = model_results[0].plot()
+        detection_model = get_detection_model()
+        print("Beginning SAHI")
+
+        # Use YOLO with SAHI
+        result = get_sliced_prediction(
+            image=img_array,
+            detection_model=detection_model,
+            slice_height=256,
+            slice_width=256,
+            overlap_height_ratio=0.2,
+            overlap_width_ratio=0.2,
+        )
+
+        # Filter the predictions
+        filtered_predictions = [
+            pred for pred in result.object_prediction_list
+            if pred.category.name in allowed_classes
+        ]
+
+        # Get the number of people, dogs, and cats
+        class_counts = Counter(pred.category.name for pred in filtered_predictions)
+        print(class_counts, class_counts.get("person", 0), class_counts.get("dog", 0), class_counts.get("cat", 0))
+
+        # Render the image
+        sahi_output = visualize_object_predictions(
+            image=img_array,  # original image as NumPy array
+            object_prediction_list=filtered_predictions,
+        )
+
+        # Convert to numpy array
+        if "image" in sahi_output.keys():
+            sahi_rendered_img = np.array(sahi_output['image'])
+        else:
+            sahi_rendered_img = img_array
+
+        # Convert to BGR for OpenCV encoding
+        rendered_img_bgr = cv2.cvtColor(sahi_rendered_img, cv2.COLOR_RGB2BGR)
 
         # Encode image
-        _, encoded_img = cv2.imencode('.jpg', rendered_img)
+        _, encoded_img_sahi = cv2.imencode('.jpg', rendered_img_bgr)
         img_processed_file = ContentFile(
-            encoded_img.tobytes(), name=f'processed_{img_name}.jpg'
+            encoded_img_sahi.tobytes(), name=f'processed_{img_name}.jpg'
         )
+
+        print("SAHI has been encoded")
 
         # Add image to camera logs
         CameraLogs.objects.create(
             camera_id=sensor_cam,
             flood_number=sensor_cam.flood_number,
+            person_count=class_counts.get("person", 0),
+            dog_count=class_counts.get("dog", 0),
+            cat_count=class_counts.get("cat", 0),
             image=img_file,
             image_processed=img_processed_file,
         )
