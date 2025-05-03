@@ -274,10 +274,12 @@ def post_image(request: HttpRequest, pair_id: str):
         # Convert to a format YOLO can use
         pil_image = Image.open(BytesIO(decoded_img)).convert('RGB')
         img_array = np.array(pil_image)
+
         # Choose and apply model
         model = YOLO('yolo11n.pt')
         model_results = model(img_array)
         rendered_img = model_results[0].plot()
+
         # Encode image
         _, encoded_img = cv2.imencode('.jpg', rendered_img)
         img_processed_file = ContentFile(
