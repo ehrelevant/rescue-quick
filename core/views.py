@@ -1,6 +1,7 @@
 import base64
 from django.db.models import QuerySet
 from django.shortcuts import redirect, render
+from django.utils import timezone
 
 from .models import SensorCamera, SensorLogs, CameraLogs
 
@@ -235,7 +236,8 @@ def get_flood_status(request: HttpRequest):
             ).lower()
 
             # Return as a JSON Response
-            return JsonResponse({'status': 'success', 'indicator': indicator})
+            # return JsonResponse({'status': 'success', 'indicator': indicator})
+            return JsonResponse({'status': 'success', 'indicator': 'false'})
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     else:
@@ -356,5 +358,33 @@ def post_reserve_pair_id(request: HttpRequest):
         )
 
         return JsonResponse({'status': 'success'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+@csrf_exempt
+@require_POST
+def post_cam_health(request: HttpRequest, pair_id: str):
+    try:
+        # Get Sensor Camera Pair ID
+        data = json.loads(request.body)
+        state: str = data.get("state", "")
+
+        # Find appropriate Sensor Camera Pair
+        if pair_id.isdigit():
+            pair_id_int: int = int(pair_id)
+        else:
+            return JsonResponse(
+                {'status': 'error', 'message': 'Invalid camera ID'}, status=400
+            )
+        
+        # Update the health report
+        if state == "alive":
+            SensorCamera.objects.filter(pair_id=pair_id_int).update(last_camera_report=timezone.now())
+        
+            return JsonResponse(
+                {'status': 'success', 'message': 'Camera is alive received'}
+            )
+        else:
+            return JsonResponse({'status': 'error', 'message': "Camera health update failed"}, status=400)
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
