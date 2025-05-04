@@ -19,12 +19,14 @@
                         </svg>
                     </div>
                     <span class="font-bold">
-                        {% if num_people != 0 and num_pets != 0 %}
-                            {{ num_people }} people, {{ num_pets }} pets
-                        {% elif num_people != 0 %}
-                            {{ num_people }} people
-                        {% elif num_pets != 0 %}
-                            {{ num_pets }} pets
+                        {% if num_people != 0 %}
+                            {% if num_cats or num_dogs %}
+                                {{ num_people }} people, {{ num_cats }} cats, {{ num_dogs }} dogs
+                            {% else %}
+                                {{ num_people }} people
+                            {% endif %}
+                        {% elif num_cats or num_dogs %}
+                            {{ num_cats }} cats, {{ num_dogs }} dogs 
                         {% endif %}
                     </span>
                 </div>

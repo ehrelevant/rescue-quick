@@ -105,7 +105,8 @@ def index(request: HttpRequest):
                 'date': 'April 20, 2025',
                 'marked_safe': '11:00 AM',
                 'num_people': 2,
-                'num_pets': 3,
+                'num_cats': 1,
+                'num_dogs': 2,
                 'flood_level': 0.65,
             }
         ],
@@ -124,6 +125,8 @@ def feed(request: HttpRequest, pair_id: int | None = None):
     if not pair_id:
         sensor_camera = SensorCamera.objects.first()
 
+        print("TEST:", sensor_camera)
+
         # Return a 404 error if the table is empty
         if not sensor_camera:
             return HttpResponseNotFound('No cameras found')
@@ -132,14 +135,19 @@ def feed(request: HttpRequest, pair_id: int | None = None):
         return redirect(f'/feed/{sensor_camera.pair_id}/')
 
     last_camera_log = (
-        CameraLogs.objects.filter(camera_id=pair_id, flood_number=sensor_camera.flood_number).order_by('-timestamp').first()
+        CameraLogs.objects.filter(
+            camera_id=pair_id, 
+            # flood_number=sensor_camera.flood_number
+        ).order_by('-timestamp').first()
     )
 
     # Returns a 404 error if the queried pair_id does not exist
     if not last_camera_log:
         return HttpResponseNotFound('Camera not found')
 
-    processed_image_url = last_camera_log.processed_image_url
+    # processed_image_url = last_camera_log.processed_image_url
+    processed_image_url = "https://www.rappler.com/tachyon/2025/05/ahtisa-manalo-miss-univere-ph-may-3-2025.jpg"
+
 
     sensor_camera = SensorCamera.objects.get(pk=pair_id)
 
@@ -169,9 +177,9 @@ def feed(request: HttpRequest, pair_id: int | None = None):
             r'%Y/%m/%d %H:%M:%S %p'
         ),
         'num_people': sensor_camera.person_count,
-        # 'num_dogs': sensor_camera.dog_count,
-        # 'num_cats': sensor_camera.cat_count,
-        'num_pets': sensor_camera.pet_count,
+        'num_dogs': sensor_camera.dog_count,
+        'num_cats': sensor_camera.cat_count,
+        # 'num_pets': sensor_camera.pet_count,
         'flood_level': sensor_camera.current_depth,
         'processed_image': processed_image_url,
         # For testing of pagination lang

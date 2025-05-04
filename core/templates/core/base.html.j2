@@ -15,11 +15,11 @@
         {% block extra_script %}
         {% endblock extra_script %}
     </head>
-    <body class="h-screen">
+    <body class="h-screen flex flex-col overflow-y-hidden">
         {% block header %}
         {% endblock header %}
         {% block container %}
-            <main>
+            <main class="overflow-y-auto">
                 {% block content %}
                 {% endblock content %}
             </main>
