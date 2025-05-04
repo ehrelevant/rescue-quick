@@ -47,25 +47,25 @@
                         </svg>
                     </div>
                     <span class="text-lg md:text-3xl font-bold">{{ counts.caution }}</span>
-                    <span class="text-[6pt]/2 md:text-sm/4 font-medium">Requires
+                    <span class="text-[6pt]/2 md:text-sm/4 font-medium">Currently
                         <br>
-                    Caution</span>
+                    Flooded</span>
                 </div>
-                <div class="skeleton hover:scale-110 transition linear duration-100 flex p-1 md:p-3 pl-2 md:pl-4 pr-2 md:pr-4 gap-1 md:gap-3 items-center bg-red-light rounded-md">
+                <div class="skeleton hover:scale-110 transition linear duration-100 flex p-1 md:p-3 pl-2 md:pl-4 pr-2 md:pr-4 gap-1 md:gap-3 items-center bg-red-light rounded-md tooltip" data-tip="Flood victims detected!">
                     <div class="p-1 md:p-2 rounded bg-red rounded-full">
                         <svg xmlns="http://www.w3.org/2000/svg"
                              viewBox="0 0 24 24"
                              fill="white"
                              class="size-3 md:size-5">
-                            <path fill-rule="evenodd" d="M12.516 2.17a.75.75 0 0 0-1.032 0 11.209 11.209 0 0 1-7.877 3.08.75.75 0 0 0-.722.515A12.74 12.74 0 0 0 2.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 0 0 .374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 0 0-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08Zm3.094 8.016a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clip-rule="evenodd" />
+                            <path fill-rule="evenodd" d="M12.516 2.17a.75.75 0 0 0-1.032 0 11.209 11.209 0 0 1-7.877 3.08.75.75 0 0 0-.722.515A12.74 12.74 0 0 0 2.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 0 0 .374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 0 0-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08Zm3.094 8.016a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clip-rule="evenodd"/>
                         </svg>
                     </div>
                     <span class="text-lg md:text-3xl font-bold">{{ counts.danger }}</span>
-                    <span class="text-[6pt]/2 md:text-sm/4 font-medium">In
+                    <span class="text-[6pt]/2 md:text-sm/4 font-medium">Critically
                         <br>
-                    Danger</span>
+                    Flooded</span>
                 </div>
-                <div class="hidden skeleton hover:scale-110 transition linear duration-100 flex p-3 pl-4 pr-4 gap-3 items-center bg-gray-light rounded-md">
+                <div class="skeleton hover:scale-110 transition linear duration-100 flex p-3 pl-4 pr-4 gap-3 items-center bg-gray-light rounded-md">
                     <div class="p-2 rounded bg-gray rounded-full">
                         <svg xmlns="http://www.w3.org/2000/svg"
                              viewBox="0 0 24 24"
@@ -86,13 +86,13 @@
             <div class="overflow-y-auto flex-grow flex flex-col bg-[#F2F4F8] rounded-xl p-4 pr-6">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
                     {% for monitor in monitors.danger %}
-                        {% include 'core/components/monitor_danger.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date num_people=monitor.num_people num_pets=monitor.num_pets flood_level=monitor.flood_level max_flood_level=monitor.max_flood_level %}
+                        {% include 'core/components/monitor_danger.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date num_people=monitor.num_people num_cats=monitor.num_cats num_dogs=monitor.num_dogs flood_level=monitor.flood_level max_flood_level=monitor.max_flood_level %}
                     {% endfor %}
                     {% for monitor in monitors.caution %}
-                        {% include 'core/components/monitor_caution.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date num_people=monitor.num_people num_pets=monitor.num_pets flood_level=monitor.flood_level max_flood_level=monitor.max_flood_level %}
+                        {% include 'core/components/monitor_caution.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date num_people=monitor.num_people flood_level=monitor.flood_level max_flood_level=monitor.max_flood_level %}
                     {% endfor %}
                     {% for monitor in monitors.safe %}
-                        {% include 'core/components/monitor_safe.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date num_people=monitor.num_people num_pets=monitor.num_pets flood_level=monitor.flood_level max_flood_level=monitor.max_flood_level %}
+                        {% include 'core/components/monitor_safe.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date num_people=monitor.num_people flood_level=monitor.flood_level max_flood_level=monitor.max_flood_level %}
                     {% endfor %}
                 </div>
             </div>

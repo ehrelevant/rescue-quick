@@ -39,7 +39,8 @@ def index(request: HttpRequest):
                 'camera_name': sensor_camera.pair_name,
                 'date': sensor_camera.timestamp.strftime(r'%B %d, %Y'),
                 'num_people': sensor_camera.person_count,
-                'num_pets': sensor_camera.pet_count,
+                'num_cats': sensor_camera.cat_count,
+                'num_dogs': sensor_camera.dog_count,
                 'flood_level': sensor_camera.current_depth,
                 'max_flood_level': sensor_camera.threshold_depth,
             }
@@ -65,6 +66,8 @@ def index(request: HttpRequest):
             'state_change_timestamp'
         ).all()
     ]
+
+    print(monitors)
 
     context = {
         'monitors': monitors,
