@@ -67,8 +67,6 @@ def index(request: HttpRequest):
         ).all()
     ]
 
-    print(monitors)
-
     context = {
         'monitors': monitors,
         'operations': [
