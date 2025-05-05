@@ -123,7 +123,7 @@ def feed(request: HttpRequest, pair_id: int | None = None):
     if not pair_id:
         sensor_camera = SensorCamera.objects.first()
 
-        print("TEST:", sensor_camera)
+        print('TEST:', sensor_camera)
 
         # Return a 404 error if the table is empty
         if not sensor_camera:
@@ -134,9 +134,11 @@ def feed(request: HttpRequest, pair_id: int | None = None):
 
     last_camera_log = (
         CameraLogs.objects.filter(
-            camera_id=pair_id, 
+            camera_id=pair_id,
             # flood_number=sensor_camera.flood_number
-        ).order_by('-timestamp').first()
+        )
+        .order_by('-timestamp')
+        .first()
     )
 
     # Returns a 404 error if the queried pair_id does not exist
@@ -144,8 +146,7 @@ def feed(request: HttpRequest, pair_id: int | None = None):
         return HttpResponseNotFound('Camera not found')
 
     # processed_image_url = last_camera_log.processed_image_url
-    processed_image_url = "https://www.rappler.com/tachyon/2025/05/ahtisa-manalo-miss-univere-ph-may-3-2025.jpg"
-
+    processed_image_url = 'https://www.rappler.com/tachyon/2025/05/ahtisa-manalo-miss-univere-ph-may-3-2025.jpg'
 
     sensor_camera = SensorCamera.objects.get(pk=pair_id)
 
@@ -288,7 +289,7 @@ def post_image(request: HttpRequest, pair_id: str):
 
         # Choose and apply model
         model = YOLO('yolo11n.pt')
-        model_results = model(img_array, classes=[0,15,16])
+        model_results = model(img_array, classes=[0, 15, 16])
         detections = model_results[0]
         rendered_img = model_results[0].plot()
 
@@ -369,13 +370,14 @@ def post_reserve_pair_id(request: HttpRequest):
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
+
 @csrf_exempt
 @require_POST
 def post_cam_health(request: HttpRequest, pair_id: str):
     try:
         # Get Sensor Camera Pair ID
         data = json.loads(request.body)
-        state: str = data.get("state", "")
+        state: str = data.get('state', '')
 
         # Find appropriate Sensor Camera Pair
         if pair_id.isdigit():
@@ -384,15 +386,20 @@ def post_cam_health(request: HttpRequest, pair_id: str):
             return JsonResponse(
                 {'status': 'error', 'message': 'Invalid camera ID'}, status=400
             )
-        
+
         # Update the health report
-        if state == "alive":
-            SensorCamera.objects.filter(pair_id=pair_id_int).update(last_camera_report=timezone.now())
-        
+        if state == 'alive':
+            SensorCamera.objects.filter(pair_id=pair_id_int).update(
+                last_camera_report=timezone.now()
+            )
+
             return JsonResponse(
                 {'status': 'success', 'message': 'Camera is alive received'}
             )
         else:
-            return JsonResponse({'status': 'error', 'message': "Camera health update failed"}, status=400)
+            return JsonResponse(
+                {'status': 'error', 'message': 'Camera health update failed'},
+                status=400,
+            )
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)

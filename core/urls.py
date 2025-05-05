@@ -11,5 +11,9 @@ urlpatterns = [
     path('api/upload-image/<str:pair_id>', views.post_image, name='upload_image'),
     path('api/pair-id', views.get_available_pair_id, name='available_pair_id'),
     path('api/pair-id/reserve', views.post_reserve_pair_id, name='reserve_pair_id'),
-    path('api/post-cam-health/<str:pair_id>', views.post_cam_health, name='post_cam_health'),
+    path(
+        'api/post-cam-health/<str:pair_id>',
+        views.post_cam_health,
+        name='post_cam_health',
+    ),
 ]
