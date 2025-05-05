@@ -76,8 +76,21 @@
                         {% include 'core/components/monitor_danger.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date num_people=monitor.num_people num_cats=monitor.num_cats num_dogs=monitor.num_dogs flood_level=monitor.flood_level max_flood_level=monitor.max_flood_level %}
                     {% endfor %}
                     {% for monitor in monitors.caution %}
+                        {% include 'core/components/monitor_safe.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date num_people=monitor.num_people flood_level=monitor.flood_level max_flood_level=monitor.max_flood_level %}
+                    {% endfor %}
+                    {% for monitor in monitors.caution %}
+                        {% include 'core/components/monitor_safe.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date num_people=monitor.num_people flood_level=monitor.flood_level max_flood_level=monitor.max_flood_level %}
+                    {% endfor %}
+                    {% for monitor in monitors.caution %}
+                        {% include 'core/components/monitor_safe.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date num_people=monitor.num_people flood_level=monitor.flood_level max_flood_level=monitor.max_flood_level %}
+                    {% endfor %}
+                    {% for monitor in monitors.caution %}
                         {% include 'core/components/monitor_caution.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date num_people=monitor.num_people flood_level=monitor.flood_level max_flood_level=monitor.max_flood_level %}
                     {% endfor %}
+                    {% for monitor in monitors.caution %}
+                        {% include 'core/components/monitor_caution.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date num_people=monitor.num_people flood_level=monitor.flood_level max_flood_level=monitor.max_flood_level %}
+                    {% endfor %}
+
                     {% for monitor in monitors.safe %}
                         {% include 'core/components/monitor_safe.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date num_people=monitor.num_people flood_level=monitor.flood_level max_flood_level=monitor.max_flood_level %}
                     {% endfor %}

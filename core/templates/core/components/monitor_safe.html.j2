@@ -1,5 +1,5 @@
-<div class="bg-white shadow-md p-6 rounded-md column-2 w-full">
-    <div class="grid grid-cols-5 gap-2 mb-4">
+<div class="bg-white shadow-md p-6 rounded-md column-2 w-full tooltip tooltip-bottom" data-tip="Monitor is currently safe!">
+    <div class="grid grid-cols-5 gap-2">
         <div class="flex gap-2 col-span-5 md:col-span-2">
             <div class="aspect-square h-[2rem] w-auto animate-pulse bg-green-light rounded-full flex items-center justify-center">
                 <div class="w-[50%] h-[50%] bg-green rounded-full"></div>
@@ -13,52 +13,6 @@
         <div class="col-span-5 md:col-span-3 flex flex-col md:text-right">
             <span class="hidden md:block text-xs/3">Located at</span>
             <span class="text-lg/5 font-bold text-black">{{ location }}</span>
-        </div>
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-        <div class="p-4 bg-gray-50 border-1 border-gray-200 rounded rounded-md">
-            <div class="flex items-center gap-2 mb-2">
-                <div class="p-1 bg-green rounded-full flex items-center aspect-square h-fit w-auto justify-center">
-                    <span class="bi--person-fill size-3"></span>
-                </div>
-                <span class="font-bold">People & Pets</span>
-            </div>
-            <div class="flex flex-row tooltip tooltip-bottom"
-                 data-tip="Currently not in critical level.">
-                <div class="flex flex-grow flex-col items-start">
-                    <span class="font-medium text-gray-500">People</span>
-                    <span class="text-3xl font-bold text-gray-300">0</span>
-                </div>
-                <div class="flex flex-grow flex-col">
-                    <span class="font-medium text-gray-500">Cats</span>
-                    <span class="text-3xl font-bold text-gray-300">0</span>
-                </div>
-                <div class="flex flex-grow flex-col">
-                    <span class="font-medium text-gray-500">Dogs</span>
-                    <span class="text-3xl font-bold text-gray-300">0</span>
-                </div>
-            </div>
-        </div>
-        <div class="p-4 bg-gray-50 border-1 border-gray-200 rounded rounded-md">
-            <div class="flex items-center gap-2 mb-2">
-                <div class="p-1 bg-green rounded-full flex items-center aspect-square h-fit w-auto justify-center">
-                    <span class="ri--flood-fill size-3"></span>
-                </div>
-                <span class="font-bold">Flood Level</span>
-            </div>
-            <div class="flex flex-col gap-2">
-                <div class="flex items-end gap-2">
-                    <span class="text-3xl font-bold">{{ flood_level }}</span>
-                    <span class="font-medium text-gray-500">Meters</span>
-                </div>
-                <div class="tooltip tooltip-bottom"
-                     data-tip="Caution Level: {{ max_flood_level }} meters">
-                    <progress class="progress progress-error w-full"
-                              value="{{ flood_level }}"
-                              max="{{ max_flood_level }}"
-                              style="color: var(--color-green)"></progress>
-                </div>
-            </div>
         </div>
     </div>
 </div>
