@@ -247,8 +247,7 @@ def get_flood_status(request: HttpRequest):
             ).lower()
 
             # Return as a JSON Response
-            # return JsonResponse({'status': 'success', 'indicator': indicator})
-            return JsonResponse({'status': 'success', 'indicator': 'false'})
+            return JsonResponse({'status': 'success', 'indicator': indicator})
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     else:
