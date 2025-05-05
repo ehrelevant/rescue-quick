@@ -40,22 +40,22 @@ class SensorCamera(models.Model):
         delta = timezone.now() - self.state_change_timestamp
         s = delta.seconds
         d = delta.days
-        if s <= 1:
-            return 'Just now'
-        elif s < 60:
-            return f'{s} seconds ago'
-        elif s < 120:
-            return '1 minute ago'
-        elif s < 3600:
-            return f'{s // 60} minutes ago'
-        elif s < 7200:
-            return '1 hour ago'
-        elif s < 86400:
-            return f'{s // 3600} hours ago'
-        elif d == 1:
+        if d == 1:
             return '1 day ago'
         elif d > 1:
             return f'{d} days ago'
+        elif d == 0 and s <= 1:
+            return 'Just now'
+        elif d == 0 and s < 60:
+            return f'{s} seconds ago'
+        elif d == 0 and s < 120:
+            return '1 minute ago'
+        elif d == 0 and s < 3600:
+            return f'{s // 60} minutes ago'
+        elif d == 0 and s < 7200:
+            return '1 hour ago'
+        elif d == 0 and s < 86400:
+            return f'{s // 3600} hours ago'
         else:
             return self.state_change_timestamp.strftime(r'on %Y/%m/%d')
 
