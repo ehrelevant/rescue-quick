@@ -19,6 +19,7 @@ class SensorCamera(models.Model):
         DANGEROUS = 'Dangerous'
         CAUTION = 'Caution'
         SAFE = 'Safe'
+        INACTIVE = 'Inactive'
 
     pair_id = models.IntegerField(primary_key=True)
     pair_name = models.CharField()
