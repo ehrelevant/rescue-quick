@@ -20,6 +20,8 @@ from PIL import Image
 from io import BytesIO
 import numpy as np
 
+from asgiref.sync import sync_to_async
+
 
 def index(request: HttpRequest):
     dangerous_sensor_cameras = SensorCamera.objects.filter(
@@ -31,7 +33,7 @@ def index(request: HttpRequest):
     safe_sensor_cameras = SensorCamera.objects.filter(
         monitor_state=SensorCamera.MonitorState.SAFE
     ).all()
-
+    
     def collect_monitors(sensor_cameras: QuerySet[SensorCamera, SensorCamera]):
         return [
             {
@@ -145,8 +147,8 @@ def feed(request: HttpRequest, pair_id: int | None = None):
     if not last_camera_log:
         return HttpResponseNotFound('Camera not found')
 
-    # processed_image_url = last_camera_log.processed_image_url
-    processed_image_url = 'https://www.rappler.com/tachyon/2025/05/ahtisa-manalo-miss-univere-ph-may-3-2025.jpg'
+    processed_image_url = last_camera_log.processed_image_url
+    #processed_image_url = 'https://www.rappler.com/tachyon/2025/05/ahtisa-manalo-miss-univere-ph-may-3-2025.jpg'
 
     sensor_camera = SensorCamera.objects.get(pk=pair_id)
 
@@ -211,15 +213,21 @@ def post_sensor_data(request: HttpRequest):
                 'pair_name': f'Camera {data["pair_id"]}',
                 'current_depth': max(data['current_depth'], 0),
                 'location': f'Location {data["pair_id"]}',
+                'monitor_state': SensorCamera.MonitorState.SAFE
             },
         )
 
-        if sensor_camera.current_depth > sensor_camera.threshold_depth:
+        if sensor_camera.current_depth > sensor_camera.threshold_depth and sensor_camera.monitor_state != SensorCamera.MonitorState.DANGEROUS:
+            # Update Monitor Status 
+            SensorCamera.objects.filter(pair_id=data['pair_id']).update(monitor_state=SensorCamera.MonitorState.CAUTION)
+            # Log Sensor Data
             SensorLogs.objects.create(
                 sensor_id=sensor_camera,
                 depth=sensor_camera.current_depth,
                 flood_number=sensor_camera.flood_number,
             )
+        else:
+            SensorCamera.objects.filter(pair_id=data['pair_id']).update(monitor_state=SensorCamera.MonitorState.SAFE)
 
         return JsonResponse({'status': 'success'})
     except Exception as e:
@@ -307,7 +315,7 @@ def post_image(request: HttpRequest, pair_id: str):
 
         # Count each class
         class_counts = Counter(class_ids)
-        print(class_counts)
+        print("counting ppl", class_counts.get(0,0))
 
         # Add image to camera logs
         CameraLogs.objects.create(
@@ -319,11 +327,19 @@ def post_image(request: HttpRequest, pair_id: str):
             image=img_file,
             image_processed=img_processed_file,
         )
+        if sum([class_counts.get(0, 0), class_counts.get(16, 0), class_counts.get(15, 0)]) > 0:
+            SensorCamera.objects.filter(pair_id=pair_id_int).update(monitor_state=SensorCamera.MonitorState.DANGEROUS)
+        else:
+            SensorCamera.objects.filter(pair_id=pair_id_int).update(monitor_state=SensorCamera.MonitorState.CAUTION)
+
+        # Update CameraSensor with the number of victims
+        SensorCamera.objects.filter(pair_id=pair_id_int).update(person_count=1, dog_count=class_counts.get(16, 0), cat_count=class_counts.get(15, 0))
 
         return JsonResponse(
             {'status': 'success', 'message': 'Upload successful', 'filename': img_name}
         )
     except Exception as e:
+        print("hell", str(e))
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
 
