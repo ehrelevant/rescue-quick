@@ -9,7 +9,7 @@
             <div class="bg-white h-[90%] grid grid-cols-10 gap-4 mb-4">
                 {# Container for the image #}
                 <div class="aspect-3/2 lg:aspect-auto col-span-10 lg:col-span-7 flex-shrink lg:flex-grow w-full bg-[#F2F4F8] flex items-center justify-center overflow-y-hidden">
-                    <span class="loading loading-dots loading-lg"></span>
+                    <img class="h-full object-contain" src="{{ processed_image }}">
                 </div>
                 {# Container for camera data #}
                 <div class="col-span-10 lg:col-span-3 h-full flex flex-col overflow-y-hidden">
@@ -39,15 +39,15 @@
                                  data-tip="Currently not in critical level.">
                                 <div class="flex flex-grow flex-col items-start">
                                     <span class="font-medium text-gray-500">People</span>
-                                    <span class="font-bold text-gray-300">0</span>
+                                    <span class="font-bold text-gray-300">{{ num_people }}</span>
                                 </div>
                                 <div class="flex flex-grow flex-col">
                                     <span class="font-medium text-gray-500">Cats</span>
-                                    <span class="font-bold text-gray-300">0</span>
+                                    <span class="font-bold text-gray-300">{{ num_cats }}</span>
                                 </div>
                                 <div class="flex flex-grow flex-col">
                                     <span class="font-medium text-gray-500">Dogs</span>
-                                    <span class="font-bold text-gray-300">0</span>
+                                    <span class="font-bold text-gray-300">{{ num_dogs }}</span>
                                 </div>
                             </div>
                         </div>
