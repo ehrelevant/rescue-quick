@@ -217,7 +217,7 @@ def post_sensor_data(request: HttpRequest):
             },
         )
 
-        if sensor_camera.current_depth > sensor_camera.threshold_depth and sensor_camera.monitor_state != SensorCamera.MonitorState.DANGEROUS:
+        if sensor_camera.current_depth > sensor_camera.threshold_depth and sensor_camera.monitor_state == SensorCamera.MonitorState.SAFE:
             # Update Monitor Status 
             SensorCamera.objects.filter(pair_id=data['pair_id']).update(monitor_state=SensorCamera.MonitorState.CAUTION)
             # Log Sensor Data
@@ -226,7 +226,7 @@ def post_sensor_data(request: HttpRequest):
                 depth=sensor_camera.current_depth,
                 flood_number=sensor_camera.flood_number,
             )
-        else:
+        elif sensor_camera.current_depth <= sensor_camera.threshold_depth:
             SensorCamera.objects.filter(pair_id=data['pair_id']).update(monitor_state=SensorCamera.MonitorState.SAFE)
 
         return JsonResponse({'status': 'success'})
@@ -327,13 +327,14 @@ def post_image(request: HttpRequest, pair_id: str):
             image=img_file,
             image_processed=img_processed_file,
         )
-        if sum([class_counts.get(0, 0), class_counts.get(16, 0), class_counts.get(15, 0)]) > 0:
-            SensorCamera.objects.filter(pair_id=pair_id_int).update(monitor_state=SensorCamera.MonitorState.DANGEROUS)
-        else:
-            SensorCamera.objects.filter(pair_id=pair_id_int).update(monitor_state=SensorCamera.MonitorState.CAUTION)
+        print("AAAAAAAAA", sum([class_counts.get(0, 0), class_counts.get(16, 0), class_counts.get(15, 0)]))
+        #if sum([class_counts.get(0, 0), class_counts.get(16, 0), class_counts.get(15, 0)]) > 0 and sensor_cam.monitor_state == SensorCamera.MonitorState.CAUTION:
+        #    SensorCamera.objects.filter(pair_id=pair_id_int).update(monitor_state=SensorCamera.MonitorState.DANGEROUS)
+        #elif sum([class_counts.get(0, 0), class_counts.get(16, 0), class_counts.get(15, 0)]) == 0 and sensor_cam.monitor_state == SensorCamera.MonitorState.DANGEROUS:
+        #    SensorCamera.objects.filter(pair_id=pair_id_int).update(monitor_state=SensorCamera.MonitorState.CAUTION)
 
         # Update CameraSensor with the number of victims
-        SensorCamera.objects.filter(pair_id=pair_id_int).update(person_count=1, dog_count=class_counts.get(16, 0), cat_count=class_counts.get(15, 0))
+        SensorCamera.objects.filter(pair_id=pair_id_int).update(person_count=class_counts.get(0,0), dog_count=class_counts.get(16, 0), cat_count=class_counts.get(15, 0))
 
         return JsonResponse(
             {'status': 'success', 'message': 'Upload successful', 'filename': img_name}
