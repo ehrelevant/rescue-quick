@@ -27,52 +27,6 @@
                         </a>
                     </span>
                     <div class="grid grid-cols-2 gap-2 mb-2">
-                        {# Detected entities #}
-                        <div class="p-4 bg-green-light rounded rounded-md">
-                            <div class="flex items-center gap-2 mb-2">
-                                <div class="p-1 bg-green rounded-full flex items-center aspect-square h-fit w-auto justify-center">
-                                    <span class="bi--person-fill size-3"></span>
-                                </div>
-                                <span class="font-bold">People & Pets</span>
-                            </div>
-                            <div class="flex flex-row tooltip tooltip-bottom"
-                                 data-tip="Currently not in critical level.">
-                                <div class="flex flex-grow flex-col items-start">
-                                    <span class="font-medium text-gray-500">People</span>
-                                    <span class="font-bold text-gray-300">0</span>
-                                </div>
-                                <div class="flex flex-grow flex-col">
-                                    <span class="font-medium text-gray-500">Cats</span>
-                                    <span class="font-bold text-gray-300">0</span>
-                                </div>
-                                <div class="flex flex-grow flex-col">
-                                    <span class="font-medium text-gray-500">Dogs</span>
-                                    <span class="font-bold text-gray-300">0</span>
-                                </div>
-                            </div>
-                        </div>
-                        {# Flood level #}
-                        <div class="p-4 bg-green-light rounded rounded-md">
-                            <div class="flex items-center gap-2 mb-2">
-                                <div class="p-1 bg-green rounded-full flex items-center aspect-square h-fit w-auto justify-center">
-                                    <span class="ri--flood-fill size-3"></span>
-                                </div>
-                                <span class="font-bold">Flood Level</span>
-                            </div>
-                            <div class="flex flex-col gap-2">
-                                <div class="flex items-end gap-2">
-                                    <span class="font-bold">{{ flood_level }}</span>
-                                    <span class="font-medium text-gray-500">Meters</span>
-                                </div>
-                                <div class="tooltip tooltip-bottom"
-                                     data-tip="Caution Level: {{ max_flood_level }} meters">
-                                    <progress class="progress progress-error w-full"
-                                              value="{{ flood_level }}"
-                                              max="{{ max_flood_level }}"
-                                              style="color: var(--color-green)"></progress>
-                                </div>
-                            </div>
-                        </div>
                         {# Location #}
                         <div class="col-span-2 p-4 bg-green-light rounded rounded-md">
                             <div class="flex items-center gap-2 mb-2">
