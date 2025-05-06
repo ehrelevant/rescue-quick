@@ -4,8 +4,8 @@
     {% include 'core/nav.html.j2' with selected='dashboard' %}
 {% endblock %}
 {% block content %}
-    <div class="h-[calc(100vh-128px)] lg:h-[90vh] w-full pt-2 p-3 lg:p-6 lg:pl-[5%] lg:pr-[5%] grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {# Left Panel#}
+    <div hx-get="/" hx-trigger="every 5s" id="dashboard" hx-select="#dashboard" hx-swap="morph:outerHTML" class="h-[calc(100vh-128px)] lg:h-[90vh] w-full pt-2 p-3 lg:p-6 lg:pl-[5%] lg:pr-[5%] grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {# Left Panel #}
         <div class="order-2 lg:order-1 col-span-1 md:col-span-2 h-full overflow-y-hidden flex flex-col gap-3">
             <div class="flex flex-row md:flex-col">
                 {# Monitors Header #}
