@@ -60,10 +60,8 @@
                         <div class="p-1 md:p-2 flex items-centerrounded bg-gray rounded-full">
                             <span class="mdi--shield-off size-3 md:size-5"></span>
                         </div>
-                        <span class="text-lg md:text-3xl font-bold">0</span>
-                        <span class="hidden md:inline text-[6pt]/2 md:text-sm/4 font-medium">Inactive/
-                            <br>
-                        Unresponsive</span>
+                        <span class="text-lg md:text-3xl font-bold">{{ counts.unresponsive }}</span>
+                        <span class="hidden md:inline text-[6pt]/2 md:text-sm/4 font-medium">Unresponsive</span>
                     </div>
                     <div class="flex-grow"></div>
                     <a href="#"><span class="hidden lg:block font-bold">View All</span></a>
@@ -80,6 +78,18 @@
                     {% endfor %}
                     {% for monitor in monitors.safe %}
                         {% include 'core/components/monitor_safe.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date num_people=monitor.num_people flood_level=monitor.flood_level max_flood_level=monitor.max_flood_level %}
+                    {% endfor %}
+                    {% for monitor in monitors.unresponsive_both %}
+                        {% include 'core/components/monitor_unresponsive_both.html.j2' with location=monitor.load camera_name=monitor.camera_name date=monitor.date %}
+                        Both Broke
+                    {% endfor %}
+                    {% for monitor in monitors.unresponsive_sensor %}
+                        {% include 'core/components/monitor_unresponsive_sensor.html.j2' with location=monitor.load camera_name=monitor.camera_name date=monitor.date %}
+                        Sensor Broke
+                    {% endfor %}
+                    {% for monitor in monitors.unresponsive_camera %}
+                        {% include 'core/components/monitor_unresponsive_camera.html.j2' with location=monitor.load camera_name=monitor.camera_name date=monitor.date %}
+                        Camera Broke
                     {% endfor %}
                 </div>
             </div>

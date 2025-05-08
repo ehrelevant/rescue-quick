@@ -20,7 +20,22 @@ from PIL import Image
 from io import BytesIO
 import numpy as np
 
+def check_health():
+    seconds_threshold = 5 # 5 Seconds
+    for sensor_camera in SensorCamera.objects.all():
+        sensor_time =  timezone.now() - sensor_camera.last_sensor_report 
+        camera_time =  timezone.now() - sensor_camera.last_camera_report
+        if sensor_time.seconds > seconds_threshold and camera_time.seconds > seconds_threshold:
+            sensor_camera.monitor_state = SensorCamera.MonitorState.UNRESPONSIVE_BOTH
+        elif sensor_time.seconds > seconds_threshold:
+            sensor_camera.monitor_state = SensorCamera.MonitorState.UNRESPONSIVE_SENSOR
+        elif camera_time.seconds > seconds_threshold:
+            sensor_camera.monitor_state = SensorCamera.MonitorState.UNRESPONSIVE_CAMERA
+        sensor_camera.save()        
+
 def index(request: HttpRequest):
+    check_health()
+    
     dangerous_sensor_cameras = SensorCamera.objects.filter(
         monitor_state=SensorCamera.MonitorState.DANGEROUS
     ).all()
@@ -30,7 +45,16 @@ def index(request: HttpRequest):
     safe_sensor_cameras = SensorCamera.objects.filter(
         monitor_state=SensorCamera.MonitorState.SAFE
     ).all()
-    
+    unresponsive_sensor_cameras = SensorCamera.objects.filter(
+        monitor_state=SensorCamera.MonitorState.UNRESPONSIVE_BOTH
+    ).all()
+    unresponsive_sensors = SensorCamera.objects.filter(
+        monitor_state=SensorCamera.MonitorState.UNRESPONSIVE_SENSOR
+    ).all()
+    unresponsive_cameras = SensorCamera.objects.filter(
+        monitor_state=SensorCamera.MonitorState.UNRESPONSIVE_CAMERA      
+    ).all()
+
     def collect_monitors(sensor_cameras: QuerySet[SensorCamera, SensorCamera]):
         return [
             {
@@ -50,6 +74,9 @@ def index(request: HttpRequest):
         'danger': collect_monitors(dangerous_sensor_cameras),
         'caution': collect_monitors(caution_sensor_cameras),
         'safe': collect_monitors(safe_sensor_cameras),
+        'unresponsive_both': collect_monitors(unresponsive_sensor_cameras),
+        'unresponsive_sensor': collect_monitors(unresponsive_sensors),
+        'unresponsive_camera': collect_monitors(unresponsive_cameras),
     }
 
     operations = [
@@ -111,6 +138,9 @@ def index(request: HttpRequest):
             'danger': dangerous_sensor_cameras.count(),
             'caution': caution_sensor_cameras.count(),
             'safe': safe_sensor_cameras.count(),
+            'unresponsive': unresponsive_sensor_cameras.count() 
+                          + unresponsive_sensors.count() 
+                          + unresponsive_cameras.count()
         },
     }
     return render(request, 'core/index.html.j2', context)
@@ -192,6 +222,7 @@ def feed(request: HttpRequest, pair_id: int | None = None):
     else:
         return render(request, 'core/feed/safe.html.j2', context)
 
+
 # =============== Sensor Views ===============
 @csrf_exempt
 @require_POST
@@ -204,6 +235,7 @@ def post_sensor_data(request: HttpRequest):
             pair_id=data['pair_id'],
             defaults={
                 'current_depth': max(data['current_depth'], 0),
+                'last_sensor_report': timezone.now()
             },
             create_defaults={
                 'pair_name': f'Camera {data["pair_id"]}',
@@ -216,7 +248,7 @@ def post_sensor_data(request: HttpRequest):
         # Update Monitor State
         if sensor_camera.current_depth > sensor_camera.threshold_depth and sensor_camera.monitor_state == SensorCamera.MonitorState.SAFE:
             SensorCamera.objects.filter(pair_id=data['pair_id']).update(monitor_state=SensorCamera.MonitorState.CAUTION)            
-        elif sensor_camera.current_depth <= sensor_camera.threshold_depth:
+        elif sensor_camera.current_depth <= sensor_camera.threshold_depth or sensor_camera.monitor_state == SensorCamera.MonitorState.UNRESPONSIVE_CAMERA or sensor_camera.monitor_state == SensorCamera.MonitorState.UNRESPONSIVE_BOTH or sensor_camera.monitor_state == SensorCamera.MonitorState.UNRESPONSIVE_SENSOR:
             SensorCamera.objects.filter(pair_id=data['pair_id']).update(monitor_state=SensorCamera.MonitorState.SAFE)
 
         # Log Sensor Data if CAUTION or DANGEROUS

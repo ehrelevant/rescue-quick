@@ -3,6 +3,7 @@ from django.db import models
 from storages.backends.s3boto3 import S3Boto3Storage
 from django.utils import timezone
 
+from datetime import datetime
 
 class CameraImageStorage(S3Boto3Storage):
     location = 'camera'
@@ -13,32 +14,8 @@ class CameraImageProcessedStorage(S3Boto3Storage):
     location = 'processed'
     file_overwrite = False
 
-
-class SensorCamera(models.Model):
-    class MonitorState(models.TextChoices):
-        DANGEROUS = 'Dangerous'
-        CAUTION = 'Caution'
-        SAFE = 'Safe'
-        INACTIVE = 'Inactive'
-
-    pair_id = models.IntegerField(primary_key=True)
-    pair_name = models.CharField()
-    current_depth = models.FloatField(null=True)
-    threshold_depth = models.FloatField(default=1)
-    location = models.TextField()
-    flood_number = models.IntegerField(default=1)
-    person_count = models.IntegerField(default=0)
-    dog_count = models.IntegerField(default=0)
-    cat_count = models.IntegerField(default=0)
-    timestamp = models.DateTimeField(auto_now=True)
-    monitor_state = models.CharField(choices=MonitorState, default=MonitorState.SAFE)
-    state_change_timestamp = models.DateTimeField(default=timezone.now)
-    last_sensor_report = models.DateTimeField(default=timezone.now)
-    last_camera_report = models.DateTimeField(default=timezone.now)
-
-    @property
-    def elapsed_time(self) -> str:
-        delta = timezone.now() - self.state_change_timestamp
+def elapsed_time(timestamp: datetime) -> str:
+        delta = timezone.now() - timestamp
         s = delta.seconds
         d = delta.days
         if d == 1:
@@ -58,7 +35,32 @@ class SensorCamera(models.Model):
         elif d == 0 and s < 86400:
             return f'{s // 3600} hours ago'
         else:
-            return self.state_change_timestamp.strftime(r'on %Y/%m/%d')
+            return timestamp.strftime(r'on %Y/%m/%d')
+
+class SensorCamera(models.Model):
+    class MonitorState(models.TextChoices):
+        DANGEROUS = 'Dangerous'
+        CAUTION = 'Caution'
+        SAFE = 'Safe'
+        UNRESPONSIVE_SENSOR = 'Unresponsive Sensor'
+        UNRESPONSIVE_CAMERA = 'Unresponsive Camera'
+        UNRESPONSIVE_BOTH = 'Both Unresponsive'
+    
+    pair_id = models.IntegerField(primary_key=True)
+    pair_name = models.CharField()
+    current_depth = models.FloatField(null=True)
+    threshold_depth = models.FloatField(default=1)
+    location = models.TextField()
+    flood_number = models.IntegerField(default=1)
+    person_count = models.IntegerField(default=0)
+    dog_count = models.IntegerField(default=0)
+    cat_count = models.IntegerField(default=0)
+    timestamp = models.DateTimeField(auto_now=True)
+    monitor_state = models.CharField(choices=MonitorState, default=MonitorState.SAFE)
+    # Remove state_change_timestamp
+    state_change_timestamp = models.DateTimeField(default=timezone.now)
+    last_sensor_report = models.DateTimeField(default=timezone.now)
+    last_camera_report = models.DateTimeField(default=timezone.now)
 
     @property
     def is_long_time(self) -> bool:
