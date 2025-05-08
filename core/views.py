@@ -20,9 +20,6 @@ from PIL import Image
 from io import BytesIO
 import numpy as np
 
-from asgiref.sync import sync_to_async
-
-
 def index(request: HttpRequest):
     dangerous_sensor_cameras = SensorCamera.objects.filter(
         monitor_state=SensorCamera.MonitorState.DANGEROUS
@@ -195,14 +192,13 @@ def feed(request: HttpRequest, pair_id: int | None = None):
     else:
         return render(request, 'core/feed/safe.html.j2', context)
 
-
-# Remove csrf_exempt eventually
+# =============== Sensor Views ===============
 @csrf_exempt
 @require_POST
 def post_sensor_data(request: HttpRequest):
     try:
         data = json.loads(request.body)
-        print('Parsed JSON:', data)
+
 
         sensor_camera, _ = SensorCamera.objects.update_or_create(
             pair_id=data['pair_id'],
@@ -217,23 +213,27 @@ def post_sensor_data(request: HttpRequest):
             },
         )
 
+        # Update Monitor State
         if sensor_camera.current_depth > sensor_camera.threshold_depth and sensor_camera.monitor_state == SensorCamera.MonitorState.SAFE:
-            # Update Monitor Status 
-            SensorCamera.objects.filter(pair_id=data['pair_id']).update(monitor_state=SensorCamera.MonitorState.CAUTION)
-            # Log Sensor Data
+            SensorCamera.objects.filter(pair_id=data['pair_id']).update(monitor_state=SensorCamera.MonitorState.CAUTION)            
+        elif sensor_camera.current_depth <= sensor_camera.threshold_depth:
+            SensorCamera.objects.filter(pair_id=data['pair_id']).update(monitor_state=SensorCamera.MonitorState.SAFE)
+
+        # Log Sensor Data if CAUTION or DANGEROUS
+        if sensor_camera.monitor_state == SensorCamera.MonitorState.CAUTION or sensor_camera.monitor_state == SensorCamera.MonitorState.DANGEROUS:
             SensorLogs.objects.create(
                 sensor_id=sensor_camera,
                 depth=sensor_camera.current_depth,
                 flood_number=sensor_camera.flood_number,
             )
-        elif sensor_camera.current_depth <= sensor_camera.threshold_depth:
-            SensorCamera.objects.filter(pair_id=data['pair_id']).update(monitor_state=SensorCamera.MonitorState.SAFE)
 
         return JsonResponse({'status': 'success'})
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+# ============================================
 
 
+# =============== Camera Views =============== 
 @csrf_exempt
 @require_GET
 def get_flood_status(request: HttpRequest):
@@ -327,22 +327,55 @@ def post_image(request: HttpRequest, pair_id: str):
             image=img_file,
             image_processed=img_processed_file,
         )
-        print("AAAAAAAAA", sum([class_counts.get(0, 0), class_counts.get(16, 0), class_counts.get(15, 0)]))
-        #if sum([class_counts.get(0, 0), class_counts.get(16, 0), class_counts.get(15, 0)]) > 0 and sensor_cam.monitor_state == SensorCamera.MonitorState.CAUTION:
-        #    SensorCamera.objects.filter(pair_id=pair_id_int).update(monitor_state=SensorCamera.MonitorState.DANGEROUS)
-        #elif sum([class_counts.get(0, 0), class_counts.get(16, 0), class_counts.get(15, 0)]) == 0 and sensor_cam.monitor_state == SensorCamera.MonitorState.DANGEROUS:
-        #    SensorCamera.objects.filter(pair_id=pair_id_int).update(monitor_state=SensorCamera.MonitorState.CAUTION)
+
+        # Update Monitor State
+        if sum([class_counts.get(0, 0), class_counts.get(16, 0), class_counts.get(15, 0)]) > 0 and sensor_cam.monitor_state == SensorCamera.MonitorState.CAUTION:
+            sensor_cam.update(monitor_state=SensorCamera.MonitorState.DANGEROUS)
+        elif sum([class_counts.get(0, 0), class_counts.get(16, 0), class_counts.get(15, 0)]) == 0 and sensor_cam.monitor_state == SensorCamera.MonitorState.DANGEROUS:
+            sensor_cam.update(monitor_state=SensorCamera.MonitorState.CAUTION)
 
         # Update CameraSensor with the number of victims
-        SensorCamera.objects.filter(pair_id=pair_id_int).update(person_count=class_counts.get(0,0), dog_count=class_counts.get(16, 0), cat_count=class_counts.get(15, 0))
+        sensor_cam.update(person_count=class_counts.get(0,0), dog_count=class_counts.get(16, 0), cat_count=class_counts.get(15, 0))
 
         return JsonResponse(
             {'status': 'success', 'message': 'Upload successful', 'filename': img_name}
         )
     except Exception as e:
-        print("hell", str(e))
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
+@csrf_exempt
+@require_POST
+def post_cam_health(request: HttpRequest, pair_id: str):
+    try:
+        # Get Sensor Camera Pair ID
+        data = json.loads(request.body)
+        state: str = data.get('state', '')
+
+        # Find appropriate Sensor Camera Pair
+        if pair_id.isdigit():
+            pair_id_int: int = int(pair_id)
+        else:
+            return JsonResponse(
+                {'status': 'error', 'message': 'Invalid camera ID'}, status=400
+            )
+
+        # Update the health report
+        if state == 'alive':
+            SensorCamera.objects.filter(pair_id=pair_id_int).update(
+                last_camera_report=timezone.now()
+            )
+
+            return JsonResponse(
+                {'status': 'success', 'message': 'Camera is alive received'}
+            )
+        else:
+            return JsonResponse(
+                {'status': 'error', 'message': 'Camera health update failed'},
+                status=400,
+            )
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+# ============================================
 
 @csrf_exempt
 @require_GET
@@ -384,39 +417,5 @@ def post_reserve_pair_id(request: HttpRequest):
         )
 
         return JsonResponse({'status': 'success'})
-    except Exception as e:
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-
-
-@csrf_exempt
-@require_POST
-def post_cam_health(request: HttpRequest, pair_id: str):
-    try:
-        # Get Sensor Camera Pair ID
-        data = json.loads(request.body)
-        state: str = data.get('state', '')
-
-        # Find appropriate Sensor Camera Pair
-        if pair_id.isdigit():
-            pair_id_int: int = int(pair_id)
-        else:
-            return JsonResponse(
-                {'status': 'error', 'message': 'Invalid camera ID'}, status=400
-            )
-
-        # Update the health report
-        if state == 'alive':
-            SensorCamera.objects.filter(pair_id=pair_id_int).update(
-                last_camera_report=timezone.now()
-            )
-
-            return JsonResponse(
-                {'status': 'success', 'message': 'Camera is alive received'}
-            )
-        else:
-            return JsonResponse(
-                {'status': 'error', 'message': 'Camera health update failed'},
-                status=400,
-            )
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
