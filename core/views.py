@@ -226,30 +226,28 @@ def feed(request: HttpRequest, pair_id: int | None = None):
 # =============== Sensor Views ===============
 @csrf_exempt
 @require_POST
-def post_sensor_data(request: HttpRequest):
+def post_sensor_data(request: HttpRequest, pair_id: int):
     try:
         data = json.loads(request.body)
-
-
+        
         sensor_camera, _ = SensorCamera.objects.update_or_create(
-            pair_id=data['pair_id'],
+            pair_id=pair_id,
             defaults={
                 'current_depth': max(data['current_depth'], 0),
-                'last_sensor_report': timezone.now()
+                'last_sensor_report': timezone.now(),
             },
             create_defaults={
-                'pair_name': f'Camera {data["pair_id"]}',
+                'pair_name': f'Camera {pair_id}',
                 'current_depth': max(data['current_depth'], 0),
-                'location': f'Location {data["pair_id"]}',
-                'monitor_state': SensorCamera.MonitorState.SAFE
+                'location': f'Location {pair_id}',
+                'monitor_state': SensorCamera.MonitorState.SAFE,
             },
         )
-
         # Update Monitor State
         if sensor_camera.current_depth > sensor_camera.threshold_depth and sensor_camera.monitor_state == SensorCamera.MonitorState.SAFE:
-            SensorCamera.objects.filter(pair_id=data['pair_id']).update(monitor_state=SensorCamera.MonitorState.CAUTION)            
+            SensorCamera.objects.filter(pair_id=pair_id).update(monitor_state=SensorCamera.MonitorState.CAUTION)            
         elif sensor_camera.current_depth <= sensor_camera.threshold_depth or sensor_camera.monitor_state == SensorCamera.MonitorState.UNRESPONSIVE_CAMERA or sensor_camera.monitor_state == SensorCamera.MonitorState.UNRESPONSIVE_BOTH or sensor_camera.monitor_state == SensorCamera.MonitorState.UNRESPONSIVE_SENSOR:
-            SensorCamera.objects.filter(pair_id=data['pair_id']).update(monitor_state=SensorCamera.MonitorState.SAFE)
+            SensorCamera.objects.filter(pair_id=pair_id).update(monitor_state=SensorCamera.MonitorState.SAFE)
 
         # Log Sensor Data if CAUTION or DANGEROUS
         if sensor_camera.monitor_state == SensorCamera.MonitorState.CAUTION or sensor_camera.monitor_state == SensorCamera.MonitorState.DANGEROUS:
