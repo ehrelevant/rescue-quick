@@ -295,7 +295,7 @@ def get_flood_status(request: HttpRequest):
 
 @csrf_exempt
 @require_POST
-def post_image(request: HttpRequest, pair_id: str):
+def post_image(request: HttpRequest, pair_id: int):
     try:
         # Get Sensor Camera Pair ID
         sensor_cam: SensorCamera | None = None
@@ -313,13 +313,7 @@ def post_image(request: HttpRequest, pair_id: str):
         img_file = ContentFile(decoded_img, name=img_name)
 
         # Find appropriate Sensor Camera Pair
-        if pair_id.isdigit():
-            pair_id_int: int = int(pair_id)
-            sensor_cam = SensorCamera.objects.get(pair_id=pair_id_int)
-        else:
-            return JsonResponse(
-                {'status': 'error', 'message': 'Invalid camera ID'}, status=400
-            )
+        sensor_cam = SensorCamera.objects.get(pair_id=pair_id)
 
         # Convert to a format YOLO can use
         pil_image = Image.open(BytesIO(decoded_img)).convert('RGB')
@@ -375,23 +369,15 @@ def post_image(request: HttpRequest, pair_id: str):
 
 @csrf_exempt
 @require_POST
-def post_cam_health(request: HttpRequest, pair_id: str):
+def post_cam_health(request: HttpRequest, pair_id: int):
     try:
         # Get Sensor Camera Pair ID
         data = json.loads(request.body)
         state: str = data.get('state', '')
 
-        # Find appropriate Sensor Camera Pair
-        if pair_id.isdigit():
-            pair_id_int: int = int(pair_id)
-        else:
-            return JsonResponse(
-                {'status': 'error', 'message': 'Invalid camera ID'}, status=400
-            )
-
         # Update the health report
         if state == 'alive':
-            SensorCamera.objects.filter(pair_id=pair_id_int).update(
+            SensorCamera.objects.filter(pair_id=pair_id).update(
                 last_camera_report=timezone.now()
             )
 
