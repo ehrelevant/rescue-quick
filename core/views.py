@@ -235,18 +235,23 @@ def post_sensor_data(request: HttpRequest, pair_id: int):
             defaults={
                 'current_depth': max(data['current_depth'], 0),
                 'last_sensor_report': timezone.now(),
+                'is_wet': data['is_wet']
             },
             create_defaults={
                 'pair_name': f'Camera {pair_id}',
                 'current_depth': max(data['current_depth'], 0),
                 'location': f'Location {pair_id}',
                 'monitor_state': SensorCamera.MonitorState.SAFE,
+                'is_wet': data['is_wet']
             },
         )
         # Update Monitor State
-        if sensor_camera.current_depth > sensor_camera.threshold_depth and sensor_camera.monitor_state == SensorCamera.MonitorState.SAFE:
+        if sensor_camera.current_depth > sensor_camera.threshold_depth and sensor_camera.is_wet and sensor_camera.monitor_state == SensorCamera.MonitorState.SAFE:
             SensorCamera.objects.filter(pair_id=pair_id).update(monitor_state=SensorCamera.MonitorState.CAUTION)            
-        elif sensor_camera.current_depth <= sensor_camera.threshold_depth or sensor_camera.monitor_state == SensorCamera.MonitorState.UNRESPONSIVE_CAMERA or sensor_camera.monitor_state == SensorCamera.MonitorState.UNRESPONSIVE_BOTH or sensor_camera.monitor_state == SensorCamera.MonitorState.UNRESPONSIVE_SENSOR:
+        elif (sensor_camera.current_depth <= sensor_camera.threshold_depth or not sensor_camera.is_wet or   
+              sensor_camera.monitor_state == SensorCamera.MonitorState.UNRESPONSIVE_CAMERA or 
+              sensor_camera.monitor_state == SensorCamera.MonitorState.UNRESPONSIVE_BOTH or 
+              sensor_camera.monitor_state == SensorCamera.MonitorState.UNRESPONSIVE_SENSOR):
             SensorCamera.objects.filter(pair_id=pair_id).update(monitor_state=SensorCamera.MonitorState.SAFE)
 
         # Log Sensor Data if CAUTION or DANGEROUS

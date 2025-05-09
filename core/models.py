@@ -50,6 +50,7 @@ class SensorCamera(models.Model):
     pair_name = models.CharField()
     current_depth = models.FloatField(null=True)
     threshold_depth = models.FloatField(default=1)
+    is_wet = models.BooleanField(default=False)
     location = models.TextField()
     flood_number = models.IntegerField(default=1)
     person_count = models.IntegerField(default=0)
