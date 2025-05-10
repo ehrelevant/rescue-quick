@@ -18,6 +18,10 @@ FROM ghcr.io/astral-sh/uv:debian
 
 WORKDIR /app
 
+# Set DEBUG to False to indicate a production environment on build
+# This is also done to avoid unnecessary installation of django-browser-reload
+ENV DEBUG=False
+
 # Install system dependencies
 RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
 
