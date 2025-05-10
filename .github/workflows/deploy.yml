@@ -1,0 +1,28 @@
+name: Pull and deploy repository
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    name: SSH into server and deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Executing remote command
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ~/programs/rescue-quick
+            docker compose down
+            GIT_SSH_COMMAND='ssh -i ~/.ssh/id_ed25519_rescue_quick -o IdentitiesOnly=yes' git pull origin main
+            docker compose up -d
+            echo "Deployed to server!"
+        
