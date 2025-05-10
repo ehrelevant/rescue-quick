@@ -1,0 +1,9 @@
+.skeleton {
+    animation-duration: 5s;
+}
+
+@keyframes skeleton {
+    0% {background-position: 150%;}
+    30% {background-position: -50%;}
+    100% {background-position: -150%;}
+}
