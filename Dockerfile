@@ -26,7 +26,7 @@ COPY uv.lock pyproject.toml /app/
 
 # Install Python dependencies
 # Cache is not saved to save space on the production server
-RUN uv sync --frozen --no-dev --no-cache
+RUN uv sync --locked --no-dev --no-cache
 
 # Copy all of the other project files
 COPY . /app
@@ -35,12 +35,9 @@ COPY . /app
 COPY --from=builder /app/core/static/core/css/output.css /app/core/static/core/css/output.css 
 
 # Collect static files
-RUN uv run manage.py collectstatic --no-input -i input.css -i django-browser-reload
-
-# Place executables in the environment at the front of the path
-ENV PATH="/app/.venv/bin:$PATH"
+RUN uv run --locked --no-dev --no-cache manage.py collectstatic --no-input -i input.css
 
 # Expose port 3000 and serve via WSGI
 EXPOSE 3000
 
-CMD ["uv", "run", "--frozen", "--no-sync", "gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:3000"]
+CMD uv run --locked --no-dev --no-cache gunicorn config.wsgi:application --bind 0.0.0.0:3000
