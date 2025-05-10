@@ -20,22 +20,27 @@ from PIL import Image
 from io import BytesIO
 import numpy as np
 
+
 def check_health():
-    seconds_threshold = 5 # 5 Seconds
+    seconds_threshold = 5  # 5 Seconds
     for sensor_camera in SensorCamera.objects.all():
-        sensor_time =  timezone.now() - sensor_camera.last_sensor_report 
-        camera_time =  timezone.now() - sensor_camera.last_camera_report
-        if sensor_time.seconds > seconds_threshold and camera_time.seconds > seconds_threshold:
+        sensor_time = timezone.now() - sensor_camera.last_sensor_report
+        camera_time = timezone.now() - sensor_camera.last_camera_report
+        if (
+            sensor_time.seconds > seconds_threshold
+            and camera_time.seconds > seconds_threshold
+        ):
             sensor_camera.monitor_state = SensorCamera.MonitorState.UNRESPONSIVE_BOTH
         elif sensor_time.seconds > seconds_threshold:
             sensor_camera.monitor_state = SensorCamera.MonitorState.UNRESPONSIVE_SENSOR
         elif camera_time.seconds > seconds_threshold:
             sensor_camera.monitor_state = SensorCamera.MonitorState.UNRESPONSIVE_CAMERA
-        sensor_camera.save()        
+        sensor_camera.save()
+
 
 def index(request: HttpRequest):
     check_health()
-    
+
     dangerous_sensor_cameras = SensorCamera.objects.filter(
         monitor_state=SensorCamera.MonitorState.DANGEROUS
     ).all()
@@ -52,7 +57,7 @@ def index(request: HttpRequest):
         monitor_state=SensorCamera.MonitorState.UNRESPONSIVE_SENSOR
     ).all()
     unresponsive_cameras = SensorCamera.objects.filter(
-        monitor_state=SensorCamera.MonitorState.UNRESPONSIVE_CAMERA      
+        monitor_state=SensorCamera.MonitorState.UNRESPONSIVE_CAMERA
     ).all()
 
     def collect_monitors(sensor_cameras: QuerySet[SensorCamera, SensorCamera]):
@@ -138,9 +143,9 @@ def index(request: HttpRequest):
             'danger': dangerous_sensor_cameras.count(),
             'caution': caution_sensor_cameras.count(),
             'safe': safe_sensor_cameras.count(),
-            'unresponsive': unresponsive_sensor_cameras.count() 
-                          + unresponsive_sensors.count() 
-                          + unresponsive_cameras.count()
+            'unresponsive': unresponsive_sensor_cameras.count()
+            + unresponsive_sensors.count()
+            + unresponsive_cameras.count(),
         },
     }
     return render(request, 'core/index.html.j2', context)
@@ -175,7 +180,7 @@ def feed(request: HttpRequest, pair_id: int | None = None):
         return HttpResponseNotFound('Camera not found')
 
     processed_image_url = last_camera_log.processed_image_url
-    #processed_image_url = 'https://www.rappler.com/tachyon/2025/05/ahtisa-manalo-miss-univere-ph-may-3-2025.jpg'
+    # processed_image_url = 'https://www.rappler.com/tachyon/2025/05/ahtisa-manalo-miss-univere-ph-may-3-2025.jpg'
 
     sensor_camera = SensorCamera.objects.get(pk=pair_id)
 
@@ -229,33 +234,50 @@ def feed(request: HttpRequest, pair_id: int | None = None):
 def post_sensor_data(request: HttpRequest, pair_id: int):
     try:
         data = json.loads(request.body)
-        
+
         sensor_camera, _ = SensorCamera.objects.update_or_create(
             pair_id=pair_id,
             defaults={
                 'current_depth': max(data['current_depth'], 0),
                 'last_sensor_report': timezone.now(),
-                'is_wet': data['is_wet']
+                'is_wet': data['is_wet'],
             },
             create_defaults={
                 'pair_name': f'Camera {pair_id}',
                 'current_depth': max(data['current_depth'], 0),
                 'location': f'Location {pair_id}',
                 'monitor_state': SensorCamera.MonitorState.SAFE,
-                'is_wet': data['is_wet']
+                'is_wet': data['is_wet'],
             },
         )
         # Update Monitor State
-        if sensor_camera.current_depth > sensor_camera.threshold_depth and sensor_camera.is_wet and sensor_camera.monitor_state == SensorCamera.MonitorState.SAFE:
-            SensorCamera.objects.filter(pair_id=pair_id).update(monitor_state=SensorCamera.MonitorState.CAUTION)            
-        elif (sensor_camera.current_depth <= sensor_camera.threshold_depth or not sensor_camera.is_wet or   
-              sensor_camera.monitor_state == SensorCamera.MonitorState.UNRESPONSIVE_CAMERA or 
-              sensor_camera.monitor_state == SensorCamera.MonitorState.UNRESPONSIVE_BOTH or 
-              sensor_camera.monitor_state == SensorCamera.MonitorState.UNRESPONSIVE_SENSOR):
-            SensorCamera.objects.filter(pair_id=pair_id).update(monitor_state=SensorCamera.MonitorState.SAFE)
+        if (
+            sensor_camera.current_depth > sensor_camera.threshold_depth
+            and sensor_camera.is_wet
+            and sensor_camera.monitor_state == SensorCamera.MonitorState.SAFE
+        ):
+            SensorCamera.objects.filter(pair_id=pair_id).update(
+                monitor_state=SensorCamera.MonitorState.CAUTION
+            )
+        elif (
+            sensor_camera.current_depth <= sensor_camera.threshold_depth
+            or not sensor_camera.is_wet
+            or sensor_camera.monitor_state
+            == SensorCamera.MonitorState.UNRESPONSIVE_CAMERA
+            or sensor_camera.monitor_state
+            == SensorCamera.MonitorState.UNRESPONSIVE_BOTH
+            or sensor_camera.monitor_state
+            == SensorCamera.MonitorState.UNRESPONSIVE_SENSOR
+        ):
+            SensorCamera.objects.filter(pair_id=pair_id).update(
+                monitor_state=SensorCamera.MonitorState.SAFE
+            )
 
         # Log Sensor Data if CAUTION or DANGEROUS
-        if sensor_camera.monitor_state == SensorCamera.MonitorState.CAUTION or sensor_camera.monitor_state == SensorCamera.MonitorState.DANGEROUS:
+        if (
+            sensor_camera.monitor_state == SensorCamera.MonitorState.CAUTION
+            or sensor_camera.monitor_state == SensorCamera.MonitorState.DANGEROUS
+        ):
             SensorLogs.objects.create(
                 sensor_id=sensor_camera,
                 depth=sensor_camera.current_depth,
@@ -265,10 +287,12 @@ def post_sensor_data(request: HttpRequest, pair_id: int):
         return JsonResponse({'status': 'success'})
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
 # ============================================
 
 
-# =============== Camera Views =============== 
+# =============== Camera Views ===============
 @csrf_exempt
 @require_GET
 def get_flood_status(request: HttpRequest):
@@ -344,7 +368,7 @@ def post_image(request: HttpRequest, pair_id: int):
 
         # Count each class
         class_counts = Counter(class_ids)
-        print("counting ppl", class_counts.get(0,0))
+        print('counting ppl', class_counts.get(0, 0))
 
         # Add image to camera logs
         CameraLogs.objects.create(
@@ -358,19 +382,44 @@ def post_image(request: HttpRequest, pair_id: int):
         )
 
         # Update Monitor State
-        if sum([class_counts.get(0, 0), class_counts.get(16, 0), class_counts.get(15, 0)]) > 0 and sensor_cam.monitor_state == SensorCamera.MonitorState.CAUTION:
+        if (
+            sum(
+                [
+                    class_counts.get(0, 0),
+                    class_counts.get(16, 0),
+                    class_counts.get(15, 0),
+                ]
+            )
+            > 0
+            and sensor_cam.monitor_state == SensorCamera.MonitorState.CAUTION
+        ):
             sensor_cam.update(monitor_state=SensorCamera.MonitorState.DANGEROUS)
-        elif sum([class_counts.get(0, 0), class_counts.get(16, 0), class_counts.get(15, 0)]) == 0 and sensor_cam.monitor_state == SensorCamera.MonitorState.DANGEROUS:
+        elif (
+            sum(
+                [
+                    class_counts.get(0, 0),
+                    class_counts.get(16, 0),
+                    class_counts.get(15, 0),
+                ]
+            )
+            == 0
+            and sensor_cam.monitor_state == SensorCamera.MonitorState.DANGEROUS
+        ):
             sensor_cam.update(monitor_state=SensorCamera.MonitorState.CAUTION)
 
         # Update CameraSensor with the number of victims
-        sensor_cam.update(person_count=class_counts.get(0,0), dog_count=class_counts.get(16, 0), cat_count=class_counts.get(15, 0))
+        sensor_cam.update(
+            person_count=class_counts.get(0, 0),
+            dog_count=class_counts.get(16, 0),
+            cat_count=class_counts.get(15, 0),
+        )
 
         return JsonResponse(
             {'status': 'success', 'message': 'Upload successful', 'filename': img_name}
         )
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
 
 @csrf_exempt
 @require_POST
@@ -396,7 +445,10 @@ def post_cam_health(request: HttpRequest, pair_id: int):
             )
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
 # ============================================
+
 
 @csrf_exempt
 @require_GET

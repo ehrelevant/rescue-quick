@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from datetime import datetime
 
+
 class CameraImageStorage(S3Boto3Storage):
     location = 'camera'
     file_overwrite = False
@@ -14,28 +15,30 @@ class CameraImageProcessedStorage(S3Boto3Storage):
     location = 'processed'
     file_overwrite = False
 
+
 def elapsed_time(timestamp: datetime) -> str:
-        delta = timezone.now() - timestamp
-        s = delta.seconds
-        d = delta.days
-        if d == 1:
-            return '1 day ago'
-        elif d > 1:
-            return f'{d} days ago'
-        elif d == 0 and s <= 1:
-            return 'Just now'
-        elif d == 0 and s < 60:
-            return f'{s} seconds ago'
-        elif d == 0 and s < 120:
-            return '1 minute ago'
-        elif d == 0 and s < 3600:
-            return f'{s // 60} minutes ago'
-        elif d == 0 and s < 7200:
-            return '1 hour ago'
-        elif d == 0 and s < 86400:
-            return f'{s // 3600} hours ago'
-        else:
-            return timestamp.strftime(r'on %Y/%m/%d')
+    delta = timezone.now() - timestamp
+    s = delta.seconds
+    d = delta.days
+    if d == 1:
+        return '1 day ago'
+    elif d > 1:
+        return f'{d} days ago'
+    elif d == 0 and s <= 1:
+        return 'Just now'
+    elif d == 0 and s < 60:
+        return f'{s} seconds ago'
+    elif d == 0 and s < 120:
+        return '1 minute ago'
+    elif d == 0 and s < 3600:
+        return f'{s // 60} minutes ago'
+    elif d == 0 and s < 7200:
+        return '1 hour ago'
+    elif d == 0 and s < 86400:
+        return f'{s // 3600} hours ago'
+    else:
+        return timestamp.strftime(r'on %Y/%m/%d')
+
 
 class SensorCamera(models.Model):
     class MonitorState(models.TextChoices):
@@ -45,7 +48,7 @@ class SensorCamera(models.Model):
         UNRESPONSIVE_SENSOR = 'Unresponsive Sensor'
         UNRESPONSIVE_CAMERA = 'Unresponsive Camera'
         UNRESPONSIVE_BOTH = 'Both Unresponsive'
-    
+
     pair_id = models.IntegerField(primary_key=True)
     pair_name = models.CharField()
     current_depth = models.FloatField(null=True)
