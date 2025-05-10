@@ -220,7 +220,7 @@ def feed(request: HttpRequest, pair_id: int | None = None):
     elif sensor_camera.monitor_state == SensorCamera.MonitorState.CAUTION:
         return render(request, 'core/feed/caution.html.j2', context)
     else:
-        return render(request, 'core/feed/safe.html.j2', context)
+        return render(request, 'core/feed/danger.html.j2', context)
 
 
 # =============== Sensor Views ===============
