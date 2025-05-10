@@ -19,6 +19,7 @@ import cv2
 from PIL import Image
 from io import BytesIO
 import numpy as np
+import typing
 
 
 def check_health():
@@ -60,7 +61,7 @@ def index(request: HttpRequest):
         monitor_state=SensorCamera.MonitorState.UNRESPONSIVE_CAMERA
     ).all()
 
-    def collect_monitors(sensor_cameras: QuerySet[SensorCamera, SensorCamera]):
+    def collect_monitors(sensor_cameras: QuerySet[SensorCamera, SensorCamera]) -> list[dict[str, typing.Any]]:
         return [
             {
                 'location': sensor_camera.location,
@@ -75,7 +76,7 @@ def index(request: HttpRequest):
             for sensor_camera in sensor_cameras
         ]
 
-    monitors = {
+    monitors: dict[str, typing.Any] = {
         'danger': collect_monitors(dangerous_sensor_cameras),
         'caution': collect_monitors(caution_sensor_cameras),
         'safe': collect_monitors(safe_sensor_cameras),
@@ -84,7 +85,7 @@ def index(request: HttpRequest):
         'unresponsive_camera': collect_monitors(unresponsive_cameras),
     }
 
-    operations = [
+    operations: list[dict[str, typing.Any]] = [
         {
             'location': sensor_camera.location,
             'camera_name': sensor_camera.pair_name,
@@ -98,7 +99,7 @@ def index(request: HttpRequest):
         ).all()
     ]
 
-    context = {
+    context: dict[str, typing.Any] = {
         'monitors': monitors,
         'operations': [
             {
@@ -201,7 +202,7 @@ def feed(request: HttpRequest, pair_id: int | None = None):
         prev_pair_id = prev_sensor_camera.pair_id
 
     # Collates values
-    context = {
+    context: dict[str, typing.Any] = {
         'pair_id': pair_id,
         'location': sensor_camera.location,
         'camera_name': sensor_camera.pair_name,
@@ -212,7 +213,6 @@ def feed(request: HttpRequest, pair_id: int | None = None):
         'num_people': sensor_camera.person_count,
         'num_dogs': sensor_camera.dog_count,
         'num_cats': sensor_camera.cat_count,
-        # 'num_pets': sensor_camera.pet_count,
         'flood_level': sensor_camera.current_depth,
         'processed_image': processed_image_url,
         # For testing of pagination lang
