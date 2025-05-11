@@ -9,11 +9,12 @@ from collections import Counter
 from django.core.files.base import ContentFile
 from .models import SensorCamera, CameraLogs
 
+
 @shared_task
 def process_image_yolo(pair_id, img_data, img_name):
     decoded_img = base64.b64decode(img_data)
     sensor_cam = SensorCamera.objects.get(pair_id=pair_id)
-    
+
     pil_image = Image.open(BytesIO(decoded_img)).convert('RGB')
     img_array = np.array(pil_image)
 
@@ -26,7 +27,9 @@ def process_image_yolo(pair_id, img_data, img_name):
     _, encoded_img = cv2.imencode('.jpg', rendered_img_bgr)
 
     img_file = ContentFile(decoded_img, name=img_name)
-    img_processed_file = ContentFile(encoded_img.tobytes(), name=f'processed_{img_name}.jpg')
+    img_processed_file = ContentFile(
+        encoded_img.tobytes(), name=f'processed_{img_name}.jpg'
+    )
 
     class_ids = detections.boxes.cls.cpu().numpy().astype(int)
     class_counts = Counter(class_ids)
@@ -42,13 +45,15 @@ def process_image_yolo(pair_id, img_data, img_name):
     )
 
     if (
-        sum([class_counts.get(0, 0), class_counts.get(16, 0), class_counts.get(15, 0)]) > 0
+        sum([class_counts.get(0, 0), class_counts.get(16, 0), class_counts.get(15, 0)])
+        > 0
         and sensor_cam.monitor_state == SensorCamera.MonitorState.CAUTION
     ):
         sensor_cam.monitor_state = SensorCamera.MonitorState.DANGEROUS
         sensor_cam.save()
     elif (
-        sum([class_counts.get(0, 0), class_counts.get(16, 0), class_counts.get(15, 0)]) == 0
+        sum([class_counts.get(0, 0), class_counts.get(16, 0), class_counts.get(15, 0)])
+        == 0
         and sensor_cam.monitor_state == SensorCamera.MonitorState.DANGEROUS
     ):
         sensor_cam.monitor_state = SensorCamera.MonitorState.CAUTION

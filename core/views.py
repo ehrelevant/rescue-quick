@@ -62,7 +62,9 @@ def index(request: HttpRequest):
         monitor_state=SensorCamera.MonitorState.UNRESPONSIVE_CAMERA
     ).all()
 
-    def collect_monitors(sensor_cameras: QuerySet[SensorCamera, SensorCamera]) -> list[dict[str, typing.Any]]:
+    def collect_monitors(
+        sensor_cameras: QuerySet[SensorCamera, SensorCamera],
+    ) -> list[dict[str, typing.Any]]:
         return [
             {
                 'location': sensor_camera.location,
