@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from .models import SensorCamera, SensorLogs, CameraLogs
 
-from django.http import HttpRequest, HttpResponseNotFound, JsonResponse
+from django.http import HttpRequest, HttpResponseNotFound, JsonResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 from django.core.files.base import ContentFile
@@ -22,6 +22,35 @@ import numpy as np
 import typing
 import secrets
 from .utils import authenticate_device
+
+import resend
+from django.template.loader import render_to_string
+
+@csrf_exempt
+@require_POST
+def signal_rescue(request: HttpRequest):
+    try:
+        camera_name = request.POST.get('camera_name', 'unknown')
+        time_elapsed = request.POST.get('time_elapsed', 'unknown')
+        location = request.POST.get('location', 'unknown')
+
+        context = {
+            'camera_name' : camera_name,
+            'time_elapsed' : time_elapsed,
+            'location' : location,
+        }
+
+        message = render_to_string('core/emails/new_flood_alert.html', context)
+
+        resend.Emails.send({
+            "from": "Acme <onboarding@resend.dev>",
+            "to": ["jsdomingo3@up.edu.ph"],
+            "subject": "Hey! Listen!",
+            "html": message,
+        })
+        return HttpResponseRedirect('/')
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
 
 def check_health():

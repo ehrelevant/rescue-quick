@@ -21,4 +21,5 @@ urlpatterns = [
         views.post_cam_health,
         name='post_cam_health',
     ),
+    path('api/signal-rescue', views.signal_rescue, name="signal_rescue"),
 ]

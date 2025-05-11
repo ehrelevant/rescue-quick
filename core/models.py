@@ -68,7 +68,7 @@ class SensorCamera(models.Model):
     last_camera_report = models.DateTimeField(default=timezone.now)
     token = models.CharField(
         max_length=128,
-        unique=True,
+        # unique=True,
         blank=True,
         null=True,
         default=secrets.token_hex(32),
