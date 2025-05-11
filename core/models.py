@@ -4,6 +4,7 @@ from storages.backends.s3boto3 import S3Boto3Storage
 from django.utils import timezone
 
 from datetime import datetime
+import secrets
 
 
 class CameraImageStorage(S3Boto3Storage):
@@ -65,6 +66,7 @@ class SensorCamera(models.Model):
     state_change_timestamp = models.DateTimeField(default=timezone.now)
     last_sensor_report = models.DateTimeField(default=timezone.now)
     last_camera_report = models.DateTimeField(default=timezone.now)
+    token = models.CharField(max_length=128, unique=True, blank=True, null=True, default=secrets.token_hex(32))
 
     @property
     def is_long_time(self) -> bool:

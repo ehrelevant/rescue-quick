@@ -20,6 +20,8 @@ from PIL import Image
 from io import BytesIO
 import numpy as np
 import typing
+import secrets
+from .utils import authenticate_device
 
 
 def check_health():
@@ -295,6 +297,7 @@ def post_sensor_data(request: HttpRequest, pair_id: int):
 # =============== Camera Views ===============
 @csrf_exempt
 @require_GET
+@authenticate_device
 def get_flood_status(request: HttpRequest):
     # Get the pair id from the request url
     pair_id: str | None = request.GET.get('pair_id')
@@ -304,8 +307,14 @@ def get_flood_status(request: HttpRequest):
         pair_id_int: int = int(pair_id)
 
         try:
-            # Find the appropriate Sensor Camera Pair
-            sensor_cam = SensorCamera.objects.get(pair_id=pair_id_int)
+            # Get Sensor Camera based on token
+            sensor_cam = request.sensor_cam
+
+            # Extra check
+            if sensor_cam.pair_id != pair_id_int:
+                return JsonResponse(
+                    {'status': 'error', 'message': 'Camera id does not match auth token'}, status=400
+                )
 
             # Get the latest indicator
             indicator: str = str(
@@ -324,6 +333,7 @@ def get_flood_status(request: HttpRequest):
 
 @csrf_exempt
 @require_POST
+@authenticate_device
 def post_image(request: HttpRequest, pair_id: int):
     try:
         # Get Sensor Camera Pair ID
@@ -336,13 +346,20 @@ def post_image(request: HttpRequest, pair_id: int):
                 {'status': 'error', 'message': 'No image uploaded'}, status=400
             )
 
+        # Get Sensor Camera based on token
+        # sensor_cam = SensorCamera.objects.get(pair_id=pair_id)
+        sensor_cam = request.sensor_cam
+
+        # Extra check
+        if sensor_cam.pair_id != pair_id:
+            return JsonResponse(
+                {'status': 'error', 'message': 'Camera id does not match auth token'}, status=400
+            )
+
         # Convert base64 image to actual image
         decoded_img = base64.b64decode(img_data)
         img_name = f'{uuid4()}.jpg'
         img_file = ContentFile(decoded_img, name=img_name)
-
-        # Find appropriate Sensor Camera Pair
-        sensor_cam = SensorCamera.objects.get(pair_id=pair_id)
 
         # Convert to a format YOLO can use
         pil_image = Image.open(BytesIO(decoded_img)).convert('RGB')
@@ -423,9 +440,19 @@ def post_image(request: HttpRequest, pair_id: int):
 
 @csrf_exempt
 @require_POST
+@authenticate_device
 def post_cam_health(request: HttpRequest, pair_id: int):
     try:
-        # Get Sensor Camera Pair ID
+        # Get Sensor Camera based on token
+        sensor_cam = request.sensor_cam
+
+        # Extra check
+        if sensor_cam.pair_id != pair_id:
+            return JsonResponse(
+                {'status': 'error', 'message': 'Camera id does not match auth token'}, status=400
+            )
+        
+        # Retrieve data from request
         data = json.loads(request.body)
         state: str = data.get('state', '')
 
@@ -490,5 +517,26 @@ def post_reserve_pair_id(request: HttpRequest):
         )
 
         return JsonResponse({'status': 'success'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
+# ============================================
+
+@csrf_exempt
+@require_GET
+def get_device_token(pair_id: int):
+    """Function to return a 64-hex character token"""
+    try:
+        sensor_cam = SensorCamera.objects.get(pair_id=pair_id)
+        if sensor_cam.token:
+            return JsonResponse({'status': 'success', 'token': sensor_cam.token})
+        # If sensor camera pair exists but no token yet, generate one
+        elif sensor_cam:
+            token = secrets.token_hex(32)
+            SensorCamera.objects.filter(pair_id=pair_id).update(token=token)
+            return JsonResponse({'status': 'success', 'token': token})
+        else:
+            return JsonResponse({'status': 'error', 'message': "Pair ID does not exist"}, status=400)
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
