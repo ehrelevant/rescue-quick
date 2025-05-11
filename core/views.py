@@ -393,7 +393,7 @@ def post_image(request: HttpRequest, pair_id: int):
             > 0
             and sensor_cam.monitor_state == SensorCamera.MonitorState.CAUTION
         ):
-            sensor_cam.update(monitor_state=SensorCamera.MonitorState.DANGEROUS)
+            SensorCamera.objects.filter(pair_id=pair_id).update(monitor_state=SensorCamera.MonitorState.DANGEROUS)
         elif (
             sum(
                 [
@@ -408,7 +408,7 @@ def post_image(request: HttpRequest, pair_id: int):
             sensor_cam.update(monitor_state=SensorCamera.MonitorState.CAUTION)
 
         # Update CameraSensor with the number of victims
-        sensor_cam.update(
+        SensorCamera.objects.filter(pair_id=pair_id).update(
             person_count=class_counts.get(0, 0),
             dog_count=class_counts.get(16, 0),
             cat_count=class_counts.get(15, 0),
