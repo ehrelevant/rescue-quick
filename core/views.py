@@ -20,6 +20,7 @@ from PIL import Image
 from io import BytesIO
 import numpy as np
 import typing
+from .tasks import process_image_yolo
 
 
 def check_health():
@@ -327,7 +328,6 @@ def get_flood_status(request: HttpRequest):
 def post_image(request: HttpRequest, pair_id: int):
     try:
         # Get Sensor Camera Pair ID
-        sensor_cam: SensorCamera | None = None
         data = json.loads(request.body)
         img_data = data.get('image')
 
@@ -336,83 +336,10 @@ def post_image(request: HttpRequest, pair_id: int):
                 {'status': 'error', 'message': 'No image uploaded'}, status=400
             )
 
-        # Convert base64 image to actual image
-        decoded_img = base64.b64decode(img_data)
         img_name = f'{uuid4()}.jpg'
-        img_file = ContentFile(decoded_img, name=img_name)
 
-        # Find appropriate Sensor Camera Pair
-        sensor_cam = SensorCamera.objects.get(pair_id=pair_id)
-
-        # Convert to a format YOLO can use
-        pil_image = Image.open(BytesIO(decoded_img)).convert('RGB')
-        img_array = np.array(pil_image)
-
-        # Choose and apply model
-        model = YOLO('yolo11n.pt')
-        model_results = model(img_array, classes=[0, 15, 16])
-        detections = model_results[0]
-        rendered_img = model_results[0].plot()
-
-        # Convert to BGR for OpenCV encoding
-        rendered_img_bgr = cv2.cvtColor(rendered_img, cv2.COLOR_RGB2BGR)
-
-        # Encode image
-        _, encoded_img = cv2.imencode('.jpg', rendered_img_bgr)
-        img_processed_file = ContentFile(
-            encoded_img.tobytes(), name=f'processed_{img_name}.jpg'
-        )
-
-        # Get class IDs from detections
-        class_ids = detections.boxes.cls.cpu().numpy().astype(int)
-
-        # Count each class
-        class_counts = Counter(class_ids)
-        print('counting ppl', class_counts.get(0, 0))
-
-        # Add image to camera logs
-        CameraLogs.objects.create(
-            camera_id=sensor_cam,
-            flood_number=sensor_cam.flood_number,
-            person_count=class_counts.get(0, 0),
-            dog_count=class_counts.get(16, 0),
-            cat_count=class_counts.get(15, 0),
-            image=img_file,
-            image_processed=img_processed_file,
-        )
-
-        # Update Monitor State
-        if (
-            sum(
-                [
-                    class_counts.get(0, 0),
-                    class_counts.get(16, 0),
-                    class_counts.get(15, 0),
-                ]
-            )
-            > 0
-            and sensor_cam.monitor_state == SensorCamera.MonitorState.CAUTION
-        ):
-            SensorCamera.objects.filter(pair_id=pair_id).update(monitor_state=SensorCamera.MonitorState.DANGEROUS)
-        elif (
-            sum(
-                [
-                    class_counts.get(0, 0),
-                    class_counts.get(16, 0),
-                    class_counts.get(15, 0),
-                ]
-            )
-            == 0
-            and sensor_cam.monitor_state == SensorCamera.MonitorState.DANGEROUS
-        ):
-            sensor_cam.update(monitor_state=SensorCamera.MonitorState.CAUTION)
-
-        # Update CameraSensor with the number of victims
-        SensorCamera.objects.filter(pair_id=pair_id).update(
-            person_count=class_counts.get(0, 0),
-            dog_count=class_counts.get(16, 0),
-            cat_count=class_counts.get(15, 0),
-        )
+        # Use celery task to asynchronously process the image
+        process_image_yolo.delay(pair_id, img_data, img_name)
 
         return JsonResponse(
             {'status': 'success', 'message': 'Upload successful', 'filename': img_name}
