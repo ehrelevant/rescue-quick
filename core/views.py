@@ -63,7 +63,9 @@ def index(request: HttpRequest):
         monitor_state=SensorCamera.MonitorState.UNRESPONSIVE_CAMERA
     ).all()
 
-    def collect_monitors(sensor_cameras: QuerySet[SensorCamera, SensorCamera]) -> list[dict[str, typing.Any]]:
+    def collect_monitors(
+        sensor_cameras: QuerySet[SensorCamera, SensorCamera],
+    ) -> list[dict[str, typing.Any]]:
         return [
             {
                 'location': sensor_camera.location,
@@ -313,7 +315,11 @@ def get_flood_status(request: HttpRequest):
             # Extra check
             if sensor_cam.pair_id != pair_id_int:
                 return JsonResponse(
-                    {'status': 'error', 'message': 'Camera id does not match auth token'}, status=400
+                    {
+                        'status': 'error',
+                        'message': 'Camera id does not match auth token',
+                    },
+                    status=400,
                 )
 
             # Get the latest indicator
@@ -353,7 +359,8 @@ def post_image(request: HttpRequest, pair_id: int):
         # Extra check
         if sensor_cam.pair_id != pair_id:
             return JsonResponse(
-                {'status': 'error', 'message': 'Camera id does not match auth token'}, status=400
+                {'status': 'error', 'message': 'Camera id does not match auth token'},
+                status=400,
             )
 
         # Convert base64 image to actual image
@@ -410,7 +417,9 @@ def post_image(request: HttpRequest, pair_id: int):
             > 0
             and sensor_cam.monitor_state == SensorCamera.MonitorState.CAUTION
         ):
-            SensorCamera.objects.filter(pair_id=pair_id).update(monitor_state=SensorCamera.MonitorState.DANGEROUS)
+            SensorCamera.objects.filter(pair_id=pair_id).update(
+                monitor_state=SensorCamera.MonitorState.DANGEROUS
+            )
         elif (
             sum(
                 [
@@ -449,9 +458,10 @@ def post_cam_health(request: HttpRequest, pair_id: int):
         # Extra check
         if sensor_cam.pair_id != pair_id:
             return JsonResponse(
-                {'status': 'error', 'message': 'Camera id does not match auth token'}, status=400
+                {'status': 'error', 'message': 'Camera id does not match auth token'},
+                status=400,
             )
-        
+
         # Retrieve data from request
         data = json.loads(request.body)
         state: str = data.get('state', '')
@@ -523,6 +533,7 @@ def post_reserve_pair_id(request: HttpRequest):
 
 # ============================================
 
+
 @csrf_exempt
 @require_GET
 def get_device_token(pair_id: int):
@@ -537,6 +548,8 @@ def get_device_token(pair_id: int):
             SensorCamera.objects.filter(pair_id=pair_id).update(token=token)
             return JsonResponse({'status': 'success', 'token': token})
         else:
-            return JsonResponse({'status': 'error', 'message': "Pair ID does not exist"}, status=400)
+            return JsonResponse(
+                {'status': 'error', 'message': 'Pair ID does not exist'}, status=400
+            )
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
