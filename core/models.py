@@ -52,26 +52,32 @@ class SensorCamera(models.Model):
 
     pair_id = models.IntegerField(primary_key=True)
     pair_name = models.CharField()
+    location = models.TextField()
+    monitor_state = models.CharField(choices=MonitorState, default=MonitorState.SAFE)
+
+    # sensor
+    flood_number = models.IntegerField(default=1)
     current_depth = models.FloatField(null=True)
     threshold_depth = models.FloatField(default=1)
     is_wet = models.BooleanField(default=False)
-    location = models.TextField()
-    flood_number = models.IntegerField(default=1)
+
+    # camera
     person_count = models.IntegerField(default=0)
     dog_count = models.IntegerField(default=0)
     cat_count = models.IntegerField(default=0)
+    
+    # timestamps
     timestamp = models.DateTimeField(auto_now=True)
-    monitor_state = models.CharField(choices=MonitorState, default=MonitorState.SAFE)
-    # Remove state_change_timestamp
     state_change_timestamp = models.DateTimeField(default=timezone.now)
     last_sensor_report = models.DateTimeField(default=timezone.now)
     last_camera_report = models.DateTimeField(default=timezone.now)
+
+    # auth token
     token = models.CharField(
         max_length=128,
-        # unique=True,
+        unique=True,
         blank=True,
         null=True,
-        default=secrets.token_hex(32),
     )
 
     @property

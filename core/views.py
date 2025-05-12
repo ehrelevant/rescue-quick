@@ -248,7 +248,7 @@ def feed(request: HttpRequest, pair_id: int | None = None):
         'num_cats': sensor_camera.cat_count,
         'flood_level': sensor_camera.current_depth,
         'processed_image': processed_image_url,
-        # For testing of pagination lang
+        # For pagination
         'prev': prev_pair_id,
         'next': next_pair_id,
     }
@@ -353,7 +353,7 @@ def get_flood_status(request: HttpRequest):
 
             # Get the latest indicator
             indicator: str = str(
-                sensor_cam.current_depth > sensor_cam.threshold_depth
+                sensor_cam.current_depth >= sensor_cam.threshold_depth and sensor_cam.is_wet
             ).lower()
 
             # Return as a JSON Response
@@ -382,7 +382,6 @@ def post_image(request: HttpRequest, pair_id: int):
             )
 
         # Get Sensor Camera based on token
-        # sensor_cam = SensorCamera.objects.get(pair_id=pair_id)
         sensor_cam = request.sensor_cam
 
         # Extra check
@@ -460,7 +459,7 @@ def post_image(request: HttpRequest, pair_id: int):
             == 0
             and sensor_cam.monitor_state == SensorCamera.MonitorState.DANGEROUS
         ):
-            sensor_cam.update(monitor_state=SensorCamera.MonitorState.CAUTION)
+            SensorCamera.objects.filter(pair_id=pair_id).update(monitor_state=SensorCamera.MonitorState.CAUTION)
 
         # Update CameraSensor with the number of victims
         SensorCamera.objects.filter(pair_id=pair_id).update(
@@ -566,7 +565,7 @@ def post_reserve_pair_id(request: HttpRequest):
 @csrf_exempt
 @require_GET
 def get_device_token(pair_id: int):
-    """Function to return a 64-hex character token"""
+    """Function to return a 32-bytes hex character token"""
     try:
         sensor_cam = SensorCamera.objects.get(pair_id=pair_id)
         if sensor_cam.token:
@@ -574,6 +573,15 @@ def get_device_token(pair_id: int):
         # If sensor camera pair exists but no token yet, generate one
         elif sensor_cam:
             token = secrets.token_hex(32)
+
+            # Check if unique
+            while True:
+                # If token already exists, keep regenerating token
+                if SensorCamera.objects.filter(token=token).exists():
+                    token = secrets.token_hex(32)
+                else:
+                    break
+
             SensorCamera.objects.filter(pair_id=pair_id).update(token=token)
             return JsonResponse({'status': 'success', 'token': token})
         else:
