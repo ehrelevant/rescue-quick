@@ -65,7 +65,7 @@ class SensorCamera(models.Model):
     person_count = models.IntegerField(default=0)
     dog_count = models.IntegerField(default=0)
     cat_count = models.IntegerField(default=0)
-    
+
     # timestamps
     timestamp = models.DateTimeField(auto_now=True)
     state_change_timestamp = models.DateTimeField(default=timezone.now)

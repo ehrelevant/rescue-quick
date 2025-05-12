@@ -5,7 +5,12 @@ from django.utils import timezone
 
 from .models import SensorCamera, SensorLogs, CameraLogs
 
-from django.http import HttpRequest, HttpResponseNotFound, JsonResponse, HttpResponseRedirect
+from django.http import (
+    HttpRequest,
+    HttpResponseNotFound,
+    JsonResponse,
+    HttpResponseRedirect,
+)
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 from django.core.files.base import ContentFile
@@ -26,6 +31,7 @@ from .utils import authenticate_device
 import resend
 from django.template.loader import render_to_string
 
+
 @csrf_exempt
 @require_POST
 def signal_rescue(request: HttpRequest):
@@ -35,19 +41,21 @@ def signal_rescue(request: HttpRequest):
         location = request.POST.get('location', 'unknown')
 
         context = {
-            'camera_name' : camera_name,
-            'time_elapsed' : time_elapsed,
-            'location' : location,
+            'camera_name': camera_name,
+            'time_elapsed': time_elapsed,
+            'location': location,
         }
 
         message = render_to_string('core/emails/new_flood_alert.html', context)
 
-        resend.Emails.send({
-            "from": "Acme <onboarding@resend.dev>",
-            "to": ["jsdomingo3@up.edu.ph"],
-            "subject": "Hey! Listen!",
-            "html": message,
-        })
+        resend.Emails.send(
+            {
+                'from': 'Acme <onboarding@resend.dev>',
+                'to': ['jsdomingo3@up.edu.ph'],
+                'subject': 'Hey! Listen!',
+                'html': message,
+            }
+        )
         return HttpResponseRedirect('/')
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
@@ -353,7 +361,8 @@ def get_flood_status(request: HttpRequest):
 
             # Get the latest indicator
             indicator: str = str(
-                sensor_cam.current_depth >= sensor_cam.threshold_depth and sensor_cam.is_wet
+                sensor_cam.current_depth >= sensor_cam.threshold_depth
+                and sensor_cam.is_wet
             ).lower()
 
             # Return as a JSON Response
@@ -459,7 +468,9 @@ def post_image(request: HttpRequest, pair_id: int):
             == 0
             and sensor_cam.monitor_state == SensorCamera.MonitorState.DANGEROUS
         ):
-            SensorCamera.objects.filter(pair_id=pair_id).update(monitor_state=SensorCamera.MonitorState.CAUTION)
+            SensorCamera.objects.filter(pair_id=pair_id).update(
+                monitor_state=SensorCamera.MonitorState.CAUTION
+            )
 
         # Update CameraSensor with the number of victims
         SensorCamera.objects.filter(pair_id=pair_id).update(

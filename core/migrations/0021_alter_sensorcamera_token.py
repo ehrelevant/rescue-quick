@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('core', '0020_alter_sensorcamera_token'),
     ]
@@ -13,6 +12,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='sensorcamera',
             name='token',
-            field=models.CharField(blank=True, default='88549960f31fc6dfbf53863e05de8238cf2781c8d31d7f6cea91d9a8f46d86f6', max_length=128, null=True, unique=True),
+            field=models.CharField(
+                blank=True,
+                default='88549960f31fc6dfbf53863e05de8238cf2781c8d31d7f6cea91d9a8f46d86f6',
+                max_length=128,
+                null=True,
+                unique=True,
+            ),
         ),
     ]
