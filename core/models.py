@@ -75,7 +75,7 @@ class SensorCamera(models.Model):
     # auth token
     token = models.CharField(
         max_length=128,
-        unique=True,
+        # unique=True,
         blank=True,
         null=True,
     )

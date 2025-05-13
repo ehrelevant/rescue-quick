@@ -14,7 +14,31 @@
             <div class="bg-white h-full grid grid-cols-10 gap-4 mb-4">
                 {# Container for the image #}
                 <div class="aspect-3/2 lg:aspect-auto col-span-10 lg:col-span-7 flex-shrink lg:flex-grow w-full bg-[#F2F4F8] flex items-center justify-center overflow-y-hidden">
-                    <img class="h-full object-contain" src="{{ processed_image }}">
+                    <div id="img-error"
+                         class="text-gray flex flex-col items-center justify-center">
+                        <span class="ic--baseline-image-not-supported size-6"></span>
+                        <span>No image yet.</span>
+                    </div>
+                    <img id="processed-img"
+                         onload="checkImg();"
+                         class="hidden h-full object-contain"
+                         src="{{ processed_image }}">
+                    <script>
+                        function checkImg() {
+                            const img = document.getElementById("processed-img");
+                            const errorMessage = document.getElementById("img-error");
+                            if (img.complete) {
+                                console.log("remove hidden");
+                                errorMessage.classList.add("hidden");
+                                img.classList.remove("hidden");
+                            }
+                            else {
+                                console.log("oh about that...");
+                                errorMessage.classList.remove("hidden");
+                                img.classList.add("hidden");
+                            }
+                        };
+                    </script>
                 </div>
                 {# Container for camera data #}
                 <div class="col-span-10 lg:col-span-3 h-full flex flex-col overflow-y-hidden">
