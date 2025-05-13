@@ -421,7 +421,7 @@ def post_image(request: HttpRequest, pair_id: int):
         # Encode image
         _, encoded_img = cv2.imencode('.jpg', rendered_img_bgr)
         img_processed_file = ContentFile(
-            encoded_img.tobytes(), name=f'processed_{img_name}.jpg'
+            encoded_img.tobytes(), name=f'processed_{img_name}'
         )
 
         # Get class IDs from detections
