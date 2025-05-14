@@ -243,6 +243,27 @@ def feed(request: HttpRequest, pair_id: int | None = None):
         return render(request, 'core/feed/danger.html.j2', context)
 
 
+def list_monitors(request: HttpRequest):
+    context = {
+
+    }
+
+    return render(request, 'core/config/main.html.j2', context)
+
+def configure_monitor(request: HttpRequest, pair_id: int):
+    context = {
+        "pair_id" : pair_id,
+    }
+
+    return render(request, 'core/config/configure.html.j2', context)
+
+def new_monitor(request: HttpRequest):
+    context = {
+
+    }
+
+    return render(request, 'core/config/new.html.j2', context)
+
 # =============== Sensor Views ===============
 @csrf_exempt
 @require_POST

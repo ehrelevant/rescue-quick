@@ -22,4 +22,7 @@ urlpatterns = [
         name='post_cam_health',
     ),
     path('api/signal-rescue', views.signal_rescue, name='signal_rescue'),
+    path('configure/', views.list_monitors),
+    path('configure/<int:pair_id>/', views.configure_monitor),
+    path('configure/new/', views.new_monitor),
 ]
