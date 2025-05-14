@@ -1,23 +1,23 @@
-<div class="skeleton bg-red-light border-md shadow-md p-6 rounded-md w-full flex flex-col gap-2">
+<div class="skeleton bg-red-light border-md shadow-md p-4 lg:p-6 rounded-md w-full flex flex-col gap-2">
     <div class="flex gap-2 items-center">
-        <div class="aspect-square h-[2rem] w-auto animate-pulse bg-red-light-50 rounded-full flex items-center justify-center">
+        <div class="aspect-square h-[1.5rem] lg:h-[2rem] w-auto animate-pulse bg-red-light-50 rounded-full flex items-center justify-center">
             <div class="w-[50%] h-[50%] bg-red rounded-full"></div>
         </div>
-        <div class="flex flex-row gap-2">
+        <div class="text-xs lg:text-sm flex flex-row gap-2">
             <span class="font-medium">{{ camera_name }}</span>
             <span class="font-medium text-gray-500">{{ time_elapsed }}</span>
         </div>
     </div>
-    <span class="text-lg lg:text-2xl font-bold">{{ location }}</span>
+    <span class="text-base lg:text-2xl font-bold">{{ location }}</span>
     <div class="grid grid-cols-2 gap-2">
         <form method="post"
               action="{% url 'signal_rescue' %}"
-              class="col-span-2 bg-white text-red hover:shadow-md w-full">
+              class="col-span-2">
             <input type="hidden" name="camera_name" value="{{ camera_name }}">
             <input type="hidden" name="time_elapsed" value="{{ time_elapsed }}">
             <input type="hidden" name="location" value="{{ location }}">
             <button type="submit"
-                    class="col-span-2 btn bg-white text-red hover:shadow-md w-full">Signal Rescue!</button>
+                    class="btn bg-white text-red hover:shadow-md w-full">Signal Rescue!</button>
         </form>
     </div>
 </div>

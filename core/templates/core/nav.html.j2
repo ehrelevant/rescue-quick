@@ -1,10 +1,33 @@
 {% load static %}
-<div class="h-[64px] lg:[10vh] w-full p-3 flex flex-row gap-4 justify-center lg:justify-start items-center border-b-1 border-gray-200">
+<div class="h-[64px] lg:[10vh] w-full p-3 flex flex-row gap-4 lg:justify-start items-center border-b-1 border-gray-200">
     <img alt="RQ Logo"
          class="h-full hidden lg:inline-block"
          src="{% static 'core/img/rq-logo.png' %}">
     <img alt="RQ Logo"
-         class="h-[75%] lg:hidden"
+         class="h-[50%] hidden lg:hidden"
+         src="{% static 'core/img/rq.svg' %}">
+    <div class="lg:hidden flex-grow"></div>
+    <ul class="lg:hidden menu menu-horizontal bg-base-200 rounded-box">
+        <li>
+            <a href="/" class="tooltip" data-tip="Dashboard">
+                <span class="ion--home size-5"></span>
+            </a>
+        </li>
+        <li>
+            <a href="/feed/1/" class="tooltip" data-tip="Live Feed">
+                <span class="fluent--video-32-filled size-5"></span>
+            </a>
+        </li>
+        <li>
+            <a class="tooltip" data-tip="Configure Monitors">
+                <span class="mdi--tools size-5"></span>
+            </a>
+        </li>
+    </ul>
+    <div class="lg:hidden flex-grow"></div>
+    <span class="font-medium hidden lg:hidden text-right text-base/4 text-gray-300">Rescue<br>Quick</span>
+    <img alt="RQ Logo"
+         class="h-[50%] lg:hidden hidden"
          src="{% static 'core/img/rq.svg' %}">
     <a class="hidden lg:inline-block" href="/">
         {% if selected == 'dashboard' %}
