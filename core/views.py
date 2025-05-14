@@ -36,7 +36,7 @@ from django.template.loader import render_to_string
 @require_POST
 def signal_rescue(request: HttpRequest):
     try:
-        pair_id = request.POST.get("pair_id", "")
+        pair_id = request.POST.get('pair_id', '')
         camera_name = request.POST.get('camera_name', 'unknown')
         time_elapsed = request.POST.get('time_elapsed', 'unknown')
         location = request.POST.get('location', 'unknown')
