@@ -131,7 +131,9 @@
                 <input type="radio" name="my_tabs" class="tab mb-2" aria-label="Completed" />
                 <div class="tab-content h-full flex-grow overflow-y-auto">
                     <div class="flex flex-col gap-3">
-                        {% include 'core/components/op_done.html.j2' with camera_name=done.0.camera_name date=done.0.date marked_safe=done.0.marked_safe location=done.0.location num_people=done.0.num_people num_cats=done.0.num_cats num_dogs=done.0.num_dogs flood_level=done.0.flood_level %}
+                        {% for complete_op in done %}
+                            {% include 'core/components/op_done.html.j2' with camera_name=complete_op.camera_name date=complete_op.date marked_safe=complete_op.marked_safe location=complete_op.location num_people=complete_op.num_people num_cats=complete_op.num_cats num_dogs=complete_op.num_dogs flood_level=complete_op.flood_level %}
+                        {% endfor %}
                         {# For scrolling #}
                         <div class="bg-white h-[100px] w-full"></div>
                     </div>
