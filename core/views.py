@@ -84,7 +84,7 @@ def check_health():
 
 
 def index(request: HttpRequest):
-    # check_health()
+    check_health()
 
     dangerous_sensor_cameras = SensorCamera.objects.filter(
         monitor_state=SensorCamera.MonitorState.DANGEROUS
@@ -205,7 +205,6 @@ def feed(request: HttpRequest, pair_id: int | None = None):
         return HttpResponseNotFound('Camera not found')
 
     processed_image_url = last_camera_log.processed_image_url
-    # processed_image_url = 'https://www.rappler.com/tachyon/2025/05/ahtisa-manalo-miss-univere-ph-may-3-2025.jpg'
 
     sensor_camera = SensorCamera.objects.get(pk=pair_id)
 
