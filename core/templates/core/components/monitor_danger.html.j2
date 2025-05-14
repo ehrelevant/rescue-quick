@@ -49,10 +49,10 @@
             <div class="flex flex-col gap-2">
                 <div class="flex items-end gap-2">
                     <span class="text-xl lg:text-3xl font-bold">{{ flood_level }}</span>
-                    <span class="text-sm lg:text-base font-medium text-gray-500">Meters</span>
+                    <span class="text-sm lg:text-base font-medium text-gray-500">Inches</span>
                 </div>
                 <div class="tooltip tooltip-bottom"
-                     data-tip="Caution Level: {{ max_flood_level }} meters">
+                     data-tip="Caution Level: {{ max_flood_level }} inches">
                     <progress class="progress progress-error w-full"
                               value="{{ flood_level }}"
                               max="{{ max_flood_level }}"
