@@ -115,9 +115,9 @@
                     <div class="flex flex-col gap-3">
                         {% for operation in operations %}
                             {% if operation.is_long_time %}
-                                {% include 'core/components/op_timeout.html.j2' with camera_name=operation.camera_name time_elapsed=operation.time_elapsed location=operation.location %}
+                                {% include 'core/components/op_timeout.html.j2' with pair_id=operation.pair_id camera_name=operation.camera_name time_elapsed=operation.time_elapsed location=operation.location %}
                             {% else %}
-                                {% include 'core/components/op_new.html.j2' with camera_name=operation.camera_name time_elapsed=operation.time_elapsed location=operation.location %}
+                                {% include 'core/components/op_new.html.j2' with pair_id=operation.pair_id camera_name=operation.camera_name time_elapsed=operation.time_elapsed location=operation.location %}
                             {% endif %}
                         {% endfor %}
                         {# For scrolling #}

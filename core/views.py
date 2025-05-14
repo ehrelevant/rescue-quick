@@ -3,7 +3,7 @@ from django.db.models import QuerySet
 from django.shortcuts import redirect, render
 from django.utils import timezone
 
-from .models import SensorCamera, SensorLogs, CameraLogs
+from .models import SensorCamera, SensorLogs, CameraLogs, RescuerContacts, elapsed_time
 
 from django.http import (
     HttpRequest,
@@ -36,9 +36,13 @@ from django.template.loader import render_to_string
 @require_POST
 def signal_rescue(request: HttpRequest):
     try:
+        pair_id = request.POST.get("pair_id", "")
         camera_name = request.POST.get('camera_name', 'unknown')
         time_elapsed = request.POST.get('time_elapsed', 'unknown')
         location = request.POST.get('location', 'unknown')
+
+        rescuers = RescuerContacts.objects.filter(devices__pair_id=int(pair_id)).all()
+        emails = [rescuer.email_addr for rescuer in rescuers]
 
         context = {
             'camera_name': camera_name,
@@ -51,14 +55,15 @@ def signal_rescue(request: HttpRequest):
         resend.Emails.send(
             {
                 'from': 'Acme <onboarding@resend.dev>',
-                'to': ['jsdomingo3@up.edu.ph'],
+                'to': emails,
                 'subject': 'Hey! Listen!',
                 'html': message,
             }
         )
         return HttpResponseRedirect('/')
     except Exception as e:
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+        print(JsonResponse({'status': 'error', 'message': str(e)}, status=500))
+        return HttpResponseRedirect('/')
 
 
 def check_health():
@@ -79,7 +84,7 @@ def check_health():
 
 
 def index(request: HttpRequest):
-    check_health()
+    # check_health()
 
     dangerous_sensor_cameras = SensorCamera.objects.filter(
         monitor_state=SensorCamera.MonitorState.DANGEROUS
@@ -105,6 +110,7 @@ def index(request: HttpRequest):
     ) -> list[dict[str, typing.Any]]:
         return [
             {
+                'pair_id': sensor_camera.pair_id,
                 'location': sensor_camera.location,
                 'camera_name': sensor_camera.pair_name,
                 'date': sensor_camera.timestamp.strftime(r'%B %d, %Y'),
@@ -128,10 +134,11 @@ def index(request: HttpRequest):
 
     operations: list[dict[str, typing.Any]] = [
         {
+            'pair_id': sensor_camera.pair_id,
             'location': sensor_camera.location,
             'camera_name': sensor_camera.pair_name,
             'date': sensor_camera.timestamp.strftime(r'%B %d, %Y'),
-            'time_elapsed': sensor_camera.elapsed_time,
+            'time_elapsed': elapsed_time(sensor_camera.state_change_timestamp),
             'is_long_time': sensor_camera.is_long_time,
             'is_deployed': False,
         }
@@ -143,30 +150,6 @@ def index(request: HttpRequest):
     context: dict[str, typing.Any] = {
         'monitors': monitors,
         'operations': [
-            {
-                'location': 'Location X',
-                'camera_name': 'ESP3123 Test 1',
-                'date': 'May 2, 2025',
-                'time_elapsed': '17 minutes ago',
-                'is_long_time': False,
-                'is_deployed': False,
-            },
-            {
-                'location': 'Location Y',
-                'camera_name': 'ESP3123 Test 2',
-                'date': 'May 2, 2025',
-                'time_elapsed': '2 hours ago',
-                'is_long_time': True,
-                'is_deployed': False,
-            },
-            {
-                'location': 'Location Z',
-                'camera_name': 'ESP3123 Test 3',
-                'date': 'May 2, 2025',
-                'time_elapsed': '2 hours ago',
-                'is_long_time': True,
-                'is_deployed': True,
-            },
             *operations,
         ],
         'done': [

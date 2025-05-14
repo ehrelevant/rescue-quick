@@ -4,7 +4,6 @@ from storages.backends.s3boto3 import S3Boto3Storage
 from django.utils import timezone
 
 from datetime import datetime
-import secrets
 
 
 class CameraImageStorage(S3Boto3Storage):
@@ -75,7 +74,7 @@ class SensorCamera(models.Model):
     # auth token
     token = models.CharField(
         max_length=128,
-        # unique=True,
+        unique=True,
         blank=True,
         null=True,
     )
@@ -122,3 +121,8 @@ class SensorLogs(models.Model):
 
     def __str__(self):
         return f'Sensor {self.sensor_id}'
+
+
+class RescuerContacts(models.Model):
+    email_addr = models.EmailField(unique=True)
+    devices = models.ManyToManyField(SensorCamera, related_name='devices')
