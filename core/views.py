@@ -4,6 +4,7 @@ from django.shortcuts import redirect, render
 from django.utils import timezone
 
 from .models import SensorCamera, SensorLogs, CameraLogs, RescuerContacts, elapsed_time
+from .utils import collect_done_operations
 
 from django.http import (
     HttpRequest,
@@ -153,16 +154,7 @@ def index(request: HttpRequest):
             *operations,
         ],
         'done': [
-            {
-                'location': 'Alumni Engineers Centennial Hall, 4F',
-                'camera_name': 'ESP3123',
-                'date': 'April 20, 2025',
-                'marked_safe': '11:00 AM',
-                'num_people': 2,
-                'num_cats': 1,
-                'num_dogs': 2,
-                'flood_level': 0.65,
-            }
+            *collect_done_operations()
         ],
         'counts': {
             'danger': dangerous_sensor_cameras.count(),

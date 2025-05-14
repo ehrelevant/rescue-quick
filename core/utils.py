@@ -1,5 +1,7 @@
 from django.http import JsonResponse
-from .models import SensorCamera
+from .models import SensorCamera, SensorLogs
+import typing
+from datetime import datetime
 
 
 def authenticate_device(view_func):
@@ -17,3 +19,66 @@ def authenticate_device(view_func):
         return view_func(request, *args, **kwargs)
 
     return wrapper
+
+
+def collect_done_operations() -> list[dict[str, typing.Any]]:
+    # Get all the sensor cameras available
+    sensor_cams = SensorCamera.objects.all()
+
+    # Get their pair_id and flood_number
+    current_values = [
+        {
+            'pair_id': sensor_cam.pair_id,
+            'current_flood': sensor_cam.flood_number,
+            'location': sensor_cam.location,
+            'camera_name': sensor_cam.pair_name,
+        }
+        for sensor_cam in sensor_cams
+    ]
+
+    # List to hold final operations
+    operations = []
+
+    for value in current_values:
+        for flood_num in range(value['current_flood']-1,-1,-1):
+            sensor_logs = SensorLogs.objects.filter(sensor_id__pair_id=value["pair_id"], flood_number=flood_num).order_by('-timestamp').all()
+
+            if sensor_logs:
+                timestamp = sensor_logs.first().timestamp
+                day = timestamp.date()
+                delta: datetime = sensor_logs.first().timestamp - sensor_logs.last().timestamp
+                s = delta.seconds
+                d = delta.days
+                duration = ""
+
+                if d == 1:
+                    duration = '1 day'
+                elif d > 1:
+                    duration = f'{d} days'
+                elif d == 0 and s <= 1:
+                    duration = 'Just now'
+                elif d == 0 and s < 60:
+                    duration = f'{s} seconds'
+                elif d == 0 and s < 120:
+                    duration = '1 minute'
+                elif d == 0 and s < 3600:
+                    duration = f'{s // 60} minutes'
+                elif d == 0 and s < 7200:
+                    duration = '1 hour'
+                elif d == 0 and s < 86400:
+                    duration = f'{s // 3600} hours'
+                else:
+                    duration = str(delta)
+
+                operations.append({
+                    'location': value['location'],
+                    'camera_name': value['camera_name'],
+                    'date': day.strftime(r'%B %d, %Y'),
+                    'marked_safe': day.strftime(r'%I:%M %p'),
+                    'duration': duration,
+                    'flood_level': sensor_logs.order_by('-depth').first().depth if sensor_logs.order_by('-depth').first() is not None else 0,
+                    'timestamp': timestamp
+                })
+
+    sorted_operations = sorted(operations, key=lambda x: x['timestamp'], reverse=True)
+    return sorted_operations

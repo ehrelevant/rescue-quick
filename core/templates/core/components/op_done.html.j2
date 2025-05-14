@@ -8,18 +8,8 @@
     <span class="text-base lg:text-2xl  font-bold">{{ location }}</span>
     <div class="text-sm lg:text-base flex flex-col">
         <span>
-            <span class="font-bold">Rescued</span>
-            <span class="font-medium text-gray">
-                {% if num_people != 0 %}
-                    {% if num_cats or num_dogs %}
-                        {{ num_people }} people, {{ num_cats }} cats, {{ num_dogs }} dogs
-                    {% else %}
-                        {{ num_people }} people
-                    {% endif %}
-                {% elif num_cats or num_dogs %}
-                    {{ num_cats }} cats, {{ num_dogs }} dogs
-                {% endif %}
-            </span>
+            <span class="font-bold">Duration</span>
+            <span class="font-medium text-gray">{{ duration }}</span>
         </span>
         <span>
             <span class="font-bold">Max. Flood Level</span>
