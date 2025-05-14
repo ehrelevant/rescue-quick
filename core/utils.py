@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from .models import SensorCamera, SensorLogs
 import typing
-from datetime import datetime
+from pytz import timezone
 
 
 def authenticate_device(view_func):
@@ -52,7 +52,9 @@ def collect_done_operations() -> list[dict[str, typing.Any]]:
             if sensor_logs:
                 timestamp = sensor_logs.first().timestamp
                 day = timestamp.date()
-                delta: datetime = (
+                proper_time = timestamp.astimezone(timezone('Asia/Hong_Kong'))
+                
+                delta = (
                     sensor_logs.first().timestamp - sensor_logs.last().timestamp
                 )
                 s = delta.seconds
@@ -83,7 +85,7 @@ def collect_done_operations() -> list[dict[str, typing.Any]]:
                         'location': value['location'],
                         'camera_name': value['camera_name'],
                         'date': day.strftime(r'%B %d, %Y'),
-                        'marked_safe': day.strftime(r'%I:%M %p'),
+                        'marked_safe': proper_time.strftime(r'%I:%M %p'),
                         'duration': duration,
                         'flood_level': sensor_logs.order_by('-depth').first().depth
                         if sensor_logs.order_by('-depth').first() is not None
