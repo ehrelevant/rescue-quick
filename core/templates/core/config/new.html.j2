@@ -1,0 +1,46 @@
+{% extends "core/base.html.j2" %}
+{% load static %}
+{% block header %}
+    {% include 'core/nav.html.j2' with selected='monitors' %}
+{% endblock %}
+{% block content %}
+    <div class="h-[calc(100vh-64px)] lg:h-[90vh] p-6 lg:pl-[35%] lg:pr-[35%] flex items-center justify-center">
+        <div class="w-full flex flex-col">
+            <div class="flex flex-col gap-2 items-center mb-[2em]">
+                <span class="badge badge-dash badge-primary font-medium text-base">+ New Monitor +</span>
+                <a href="/configure/" class="text-sm flex flex-row items-center transition hover:opacity-[0.5] font-medium text-gray-500">
+                    {# <span class="icons8--left-round size-5 mr-2"></span> #}
+                    Back to Monitors
+                </a>
+            </div>
+            <div class="flex flex-row justify-center mb-4">
+                
+            </div>
+            <div class="flex flex-col gap-2">
+                <div class="grid grid-cols-2 gap-2">
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">Pair Name</legend>
+                        <input type="text" class="input w-full" placeholder="Pair Name" />
+                    </fieldset>
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">Camera Name</legend>
+                        <input type="text" class="input w-full" placeholder="Raspberry Pi" />
+                    </fieldset>
+                </div>
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">API Token</legend>
+                    <input type="text" class="input w-full" value="djawd13" placeholder="API Token goes here..." disabled/>
+                    <p class="label">Automatically generated</p>
+                </fieldset>
+
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">Location</legend>
+                    <input type="text" class="input w-full" placeholder="Location" />
+                    <p class="label text-wrap">Please include relevant details, such as landmarks and floor numbers, for easier access</p>
+                </fieldset>
+
+                <button class="btn mt-3">Save Changes</button>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
