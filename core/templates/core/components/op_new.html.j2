@@ -10,11 +10,15 @@
     </div>
     <span class="text-base lg:text-2xl font-bold">{{ location }}</span>
     <div class="grid grid-cols-2 gap-2">
-        <form method="post" action="{% url 'signal_rescue' %}" class="col-span-2">
+        <form method="post"
+              action="{% url 'signal_rescue' %}"
+              class="col-span-2 bg-white text-red hover:shadow-md w-full">
+            <input type="hidden" name="camera_name" value="{{ pair_id }}">
             <input type="hidden" name="camera_name" value="{{ camera_name }}">
             <input type="hidden" name="time_elapsed" value="{{ time_elapsed }}">
             <input type="hidden" name="location" value="{{ location }}">
-            <button type="submit" class="btn bg-white text-red hover:shadow-md w-full">Signal Rescue!</button>
+            <button type="submit"
+                    class="col-span-2 btn bg-white text-red hover:shadow-md w-full">Signal Rescue!</button>
         </form>
     </div>
 </div>
