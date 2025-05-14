@@ -108,7 +108,6 @@
                 <div class="flex flex-row items-center mb-2 ml-2">
                     <span class="text-xl text-red font-bold">Operations</span>
                 </div>
-                
                 {# Pending Operations #}
                 <input type="radio"
                        name="my_tabs"
@@ -129,10 +128,7 @@
                     </div>
                 </div>
                 {# Completed Operations #}
-                <input type="radio"
-                       name="my_tabs"
-                       class="tab mb-2"
-                       aria-label="Completed" />
+                <input type="radio" name="my_tabs" class="tab mb-2" aria-label="Completed" />
                 <div class="tab-content h-full flex-grow overflow-y-auto">
                     <div class="flex flex-col gap-3">
                         {% include 'core/components/op_done.html.j2' with camera_name=done.0.camera_name date=done.0.date marked_safe=done.0.marked_safe location=done.0.location num_people=done.0.num_people num_cats=done.0.num_cats num_dogs=done.0.num_dogs flood_level=done.0.flood_level %}
