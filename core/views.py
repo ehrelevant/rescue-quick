@@ -106,7 +106,7 @@ def index(request: HttpRequest):
     ).all()
 
     def collect_monitors(
-        sensor_cameras: QuerySet[SensorCamera, SensorCamera],
+        sensor_cameras: QuerySet[SensorCamera],
     ) -> list[dict[str, typing.Any]]:
         return [
             {
