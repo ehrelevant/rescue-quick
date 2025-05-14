@@ -40,16 +40,24 @@ def collect_done_operations() -> list[dict[str, typing.Any]]:
     operations = []
 
     for value in current_values:
-        for flood_num in range(value['current_flood']-1,-1,-1):
-            sensor_logs = SensorLogs.objects.filter(sensor_id__pair_id=value["pair_id"], flood_number=flood_num).order_by('-timestamp').all()
+        for flood_num in range(value['current_flood'] - 1, -1, -1):
+            sensor_logs = (
+                SensorLogs.objects.filter(
+                    sensor_id__pair_id=value['pair_id'], flood_number=flood_num
+                )
+                .order_by('-timestamp')
+                .all()
+            )
 
             if sensor_logs:
                 timestamp = sensor_logs.first().timestamp
                 day = timestamp.date()
-                delta: datetime = sensor_logs.first().timestamp - sensor_logs.last().timestamp
+                delta: datetime = (
+                    sensor_logs.first().timestamp - sensor_logs.last().timestamp
+                )
                 s = delta.seconds
                 d = delta.days
-                duration = ""
+                duration = ''
 
                 if d == 1:
                     duration = '1 day'
@@ -70,15 +78,19 @@ def collect_done_operations() -> list[dict[str, typing.Any]]:
                 else:
                     duration = str(delta)
 
-                operations.append({
-                    'location': value['location'],
-                    'camera_name': value['camera_name'],
-                    'date': day.strftime(r'%B %d, %Y'),
-                    'marked_safe': day.strftime(r'%I:%M %p'),
-                    'duration': duration,
-                    'flood_level': sensor_logs.order_by('-depth').first().depth if sensor_logs.order_by('-depth').first() is not None else 0,
-                    'timestamp': timestamp
-                })
+                operations.append(
+                    {
+                        'location': value['location'],
+                        'camera_name': value['camera_name'],
+                        'date': day.strftime(r'%B %d, %Y'),
+                        'marked_safe': day.strftime(r'%I:%M %p'),
+                        'duration': duration,
+                        'flood_level': sensor_logs.order_by('-depth').first().depth
+                        if sensor_logs.order_by('-depth').first() is not None
+                        else 0,
+                        'timestamp': timestamp,
+                    }
+                )
 
     sorted_operations = sorted(operations, key=lambda x: x['timestamp'], reverse=True)
     return sorted_operations

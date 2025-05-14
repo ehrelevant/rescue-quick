@@ -153,9 +153,7 @@ def index(request: HttpRequest):
         'operations': [
             *operations,
         ],
-        'done': [
-            *collect_done_operations()
-        ],
+        'done': [*collect_done_operations()],
         'counts': {
             'danger': dangerous_sensor_cameras.count(),
             'caution': caution_sensor_cameras.count(),
@@ -244,25 +242,24 @@ def feed(request: HttpRequest, pair_id: int | None = None):
 
 
 def list_monitors(request: HttpRequest):
-    context = {
-
-    }
+    context = {}
 
     return render(request, 'core/config/main.html.j2', context)
 
+
 def configure_monitor(request: HttpRequest, pair_id: int):
     context = {
-        "pair_id" : pair_id,
+        'pair_id': pair_id,
     }
 
     return render(request, 'core/config/configure.html.j2', context)
 
-def new_monitor(request: HttpRequest):
-    context = {
 
-    }
+def new_monitor(request: HttpRequest):
+    context = {}
 
     return render(request, 'core/config/new.html.j2', context)
+
 
 # =============== Sensor Views ===============
 @csrf_exempt
