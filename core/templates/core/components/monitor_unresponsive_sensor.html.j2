@@ -1,53 +1,55 @@
-<div class="bg-white shadow-md p-6 rounded-md border-1 border-gray-200 w-full">
-    <div class="grid grid-cols-5 gap-2 mb-4">
+<div class="bg-white shadow-md p-4 lg:p-6 rounded-md border-1 border-gray-200 w-full">
+    <div class="grid grid-cols-5 gap-2 mb-2 lg:mb-4">
         <div class="flex gap-2 col-span-5 md:col-span-2">
-            <div class="aspect-square h-[2rem] w-auto animate-pulse bg-gray-light rounded-full flex items-center justify-center tooltip tooltip-right"
+            <div class="aspect-square h-[1.5rem] lg:h-[2rem] w-auto animate-pulse bg-gray-light rounded-full flex items-center justify-center tooltip tooltip-right"
                  data-tip="Monitor is unresponsive!">
                 <div class="w-[50%] h-[50%] bg-gray rounded-full"></div>
             </div>
             <div class="flex flex-row w-100 md:flex-col items-center md:items-start">
-                <span class="font-medium">{{ camera_name }}</span>
+                <span class="text-xs lg:text-base font-medium">{{ camera_name }}</span>
                 <div class="flex-grow"></div>
                 <span class="text-xs">{{ date }}</span>
             </div>
         </div>
         <div class="col-span-5 md:col-span-3 flex flex-col md:text-right">
             <span class="hidden md:block text-xs/3">Located at</span>
-            <span class="text-lg/5 font-bold text-black">{{ location }}</span>
+            <span class="text-base lg:text-lg/5 font-bold text-black">{{ location }}</span>
         </div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-        <div class="p-4 bg-gray-50 border-1 border-gray-200 rounded rounded-md">
-            <div class="flex items-center flex-row gap-2 mb-2">
-                <span class="font-bold">Camera Status</span>
+        <div class="p-4 bg-gray-50 border-1 border-gray-200 rounded rounded-md flex flex-row items-center lg:items-start lg:flex-col">
+            <div class="flex items-center flex-row gap-2 lg:mb-2">
+                <span class="text-sm font-bold">Camera Status</span>
             </div>
+            <div class="flex-grow"></div>
             <div class="flex flex-row">
                 <div class="flex flex-grow items-end gap-2">
                     <div class="flex flex-row items-start">
-                        <span class="mdi--security-camera color-red size-7"></span>
+                        <span class="mdi--security-camera color-red size-5 lg:size-7"></span>
                         <div class="inline-grid *:[grid-area:1/1]">
                             <div class="status status-success animate-ping"></div>
                             <div class="status status-success"></div>
                         </div>
                     </div>
-                    <span class="font-medium text-gray-500">Working Camera</span>
+                    <span class="text-xs lg:text-base font-medium text-gray-500">Working <span class="hidden md:inline">Camera</span></span>
                 </div>
             </div>
         </div>
-        <div class="p-4 bg-gray-50 border-1 border-gray-200 rounded rounded-md">
-            <div class="flex items-center gap-2 mb-2">
-                <span class="font-bold">Sensor Status</span>
+        <div class="p-4 bg-gray-50 border-1 border-gray-200 rounded rounded-md flex flex-row items-center lg:items-start lg:flex-col">
+            <div class="flex items-center gap-2 lg:mb-2">
+                <span class="text-sm font-bold">Sensor Status</span>
             </div>
+            <div class="flex-grow"></div>
             <div class="flex flex-row">
                 <div class="flex flex-grow items-end gap-2">
                     <div class="flex flex-row items-start">
-                        <span class="tdesign--sensors-off size-7"></span>
+                        <span class="tdesign--sensors-off size-5 lg:size-7"></span>
                         <div class="inline-grid *:[grid-area:1/1]">
                             <div class="status status-error animate-ping"></div>
                             <div class="status status-error"></div>
                         </div>
                     </div>
-                    <span class="font-medium text-gray-500">6 mins ago</span>
+                    <span class="text-xs lg:text-base font-medium text-gray-500">6 mins ago</span>
                 </div>
             </div>
         </div>

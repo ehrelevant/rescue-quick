@@ -9,7 +9,7 @@
          id="dashboard"
          hx-select="#dashboard"
          hx-swap="morph:outerHTML"
-         class="h-[calc(100vh-128px)] lg:h-[90vh] w-full pt-2 p-3 lg:p-6 lg:pl-[5%] lg:pr-[5%] grid grid-cols-1 lg:grid-cols-3 gap-4">
+         class="h-[calc(100vh-64px)] lg:h-[90vh] w-full pt-2 p-3 lg:p-6 lg:pl-[5%] lg:pr-[5%] grid grid-cols-1 lg:grid-cols-3 gap-4">
         {# Left Panel #}
         <div class="order-2 lg:order-1 col-span-1 md:col-span-2 h-full overflow-y-hidden flex flex-col gap-3">
             <div class="flex flex-row md:flex-col">
@@ -73,7 +73,7 @@
                 </div>
             </div>
             {# Monitors Container #}
-            <div class="overflow-y-auto flex-grow flex flex-col bg-[#F2F4F8] rounded-lg p-2 lg:p-4">
+            <div class="overflow-y-auto flex-grow flex flex-col bg-none lg:bg-[#F2F4F8] rounded-lg p-1 lg:p-4">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
                     {% for monitor in monitors.danger %}
                         {% include 'core/components/monitor_danger.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date num_people=monitor.num_people num_cats=monitor.num_cats num_dogs=monitor.num_dogs flood_level=monitor.flood_level max_flood_level=monitor.max_flood_level %}
@@ -85,7 +85,7 @@
                         {% include 'core/components/monitor_safe.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date num_people=monitor.num_people flood_level=monitor.flood_level max_flood_level=monitor.max_flood_level %}
                     {% endfor %}
                     {% for monitor in monitors.unresponsive_both %}
-                        {% include 'core/components/monitor_unresponsive_both.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date %}
+                        {% include 'core/components/monitor_safe.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date %}
                         {# Both Broke #}
                     {% endfor %}
                     {% for monitor in monitors.unresponsive_sensor %}
@@ -105,11 +105,14 @@
         <div class="order-1 :order-2 flex flex-col overflow-y-hidden h-full">
             {# Operations #}
             <div class="tabs tabs-border overflow-y-hidden">
+                <div class="flex flex-row items-center mb-2 ml-2">
+                    <span class="text-xl text-red font-bold">Operations</span>
+                </div>
                 {# Pending Operations #}
                 <input type="radio"
                        name="my_tabs"
-                       class="tab font-bold mb-4 border-red"
-                       aria-label="Pending Operations"
+                       class="tab mb-2"
+                       aria-label="Pending"
                        checked="checked" />
                 <div class="tab-content h-full overflow-y-auto">
                     <div class="flex flex-col gap-3">
@@ -125,10 +128,7 @@
                     </div>
                 </div>
                 {# Completed Operations #}
-                <input type="radio"
-                       name="my_tabs"
-                       class="tab"
-                       aria-label="Completed Operations" />
+                <input type="radio" name="my_tabs" class="tab mb-2" aria-label="Completed" />
                 <div class="tab-content h-full flex-grow overflow-y-auto">
                     <div class="flex flex-col gap-3">
                         {% include 'core/components/op_done.html.j2' with camera_name=done.0.camera_name date=done.0.date marked_safe=done.0.marked_safe location=done.0.location num_people=done.0.num_people num_cats=done.0.num_cats num_dogs=done.0.num_dogs flood_level=done.0.flood_level %}
