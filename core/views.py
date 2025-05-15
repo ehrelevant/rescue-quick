@@ -289,9 +289,10 @@ def configure_monitor(request: HttpRequest, pair_id: int):
         }
     )
 
-
     if request.method == 'POST':
-        if form.is_valid():
+        if "delete-monitor" in request.POST:
+            ...
+        elif form.is_valid():
             # Update the Table Entry
             SensorCamera.objects.filter(pair_id=pair_id).update(
                 pair_name=form.cleaned_data["pair_name"],
