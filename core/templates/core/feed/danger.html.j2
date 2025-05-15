@@ -21,14 +21,10 @@
                     </div>
                     <div>
                         <img id="processed-img"
-                            onload="checkImg();"
-                            class="hidden h-full object-contain"
-                            src="{{ processed_image }}">
-                        <p id="img-timestamp"
-                            class="hidden m-50"
-                        >
-                            {{ img_timestamp }}
-                        </p>
+                             onload="checkImg();"
+                             class="hidden h-full object-contain"
+                             src="{{ processed_image }}">
+                        <p id="img-timestamp" class="hidden m-50">{{ img_timestamp }}</p>
                     </div>
                     <script>
                         function checkImg() {
