@@ -32,6 +32,7 @@ from .utils import authenticate_device
 import resend
 from django.template.loader import render_to_string
 
+from .forms import MonitorForm
 
 @csrf_exempt
 @require_POST
@@ -248,15 +249,48 @@ def list_monitors(request: HttpRequest):
 
 
 def configure_monitor(request: HttpRequest, pair_id: int):
+    form = MonitorForm(
+        request.POST or None, 
+        initial={
+            "pair_name":"",
+            "api_token":"wdada",
+            "camera_name":"",
+            "location":"",
+        }
+    )
+
+    if request.method == 'POST':
+        print(form.is_valid())
+        if form.is_valid():
+            print("Obtained the following values")
+            form.cleaned_data["api_token"] = "test"
+            for key, value in form.cleaned_data.items():
+                print(f"+ {key} : {value}")
+
     context = {
         'pair_id': pair_id,
+        'form' : form,
     }
 
     return render(request, 'core/config/configure.html.j2', context)
 
 
 def new_monitor(request: HttpRequest):
-    context = {}
+    form = MonitorForm(
+        request.POST or None,
+    )
+
+    if request.method == 'POST':
+        print(form.is_valid())
+        if form.is_valid():
+            print("Obtained the following values")
+            form.cleaned_data["api_token"] = "test"
+            for key, value in form.cleaned_data.items():
+                print(f"+ {key} : {value}")
+
+    context = {
+        'form' : form,
+    }
 
     return render(request, 'core/config/new.html.j2', context)
 

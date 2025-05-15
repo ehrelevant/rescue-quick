@@ -16,31 +16,30 @@
             </div>
             <div class="flex flex-row justify-center mb-4"></div>
             <div class="flex flex-col gap-2">
-                <div class="grid grid-cols-2 gap-2">
+                <form action="." method="post">
+                    {% csrf_token %}
+                    <div class="grid grid-cols-2 gap-2">
+                        <fieldset class="fieldset">
+                            <legend class="fieldset-legend">{{ form.pair_name.label }}</legend>
+                            {{ form.pair_name }}
+                        </fieldset>
+                        <fieldset class="fieldset">
+                            <legend class="fieldset-legend">{{ form.threshold_depth.label }}</legend>
+                            {{ form.threshold_depth }}
+                        </fieldset>
+                    </div>
                     <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Pair Name</legend>
-                        <input type="text" class="input w-full" placeholder="Pair Name" />
+                        <legend class="fieldset-legend">{{ form.api_token.label }}</legend>
+                        {{ form.api_token }}
+                        <p class="label">Automatically generated</p>
                     </fieldset>
                     <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Camera Name</legend>
-                        <input type="text" class="input w-full" placeholder="Raspberry Pi" />
+                        <legend class="fieldset-legend">{{ form.location.label }}</legend>
+                        {{ form.location }}
+                        <p class="label text-wrap">Please include relevant details, such as landmarks and floor numbers, for easier access</p>
                     </fieldset>
-                </div>
-                <fieldset class="fieldset">
-                    <legend class="fieldset-legend">API Token</legend>
-                    <input type="text"
-                           class="input w-full"
-                           value="djawd13"
-                           placeholder="API Token goes here..."
-                           disabled />
-                    <p class="label">Automatically generated</p>
-                </fieldset>
-                <fieldset class="fieldset">
-                    <legend class="fieldset-legend">Location</legend>
-                    <input type="text" class="input w-full" placeholder="Location" />
-                    <p class="label text-wrap">Please include relevant details, such as landmarks and floor numbers, for easier access</p>
-                </fieldset>
-                <button class="btn mt-3">Save Changes</button>
+                    <button type="submit" class="btn mt-3 w-full">Save Changes</button>
+                </form>
             </div>
         </div>
     </div>
