@@ -262,7 +262,7 @@ def list_monitors(request: HttpRequest):
 
     return render(request, 'core/config/main.html.j2', context)
 
-
+@csrf_exempt
 def configure_monitor(request: HttpRequest, pair_id: int):
     # Check if Monitor Exists
     monitor: SensorCamera | None = SensorCamera.objects.filter(pair_id=pair_id).first()
