@@ -4,6 +4,7 @@ from storages.backends.s3boto3 import S3Boto3Storage
 from django.utils import timezone
 
 from datetime import datetime
+import pytz
 
 
 class CameraImageStorage(S3Boto3Storage):
@@ -40,7 +41,8 @@ def elapsed_time(timestamp: datetime | None) -> str:
     elif d == 0 and s < 86400:
         return f'{s // 3600} hours ago'
     else:
-        return timestamp.strftime(r'on %Y/%m/%d')
+        proper_time = timestamp.astimezone(pytz.timezone('Asia/Hong_Kong'))
+        return proper_time.strftime(r'on %Y/%m/%d')
 
 
 class SensorCamera(models.Model):

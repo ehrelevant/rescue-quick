@@ -19,23 +19,33 @@
                         <span class="ic--baseline-image-not-supported size-6"></span>
                         <span>No image yet.</span>
                     </div>
-                    <img id="processed-img"
-                         onload="checkImg();"
-                         class="hidden h-full object-contain"
-                         src="{{ processed_image }}">
+                    <div>
+                        <img id="processed-img"
+                            onload="checkImg();"
+                            class="hidden h-full object-contain"
+                            src="{{ processed_image }}">
+                        <p id="img-timestamp"
+                            class="hidden m-50"
+                        >
+                            {{ img_timestamp }}
+                        </p>
+                    </div>
                     <script>
                         function checkImg() {
                             const img = document.getElementById("processed-img");
+                            const timestamp = document.getElementById('img-timestamp');
                             const errorMessage = document.getElementById("img-error");
                             if (img.complete) {
                                 console.log("remove hidden");
                                 errorMessage.classList.add("hidden");
                                 img.classList.remove("hidden");
+                                timestamp.classList.remove("hidden");
                             }
                             else {
                                 console.log("oh about that...");
                                 errorMessage.classList.remove("hidden");
                                 img.classList.add("hidden");
+                                timestamp.classList.add("hidden");
                             }
                         };
                     </script>

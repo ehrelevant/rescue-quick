@@ -211,8 +211,10 @@ def feed(request: HttpRequest, pair_id: int | None = None):
 
     if not last_camera_log:
         processed_image_url = ''
+        img_timestamp = ''
     else:
         processed_image_url = last_camera_log.processed_image_url
+        img_timestamp = elapsed_time(last_camera_log.timestamp)
 
     # Determines next/previous pair_id
     next_sensor_camera = (
@@ -244,6 +246,7 @@ def feed(request: HttpRequest, pair_id: int | None = None):
         'num_cats': sensor_camera.cat_count,
         'flood_level': sensor_camera.current_depth,
         'processed_image': processed_image_url,
+        'img_timestamp': img_timestamp,
         # For pagination
         'prev': prev_pair_id,
         'next': next_pair_id,
