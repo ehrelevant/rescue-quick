@@ -4,15 +4,17 @@
     {% include 'core/nav.html.j2' with selected='monitors' %}
 {% endblock %}
 {% block content %}
-    <div class="h-[calc(100vh-64px)] lg:h-[90vh] p-6 lg:pl-[35%] lg:pr-[35%] flex items-center justify-center">
+    <div class="h-[calc(100vh-64px)] lg:h-[90vh] p-6 lg:pl-[35%] lg:pr-[35%] flex items-start md:items-center justify-center">
         <div class="w-full flex flex-col">
-            <div class="flex flex-col gap-2 items-center mb-[2em]">
-                <span class="badge badge-ghost font-medium pr-0 text-base">Configuring <span class="badge badge-outline badge-primary font-bold bg-white">ID: {{ pair_id }}</span></span>
+            <div class="flex flex-row gap-2 items-center mb-[2em]">
                 <a href="/configure/"
-                   class="text-sm flex flex-row items-center transition hover:opacity-[0.5] font-medium text-gray-500">
-                    {# <span class="icons8--left-round size-5 mr-2"></span> #}
-                    Back to Monitors
+                   class="flex flex-row items-center transition hover:opacity-[0.5] text-gray-500">
+                    <span class="icons8--left-round size-6"></span>
                 </a>
+                <div class="flex-grow"></div>
+                <span class="badge badge-ghost font-medium pr-0 text-base">Configuring <span class="badge badge-outline badge-primary font-bold bg-white">ID: {{ pair_id }}</span></span>
+                <div class="flex-grow"></div>
+                <span class="icons8--left-round size-6 opacity-0"></span>
             </div>
             <div class="flex flex-row justify-center mb-4"></div>
             <div class="flex flex-col gap-2">
