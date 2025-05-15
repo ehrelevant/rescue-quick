@@ -344,6 +344,7 @@ def new_monitor(request: HttpRequest):
 # =============== Sensor Views ===============
 @csrf_exempt
 @require_POST
+@authenticate_device
 def post_sensor_data(request: HttpRequest, pair_id: int):
     try:
         data = json.loads(request.body)
