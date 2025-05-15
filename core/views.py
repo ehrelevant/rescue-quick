@@ -279,8 +279,15 @@ def configure_monitor(request: HttpRequest, pair_id: int):
     # Check if Monitor Exists
     monitor: SensorCamera | None = SensorCamera.objects.filter(pair_id=pair_id).first()
     
+                
     if (not monitor):
         return HttpResponseNotFound('Monitor not found')
+    
+    current_emails = RescuerContacts.objects.filter(
+        devices=SensorCamera.objects.get(pair_id=monitor.pair_id)
+    ).values_list('email_addr', flat=True)
+
+    string_current_emails = ",".join(current_emails)
 
     form = MonitorForm(
         request.POST or None, 
@@ -290,6 +297,7 @@ def configure_monitor(request: HttpRequest, pair_id: int):
             "pair_id":monitor.pair_id,
             "token":monitor.token,
             "location":monitor.location,
+            "emails":string_current_emails
         }
     )
 
@@ -305,6 +313,25 @@ def configure_monitor(request: HttpRequest, pair_id: int):
                 threshold_depth=form.cleaned_data["threshold_depth"],
                 location=form.cleaned_data["location"]
             )
+            new_emails = form.cleaned_data["emails"].split(",")
+            remove_emails = [item for item in current_emails if item not in new_emails]
+            add_emails = [item for item in new_emails if item not in current_emails]
+
+            for email in remove_emails:
+                rescuer_contact = RescuerContacts.objects.filter(email_addr=email).first()
+                rescuer_contact.devices.remove(SensorCamera.objects.get(pair_id=monitor.pair_id))
+
+                if rescuer_contact.devices.count() == 0:
+                    rescuer_contact.delete()
+
+            for email in add_emails:
+                rescuer_contact = RescuerContacts.objects.filter(email_addr=email).first()
+                if not rescuer_contact: 
+                    RescuerContacts.objects.create(email_addr=email)
+
+                rescuer_contact = RescuerContacts.objects.filter(email_addr=email).first()
+                rescuer_contact.devices.add(SensorCamera.objects.get(pair_id=monitor.pair_id))    
+
             return redirect('/configure/')
 
     context = {
@@ -323,7 +350,8 @@ def new_monitor(request: HttpRequest):
             "threshold_depth":"",
             "pair_id":"",
             "token":"",
-            "location":""
+            "location":"",
+            "emails":""
         }
     )
 
@@ -333,6 +361,14 @@ def new_monitor(request: HttpRequest):
             pair_id, token = add_new_monitor(form.cleaned_data["pair_name"], form.cleaned_data["location"], form.cleaned_data["threshold_depth"])
             form.cleaned_data["pair_id"] = pair_id
             form.cleaned_data["token"] = token
+            
+            for email in form.cleaned_data["emails"].split(","):
+                rescuer_contact = RescuerContacts.objects.filter(email_addr=email).first()
+                if not rescuer_contact: 
+                    RescuerContacts.objects.create(email_addr=email)
+
+                rescuer_contact = RescuerContacts.objects.filter(email_addr=email).first()
+                rescuer_contact.devices.add(SensorCamera.objects.get(pair_id=form.cleaned_data["pair_id"]))      
 
     context = {
         'form' : form,

@@ -45,3 +45,10 @@ class MonitorForm(forms.Form):
             attrs={"placeholder": "Location of the Monitor", "class": "input w-full"}
         ),
     )
+
+    emails = forms.CharField(
+        label="Emails",
+        widget=forms.EmailInput(
+            attrs={"placeholder": "email1@example.com,email2@example.com", "class": "input w-full", "multiple": "multiple"}
+        ),
+    )

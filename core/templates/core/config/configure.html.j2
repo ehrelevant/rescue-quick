@@ -57,6 +57,11 @@
                         {{ form.location }}
                         <p class="label text-wrap">Please include relevant details, such as landmarks and floor numbers, for easier access</p>
                     </fieldset>
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">{{ form.emails.label }}</legend>
+                        {{ form.emails }}
+                        <p class="label text-wrap">Include a list of emails separated by a comma.</p>
+                    </fieldset>
                     <div class="grid gap-3 md:grid-cols-2 mt-2">
                         <button type="submit" name="save-changes" class="btn w-full">Save Changes</button></form>
                         <form action="." method="post">

@@ -33,6 +33,11 @@
                         {{ form.location }}
                         <p class="label text-wrap">Please include relevant details, such as landmarks and floor numbers, for easier access</p>
                     </fieldset>
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">{{ form.emails.label }}</legend>
+                        {{ form.emails }}
+                        <p class="label text-wrap">Include a list of emails separated by a comma.</p>
+                    </fieldset>
                     <button type="submit" class="btn mt-3 w-full">Create Monitor</button>
                 </form>
             </div>
