@@ -68,8 +68,8 @@ class SensorCamera(models.Model):
     # timestamps
     timestamp = models.DateTimeField(auto_now=True)
     state_change_timestamp = models.DateTimeField(default=timezone.now)
-    last_sensor_report = models.DateTimeField(default=timezone.now)
-    last_camera_report = models.DateTimeField(default=timezone.now)
+    last_sensor_report = models.DateTimeField(null=True)
+    last_camera_report = models.DateTimeField(null=True)
 
     # auth token
     token = models.CharField(

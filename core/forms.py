@@ -10,6 +10,7 @@ class MonitorForm(forms.Form):
     )
 
     threshold_depth = forms.IntegerField(
+        label="Threshold Depth (Inches)",
         widget=forms.NumberInput(
             attrs={
                 "class": "input w-full",
@@ -19,7 +20,14 @@ class MonitorForm(forms.Form):
         ),
     )
 
-    api_token = forms.CharField(
+    pair_id = forms.IntegerField(
+        label="Pair ID",
+        required=False,
+        widget=forms.TextInput(
+            attrs={"placeholder": "Pair ID", "class": "input w-full disabled:text-black", "disabled": "disabled"}
+        ),
+    )
+    token = forms.CharField(
         label="API Token", 
         max_length=100,
         required=False,

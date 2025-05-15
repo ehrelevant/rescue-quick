@@ -243,29 +243,53 @@ def feed(request: HttpRequest, pair_id: int | None = None):
 
 
 def list_monitors(request: HttpRequest):
-    context = {}
+    # Collect and Display all the Monitors
+    def collect_monitors(
+        sensor_cameras: QuerySet[SensorCamera],
+    ) -> list[dict[str, typing.Any]]:
+        return [
+            {
+                'pair_id': sensor_camera.pair_id,
+                'location': sensor_camera.location,
+                'pair_name': sensor_camera.pair_name,
+            }
+            for sensor_camera in sensor_cameras
+        ]
+
+    monitors: typing.Any = collect_monitors(SensorCamera.objects.all())
+
+    context = {'monitors': monitors}
 
     return render(request, 'core/config/main.html.j2', context)
 
 
 def configure_monitor(request: HttpRequest, pair_id: int):
+    # Check if Monitor Exists
+    monitor: SensorCamera | None = SensorCamera.objects.filter(pair_id=pair_id).first()
+    
+    if (not monitor):
+        return HttpResponseNotFound('Monitor not found')
+
     form = MonitorForm(
         request.POST or None, 
         initial={
-            "pair_name":"",
-            "api_token":"wdada",
-            "camera_name":"",
-            "location":"",
+            "pair_name":monitor.pair_name,
+            "threshold_depth":monitor.threshold_depth,
+            "pair_id":monitor.pair_id,
+            "token":monitor.token,
+            "location":monitor.location,
         }
     )
 
+
     if request.method == 'POST':
-        print(form.is_valid())
         if form.is_valid():
-            print("Obtained the following values")
-            form.cleaned_data["api_token"] = "test"
-            for key, value in form.cleaned_data.items():
-                print(f"+ {key} : {value}")
+            # Update the Table Entry
+            SensorCamera.objects.filter(pair_id=pair_id).update(
+                pair_name=form.cleaned_data["pair_name"],
+                threshold_depth=form.cleaned_data["threshold_depth"],
+                location=form.cleaned_data["location"]
+            )
 
     context = {
         'pair_id': pair_id,
@@ -278,15 +302,21 @@ def configure_monitor(request: HttpRequest, pair_id: int):
 def new_monitor(request: HttpRequest):
     form = MonitorForm(
         request.POST or None,
+        initial={
+            "pair_name":"",
+            "threshold_depth":"",
+            "pair_id":"",
+            "token":"",
+            "location":""
+        }
     )
 
     if request.method == 'POST':
         print(form.is_valid())
         if form.is_valid():
-            print("Obtained the following values")
-            form.cleaned_data["api_token"] = "test"
-            for key, value in form.cleaned_data.items():
-                print(f"+ {key} : {value}")
+            pair_id, token = add_new_monitor(form.cleaned_data["pair_name"], form.cleaned_data["location"], form.cleaned_data["threshold_depth"])
+            form.cleaned_data["pair_id"] = pair_id
+            form.cleaned_data["token"] = token
 
     context = {
         'form' : form,
@@ -551,79 +581,23 @@ def post_cam_health(request: HttpRequest, pair_id: int):
 
 # ============================================
 
+def add_new_monitor(input_pair_name, input_location, input_threshold_depth):
+    # Generate New Pair ID
+    last_sensor_camera: SensorCamera | None = SensorCamera.objects.order_by('-pair_id').first()
+    generated_pair_id = last_sensor_camera.pair_id + 1 if last_sensor_camera else 1
 
-@csrf_exempt
-@require_GET
-def get_available_pair_id(_):
-    """
-    Returns a pair ID that is currently unreserved.
-    Specifically, this returns the largest pair ID plus 1.
-    """
-    try:
-        last_sensor_cam: SensorCamera | None = SensorCamera.objects.order_by(
-            '-pair_id'
-        ).first()
-        available_id = last_sensor_cam.pair_id + 1 if last_sensor_cam else 1
+    # Generate Token
+    generated_token = secrets.token_hex(32)
+    while (SensorCamera.objects.filter(token=generated_token).exists()):
+        generated_token = secrets.token_hex(32)
 
-        return JsonResponse({'status': 'success', 'pair_id': available_id})
-    except Exception as e:
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-
-
-@csrf_exempt
-@require_POST
-def post_reserve_pair_id(request: HttpRequest):
-    """
-    Reserves the requested pair ID in the database.
-    This allows a pair ID to be held by a sensor without sending sensor data.
-    """
-    try:
-        data = json.loads(request.body)
-        target_pair_id = data['pair_id']
-        if SensorCamera.objects.filter(pair_id=target_pair_id).exists():
-            # Errors if requested pair ID is already reserved for a different resource
-            return JsonResponse(
-                {'status': 'error', 'message': 'Pair ID has already been assigned.'},
-                status=400,
-            )
-
-        SensorCamera.objects.create(
-            pair_id=target_pair_id, pair_name=f'Camera {target_pair_id}'
+    # Create Table Entry
+    SensorCamera.objects.create(
+            pair_id=generated_pair_id,
+            token=generated_token,
+            pair_name=input_pair_name,
+            location=input_location,
+            threshold_depth=input_threshold_depth     
         )
-
-        return JsonResponse({'status': 'success'})
-    except Exception as e:
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-
-
-# ============================================
-
-
-@csrf_exempt
-@require_GET
-def get_device_token(pair_id: int):
-    """Function to return a 32-bytes hex character token"""
-    try:
-        sensor_cam = SensorCamera.objects.get(pair_id=pair_id)
-        if sensor_cam.token:
-            return JsonResponse({'status': 'success', 'token': sensor_cam.token})
-        # If sensor camera pair exists but no token yet, generate one
-        elif sensor_cam:
-            token = secrets.token_hex(32)
-
-            # Check if unique
-            while True:
-                # If token already exists, keep regenerating token
-                if SensorCamera.objects.filter(token=token).exists():
-                    token = secrets.token_hex(32)
-                else:
-                    break
-
-            SensorCamera.objects.filter(pair_id=pair_id).update(token=token)
-            return JsonResponse({'status': 'success', 'token': token})
-        else:
-            return JsonResponse(
-                {'status': 'error', 'message': 'Pair ID does not exist'}, status=400
-            )
-    except Exception as e:
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    
+    return generated_pair_id, generated_token
