@@ -34,6 +34,8 @@ from django.template.loader import render_to_string
 
 from .forms import MonitorForm
 
+from datetime import datetime
+
 @csrf_exempt
 @require_POST
 def signal_rescue(request: HttpRequest):
@@ -71,8 +73,14 @@ def signal_rescue(request: HttpRequest):
 def check_health():
     seconds_threshold = 5  # 5 Seconds
     for sensor_camera in SensorCamera.objects.all():
-        sensor_time = timezone.now() - sensor_camera.last_sensor_report
-        camera_time = timezone.now() - sensor_camera.last_camera_report
+        if (not sensor_camera.last_sensor_report):
+            sensor_time = timezone.now() - timezone.make_aware(timezone.datetime(1999, 1, 1))
+        else:
+            sensor_time = timezone.now() - sensor_camera.last_sensor_report
+        if (not sensor_camera.last_camera_report):
+            camera_time = timezone.now() - timezone.make_aware(timezone.datetime(1999, 1, 1))
+        else:
+            camera_time = timezone.now() - sensor_camera.last_camera_report
         if (
             sensor_time.seconds > seconds_threshold
             and camera_time.seconds > seconds_threshold
