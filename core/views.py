@@ -34,10 +34,6 @@ from django.template.loader import render_to_string
 
 from .forms import MonitorForm
 
-from datetime import datetime
-
-from django.urls import reverse
-
 
 @csrf_exempt
 @require_POST
