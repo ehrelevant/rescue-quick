@@ -16,7 +16,10 @@ class CameraImageProcessedStorage(S3Boto3Storage):
     file_overwrite = False
 
 
-def elapsed_time(timestamp: datetime) -> str:
+def elapsed_time(timestamp: datetime | None) -> str:
+    if not timestamp:
+        return "N/A"
+
     delta = timezone.now() - timestamp
     s = delta.seconds
     d = delta.days

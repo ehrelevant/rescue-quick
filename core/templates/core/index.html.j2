@@ -86,15 +86,15 @@
                         {% include 'core/components/monitor_safe.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date num_people=monitor.num_people flood_level=monitor.flood_level max_flood_level=monitor.max_flood_level %}
                     {% endfor %}
                     {% for monitor in monitors.unresponsive_both %}
-                        {% include 'core/components/monitor_unresponsive_both.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date %}
+                        {% include 'core/components/monitor_unresponsive_both.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date sensor_health_time=monitor.sensor_health_time camera_health_time=monitor.camera_health_time %}
                         {# Both Broke #}
                     {% endfor %}
                     {% for monitor in monitors.unresponsive_sensor %}
-                        {% include 'core/components/monitor_unresponsive_sensor.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date %}
+                        {% include 'core/components/monitor_unresponsive_sensor.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date sensor_health_time=monitor.sensor_health_time camera_health_time=monitor.camera_health_time %}
                         {# Sensor Broke #}
                     {% endfor %}
                     {% for monitor in monitors.unresponsive_camera %}
-                        {% include 'core/components/monitor_unresponsive_camera.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date %}
+                        {% include 'core/components/monitor_unresponsive_camera.html.j2' with location=monitor.location camera_name=monitor.camera_name date=monitor.date sensor_health_time=monitor.sensor_health_time camera_health_time=monitor.camera_health_time %}
                         {# Camera Broke #}
                     {% endfor %}
                 </div>

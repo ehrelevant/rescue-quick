@@ -132,6 +132,8 @@ def index(request: HttpRequest):
                 'num_dogs': sensor_camera.dog_count,
                 'flood_level': sensor_camera.current_depth,
                 'max_flood_level': sensor_camera.threshold_depth,
+                'sensor_health_time': elapsed_time(sensor_camera.last_sensor_report),
+                'camera_health_time': elapsed_time(sensor_camera.last_camera_report),
             }
             for sensor_camera in sensor_cameras
         ]
