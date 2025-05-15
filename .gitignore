@@ -177,7 +177,7 @@ cython_debug/
 node_modules/
 
 # Ignore TailwindCSS output files
-# output.css
+output.css
 
 # Ignore compiled staticfiles
 staticfiles/
