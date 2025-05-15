@@ -298,7 +298,7 @@ def configure_monitor(request: HttpRequest, pair_id: int):
 
     return render(request, 'core/config/configure.html.j2', context)
 
-
+@csrf_exempt
 def new_monitor(request: HttpRequest):
     form = MonitorForm(
         request.POST or None,
