@@ -47,10 +47,10 @@ def signal_rescue(request: HttpRequest):
         camera_name = request.POST.get('camera_name', 'unknown')
         time_elapsed = request.POST.get('time_elapsed', 'unknown')
         location = request.POST.get('location', 'unknown')
+        site = request.POST.get('site', '/')
 
         rescuers = RescuerContacts.objects.filter(devices__pair_id=int(pair_id)).all()
         emails = [rescuer.email_addr for rescuer in rescuers]
-
         context = {
             'camera_name': camera_name,
             'time_elapsed': time_elapsed,
@@ -58,17 +58,19 @@ def signal_rescue(request: HttpRequest):
         }
 
         message = render_to_string('core/emails/new_flood_alert.html', context)
-
+        
         resend.Emails.send(
             {
-                'from': 'Acme <onboarding@resend.dev>',
+                'from': 'RescueQuick <send@rescue-quick.ehrencastillo.tech>',
                 'to': emails,
                 'subject': 'Hey! Listen!',
                 'html': message,
             }
         )
-        return HttpResponseRedirect('/')
+        
+        return HttpResponseRedirect(site)
     except Exception as e:
+        print(e)
         print(JsonResponse({'status': 'error', 'message': str(e)}, status=500))
         return HttpResponseRedirect('/')
 
