@@ -27,12 +27,14 @@ class MonitorForm(forms.Form):
             attrs={"placeholder": "Pair ID", "class": "input w-full disabled:text-black", "disabled": "disabled"}
         ),
     )
+
     token = forms.CharField(
         label="API Token", 
         max_length=100,
         required=False,
-        widget=forms.TextInput(
-            attrs={"placeholder": "API Token", "class": "input w-full disabled:text-black", "disabled": "disabled"}
+        widget=forms.PasswordInput(
+            render_value=True,
+            attrs={"id":"tokenField","placeholder": "API Token", "class": "pr-[50px] w-full input inline-block disabled:text-black", "disabled": "disabled"},
         ),
     )
 

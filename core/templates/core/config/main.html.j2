@@ -22,7 +22,7 @@
                 {% for monitor in monitors %} 
                 <div class="flex flex-col lg:flex-row lg:items-end border-b-1 border-gray-200 pt-4 pb-4">
                     <div class="flex flex-col mb-2 lg:mb-[0]">
-                        <span class="text-base md:text-lg font-bold"> {{ monitor.pair_name }} <span class="badge badge-soft badge-primary">{{ monitor.pair_id }}</span></span>
+                        <span class="text-base md:text-lg font-bold mb-1"> {{ monitor.pair_name }} <span class="badge badge-soft badge-primary">ID: {{ monitor.pair_id }}</span></span>
                         <span class="text-xs md:text-sm font-medium flex items-center"><span class="mdi--location size-4 mr-2"></span> {{ monitor.location }} </span>
                     </div>
                     <div class="hidden lg:block flex-grow"></div>
