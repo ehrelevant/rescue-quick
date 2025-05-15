@@ -133,16 +133,14 @@
                             </button>
                         </form>
                     </div>
-                    <div class="flex justify-center">
-                        <div class="flex items-center gap-4">
-                            <a href="/feed/{{ prev }}/" class="flex items-center hover:opacity-50">
-                                <span class="icon-park-solid--left-c size-6"></span>
-                            </a>
-                            <span class="p-2 pl-6 pr-6 text-gray font-medium bg-gray-light border-1 border-gray-200 rounded-md">{{ camera_name }}</span>
-                            <a href="/feed/{{ next }}/" class="flex items-center hover:opacity-50">
-                                <span class="icon-park-solid--right-c size-6"></span>
-                            </a>
-                        </div>
+                    <div class="flex flex-row gap-4 pl-6 pr-6">
+                        <a href="/feed/{{ prev }}/" class="flex items-center hover:opacity-50">
+                            <span class="icon-park-solid--left-c size-6"></span>
+                        </a>
+                        <span class="p-2 pl-6 pr-6 text-gray font-medium bg-gray-light border-1 border-gray-200 rounded-md flex-grow text-center">{{ camera_name }}</span>
+                        <a href="/feed/{{ next }}/" class="flex items-center hover:opacity-50">
+                            <span class="icon-park-solid--right-c size-6"></span>
+                        </a>
                     </div>
                 </div>
             </div>
