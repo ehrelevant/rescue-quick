@@ -32,22 +32,25 @@
                     <fieldset class="fieldset">
                         <legend class="fieldset-legend">{{ form.token.label }}</legend>
                         <div class="flex flex-row items-center">
-                            <p class="w-full">{{ form.token }}</p>
+                            {{ form.token }}
                             <a href=""><span id="togglePassword" class="block ml-[-35px] align-middle text-black mdi--eye-off size-5"></span></a>
                         </div>
                         <script>
                             togglePassword = document.getElementById("togglePassword");
-                            togglePassword.addEventListener("click", ()=>{
-                                tokenField = document.getElementById("tokenField");
+                            tokenField = document.getElementById("tokenField");
+                            togglePassword.addEventListener("click", (e)=>{
+                                e.preventDefault();
                                 if (tokenField.type == "text") {
+                                    togglePassword.classList.remove("mdi--eye");
+                                    togglePassword.classList.add("mdi--eye-off");
                                     tokenField.type = "password";
                                 }
                                 else {
+                                    togglePassword.classList.remove("mdi--eye-off");
+                                    togglePassword.classList.add("mdi--eye");
                                     tokenField.type = "text";
                                 }
-                                togglePassword.classList.toggle("mdi--eye");
-                                togglePassword.classList.toggle("mdi--eye-off");
-                            })
+                            });
                         </script>
                     </fieldset>
                     <fieldset class="fieldset">
