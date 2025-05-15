@@ -18,7 +18,7 @@ class CameraImageProcessedStorage(S3Boto3Storage):
 
 def elapsed_time(timestamp: datetime | None) -> str:
     if not timestamp:
-        return "N/A"
+        return 'N/A'
 
     delta = timezone.now() - timestamp
     s = delta.seconds

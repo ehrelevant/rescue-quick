@@ -28,12 +28,12 @@
                             {{ form.threshold_depth }}
                         </fieldset>
                     </div>
-
                     <fieldset class="fieldset">
                         <legend class="fieldset-legend">{{ form.token.label }}</legend>
                         <div class="flex flex-row items-center">
                             {{ form.token }}
-                            <a href=""><span id="togglePassword" class="block ml-[-35px] align-middle text-black mdi--eye-off size-5"></span></a>
+                            <a href=""><span id="togglePassword"
+      class="block ml-[-35px] align-middle text-black mdi--eye-off size-5"></span></a>
                         </div>
                         <script>
                             togglePassword = document.getElementById("togglePassword");
@@ -64,14 +64,17 @@
                         <p class="label text-wrap">Include a list of emails separated by a comma.</p>
                     </fieldset>
                     <div class="grid gap-3 md:grid-cols-2 mt-2">
-                        <button type="submit" name="save-changes" class="btn w-full">Save Changes</button></form>
-                        <form action="." method="post">
-                            {% csrf_token %}
-                            <button type="submit" name="delete-monitor" class="btn btn-error w-full text-white">Delete Monitor</button>
-                        </form>
-                    </div> 
-                </form>
-            </div>
+                        <button type="submit" name="save-changes" class="btn w-full">Save Changes</button>
+                    </form>
+                    <form action="." method="post">
+                        {% csrf_token %}
+                        <button type="submit"
+                                name="delete-monitor"
+                                class="btn btn-error w-full text-white">Delete Monitor</button>
+                    </form>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 {% endblock content %}

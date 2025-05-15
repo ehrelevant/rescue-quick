@@ -4,6 +4,7 @@ import typing
 from pytz import timezone
 from datetime import timedelta
 
+
 def convert_time(delta: timedelta) -> str:
     s = delta.seconds
     d = delta.days
@@ -77,10 +78,8 @@ def collect_done_operations() -> list[dict[str, typing.Any]]:
                 timestamp = sensor_logs.first().timestamp
                 day = timestamp.date()
                 proper_time = timestamp.astimezone(timezone('Asia/Hong_Kong'))
-                
-                delta = (
-                    sensor_logs.first().timestamp - sensor_logs.last().timestamp
-                )
+
+                delta = sensor_logs.first().timestamp - sensor_logs.last().timestamp
                 duration = convert_time(delta)
 
                 operations.append(
