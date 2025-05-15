@@ -305,6 +305,7 @@ def configure_monitor(request: HttpRequest, pair_id: int):
                 threshold_depth=form.cleaned_data["threshold_depth"],
                 location=form.cleaned_data["location"]
             )
+            return redirect('/configure/')
 
     context = {
         'pair_id': pair_id,
