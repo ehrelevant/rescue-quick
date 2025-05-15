@@ -2,6 +2,30 @@ from django.http import JsonResponse
 from .models import SensorCamera, SensorLogs
 import typing
 from pytz import timezone
+from datetime import timedelta
+
+def convert_time(delta: timedelta) -> str:
+    s = delta.seconds
+    d = delta.days
+
+    if d == 1:
+        return '1 day'
+    elif d > 1:
+        return f'{d} days'
+    elif d == 0 and s <= 1:
+        return 'Just now'
+    elif d == 0 and s < 60:
+        return f'{s} seconds'
+    elif d == 0 and s < 120:
+        return '1 minute'
+    elif d == 0 and s < 3600:
+        return f'{s // 60} minutes'
+    elif d == 0 and s < 7200:
+        return '1 hour'
+    elif d == 0 and s < 86400:
+        return f'{s // 3600} hours'
+    else:
+        return str(delta)
 
 
 def authenticate_device(view_func):
@@ -57,28 +81,7 @@ def collect_done_operations() -> list[dict[str, typing.Any]]:
                 delta = (
                     sensor_logs.first().timestamp - sensor_logs.last().timestamp
                 )
-                s = delta.seconds
-                d = delta.days
-                duration = ''
-
-                if d == 1:
-                    duration = '1 day'
-                elif d > 1:
-                    duration = f'{d} days'
-                elif d == 0 and s <= 1:
-                    duration = 'Just now'
-                elif d == 0 and s < 60:
-                    duration = f'{s} seconds'
-                elif d == 0 and s < 120:
-                    duration = '1 minute'
-                elif d == 0 and s < 3600:
-                    duration = f'{s // 60} minutes'
-                elif d == 0 and s < 7200:
-                    duration = '1 hour'
-                elif d == 0 and s < 86400:
-                    duration = f'{s // 3600} hours'
-                else:
-                    duration = str(delta)
+                duration = convert_time(delta)
 
                 operations.append(
                     {
