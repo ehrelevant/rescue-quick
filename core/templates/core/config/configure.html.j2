@@ -28,27 +28,29 @@
                             {{ form.threshold_depth }}
                         </fieldset>
                     </div>
-                    
+
                     <fieldset class="fieldset">
                         <legend class="fieldset-legend">{{ form.token.label }}</legend>
                         <div class="flex flex-row items-center">
                             {{ form.token }}
-                            <a href=""><span id="togglePassword" class="inline ml-[-40px] text-black mdi--eye-off size-5"></span></a>
                         </div>
+                        {# 
+                        <a href=""><span id="togglePassword" class="inline ml-[-40px] text-black mdi--eye-off size-5"></span></a>
                         <script>
-                            togglePassword = document.getElementById("togglePassword");
-                            togglePassword.addEventListener("click", ()=>{
-                                tokenField = document.getElementById("tokenField");
-                                if (tokenField.type == "text") {
-                                    tokenField.type = "password";
-                                }
-                                else {
-                                    tokenField.type = "text";
-                                }
-                                togglePassword.classList.toggle("mdi--eye");
-                                togglePassword.classList.toggle("mdi--eye-off");
-                            })
+                        //    togglePassword = document.getElementById("togglePassword");
+                        //    togglePassword.addEventListener("click", ()=>{
+                        //        tokenField = document.getElementById("tokenField");
+                        //        if (tokenField.type == "text") {
+                        //            tokenField.type = "password";
+                        //        }
+                        //        else {
+                        //            tokenField.type = "text";
+                        //        }
+                        //        togglePassword.classList.toggle("mdi--eye");
+                        //        togglePassword.classList.toggle("mdi--eye-off");
+                        //    })
                         </script>
+                        #} 
                     </fieldset>
                     <fieldset class="fieldset">
                         <legend class="fieldset-legend">{{ form.location.label }}</legend>

@@ -32,8 +32,8 @@ class MonitorForm(forms.Form):
         label="API Token", 
         max_length=100,
         required=False,
-        widget=forms.PasswordInput(
-            render_value=True,
+        widget=forms.TextInput(
+            # render_value=True,
             attrs={"id":"tokenField","placeholder": "API Token", "class": "pr-[50px] w-full input inline-block disabled:text-black", "disabled": "disabled"},
         ),
     )

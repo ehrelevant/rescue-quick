@@ -36,6 +36,9 @@ from .forms import MonitorForm
 
 from datetime import datetime
 
+from django.urls import reverse
+
+
 @csrf_exempt
 @require_POST
 def signal_rescue(request: HttpRequest):
@@ -176,12 +179,10 @@ def index(request: HttpRequest):
 
 
 def feed(request: HttpRequest, pair_id: int | None = None):
-    sensor_camera: SensorCamera | None = None
+    sensor_camera: SensorCamera | None = SensorCamera.objects.filter(pair_id=pair_id).first()
 
     if not pair_id:
         sensor_camera = SensorCamera.objects.first()
-
-        print('TEST:', sensor_camera)
 
         # Return a 404 error if the table is empty
         if not sensor_camera:
@@ -189,6 +190,10 @@ def feed(request: HttpRequest, pair_id: int | None = None):
 
         # For consistency, redirect to page
         return redirect(f'/feed/{sensor_camera.pair_id}/')
+
+    if not sensor_camera:
+        return HttpResponseNotFound('Camera not found')
+
 
     last_camera_log = (
         CameraLogs.objects.filter(
@@ -199,13 +204,12 @@ def feed(request: HttpRequest, pair_id: int | None = None):
         .first()
     )
 
-    # Returns a 404 error if the queried pair_id does not exist
     if not last_camera_log:
-        return HttpResponseNotFound('Camera not found')
+        processed_image_url = ""
+    else:
+        processed_image_url = last_camera_log.processed_image_url
 
-    processed_image_url = last_camera_log.processed_image_url
 
-    sensor_camera = SensorCamera.objects.get(pk=pair_id)
 
     # Determines next/previous pair_id
     next_sensor_camera = (
@@ -291,7 +295,9 @@ def configure_monitor(request: HttpRequest, pair_id: int):
 
     if request.method == 'POST':
         if "delete-monitor" in request.POST:
-            ...
+            # Delete Monitor from Database
+            SensorCamera.objects.filter(pair_id=pair_id).delete()
+            return redirect('/configure/')
         elif form.is_valid():
             # Update the Table Entry
             SensorCamera.objects.filter(pair_id=pair_id).update(
@@ -299,6 +305,7 @@ def configure_monitor(request: HttpRequest, pair_id: int):
                 threshold_depth=form.cleaned_data["threshold_depth"],
                 location=form.cleaned_data["location"]
             )
+            return redirect('/configure/')
 
     context = {
         'pair_id': pair_id,
@@ -337,6 +344,7 @@ def new_monitor(request: HttpRequest):
 # =============== Sensor Views ===============
 @csrf_exempt
 @require_POST
+@authenticate_device
 def post_sensor_data(request: HttpRequest, pair_id: int):
     try:
         data = json.loads(request.body)
