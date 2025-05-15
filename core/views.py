@@ -12,7 +12,7 @@ from django.http import (
     JsonResponse,
     HttpResponseRedirect,
 )
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.views.decorators.http import require_POST, require_GET
 from django.core.files.base import ContentFile
 from uuid import uuid4
@@ -276,7 +276,7 @@ def list_monitors(request: HttpRequest):
 
     return render(request, 'core/config/main.html.j2', context)
 
-@csrf_exempt
+@csrf_protect
 def configure_monitor(request: HttpRequest, pair_id: int):
     # Check if Monitor Exists
     monitor: SensorCamera | None = SensorCamera.objects.filter(pair_id=pair_id).first()
@@ -334,7 +334,7 @@ def configure_monitor(request: HttpRequest, pair_id: int):
                 rescuer_contact = RescuerContacts.objects.filter(email_addr=email).first()
                 rescuer_contact.devices.add(SensorCamera.objects.get(pair_id=monitor.pair_id))    
 
-            return redirect('/configure/')
+            # return redirect('/configure/')
 
     context = {
         'pair_id': pair_id,
