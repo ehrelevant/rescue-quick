@@ -79,7 +79,7 @@ def signal_rescue(request: HttpRequest):
 
 
 def check_health():
-    seconds_threshold = 5  # 5 Seconds
+    seconds_threshold = 30  # 30 Seconds
     for sensor_camera in SensorCamera.objects.all():
         if not sensor_camera.last_sensor_report:
             sensor_time = timezone.now() - timezone.make_aware(
