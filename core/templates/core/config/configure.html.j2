@@ -65,12 +65,12 @@
                     </fieldset>
                     <div class="grid gap-3 md:grid-cols-2 mt-2">
                         <button type="submit" name="save-changes" class="btn w-full">Save Changes</button>
-                    <form action="." method="post">
-                        {% csrf_token %}
-                        <button type="submit"
-                                name="delete-monitor"
-                                class="btn btn-error w-full text-white">Delete Monitor</button>
-                    </form>
+                        <form action="." method="post">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    name="delete-monitor"
+                                    class="btn btn-error w-full text-white">Delete Monitor</button>
+                        </form>
                     </div>
                 </form>
             </div>
