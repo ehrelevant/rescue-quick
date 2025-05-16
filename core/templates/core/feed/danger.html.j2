@@ -19,23 +19,29 @@
                         <span class="ic--baseline-image-not-supported size-6"></span>
                         <span>No image yet.</span>
                     </div>
-                    <img id="processed-img"
-                         onload="checkImg();"
-                         class="hidden h-full object-contain"
-                         src="{{ processed_image }}">
+                    <div>
+                        <img id="processed-img"
+                             onload="checkImg();"
+                             class="hidden h-full object-contain"
+                             src="{{ processed_image }}">
+                        <p id="img-timestamp" class="hidden m-50">{{ img_timestamp }}</p>
+                    </div>
                     <script>
                         function checkImg() {
                             const img = document.getElementById("processed-img");
+                            const timestamp = document.getElementById('img-timestamp');
                             const errorMessage = document.getElementById("img-error");
                             if (img.complete) {
                                 console.log("remove hidden");
                                 errorMessage.classList.add("hidden");
                                 img.classList.remove("hidden");
+                                timestamp.classList.remove("hidden");
                             }
                             else {
                                 console.log("oh about that...");
                                 errorMessage.classList.remove("hidden");
                                 img.classList.add("hidden");
+                                timestamp.classList.add("hidden");
                             }
                         };
                     </script>
@@ -113,7 +119,19 @@
                             <span class="lg:text-xl font-bold">{{ location }}</span>
                         </div>
                         {# Action buttons #}
-                        <button class="col-span-2 btn bg-red text-white border-red hover:shadow-md w-full">Signal Rescue</button>
+                        <form method="post"
+                              action="{% url 'signal_rescue' %}"
+                              class="col-span-2 bg-white text-red hover:shadow-md w-full">
+                            <input type="hidden" name="pair_id" value="{{ pair_id }}">
+                            <input type="hidden" name="camera_name" value="{{ camera_name }}">
+                            <input type="hidden" name="time_elapsed" value="{{ time_elapsed }}">
+                            <input type="hidden" name="location" value="{{ location }}">
+                            <input type="hidden" name="site" value="/feed/{{ pair_id }}">
+                            <button type="submit"
+                                    class="col-span-2 btn bg-red text-white border-red hover:shadow-md w-full">
+                                Signal Rescue
+                            </button>
+                        </form>
                     </div>
                     <div class="flex justify-center">
                         <div class="flex items-center gap-4">

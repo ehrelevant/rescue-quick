@@ -12,7 +12,7 @@ from django.http import (
     JsonResponse,
     HttpResponseRedirect,
 )
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.views.decorators.http import require_POST, require_GET
 from django.core.files.base import ContentFile
 from uuid import uuid4
@@ -34,10 +34,6 @@ from django.template.loader import render_to_string
 
 from .forms import MonitorForm
 
-from datetime import datetime
-
-from django.urls import reverse
-
 
 @csrf_exempt
 @require_POST
@@ -47,10 +43,10 @@ def signal_rescue(request: HttpRequest):
         camera_name = request.POST.get('camera_name', 'unknown')
         time_elapsed = request.POST.get('time_elapsed', 'unknown')
         location = request.POST.get('location', 'unknown')
+        site = request.POST.get('site', '/')
 
         rescuers = RescuerContacts.objects.filter(devices__pair_id=int(pair_id)).all()
         emails = [rescuer.email_addr for rescuer in rescuers]
-
         context = {
             'camera_name': camera_name,
             'time_elapsed': time_elapsed,
@@ -61,14 +57,16 @@ def signal_rescue(request: HttpRequest):
 
         resend.Emails.send(
             {
-                'from': 'Acme <onboarding@resend.dev>',
+                'from': 'RescueQuick <send@rescue-quick.ehrencastillo.tech>',
                 'to': emails,
                 'subject': 'Hey! Listen!',
                 'html': message,
             }
         )
-        return HttpResponseRedirect('/')
+
+        return HttpResponseRedirect(site)
     except Exception as e:
+        print(e)
         print(JsonResponse({'status': 'error', 'message': str(e)}, status=500))
         return HttpResponseRedirect('/')
 
@@ -76,12 +74,16 @@ def signal_rescue(request: HttpRequest):
 def check_health():
     seconds_threshold = 5  # 5 Seconds
     for sensor_camera in SensorCamera.objects.all():
-        if (not sensor_camera.last_sensor_report):
-            sensor_time = timezone.now() - timezone.make_aware(timezone.datetime(1999, 1, 1))
+        if not sensor_camera.last_sensor_report:
+            sensor_time = timezone.now() - timezone.make_aware(
+                timezone.datetime(1999, 1, 1)
+            )
         else:
             sensor_time = timezone.now() - sensor_camera.last_sensor_report
-        if (not sensor_camera.last_camera_report):
-            camera_time = timezone.now() - timezone.make_aware(timezone.datetime(1999, 1, 1))
+        if not sensor_camera.last_camera_report:
+            camera_time = timezone.now() - timezone.make_aware(
+                timezone.datetime(1999, 1, 1)
+            )
         else:
             camera_time = timezone.now() - sensor_camera.last_camera_report
         if (
@@ -132,6 +134,8 @@ def index(request: HttpRequest):
                 'num_dogs': sensor_camera.dog_count,
                 'flood_level': sensor_camera.current_depth,
                 'max_flood_level': sensor_camera.threshold_depth,
+                'sensor_health_time': elapsed_time(sensor_camera.last_sensor_report),
+                'camera_health_time': elapsed_time(sensor_camera.last_camera_report),
             }
             for sensor_camera in sensor_cameras
         ]
@@ -179,7 +183,9 @@ def index(request: HttpRequest):
 
 
 def feed(request: HttpRequest, pair_id: int | None = None):
-    sensor_camera: SensorCamera | None = SensorCamera.objects.filter(pair_id=pair_id).first()
+    sensor_camera: SensorCamera | None = SensorCamera.objects.filter(
+        pair_id=pair_id
+    ).first()
 
     if not pair_id:
         sensor_camera = SensorCamera.objects.first()
@@ -194,7 +200,6 @@ def feed(request: HttpRequest, pair_id: int | None = None):
     if not sensor_camera:
         return HttpResponseNotFound('Camera not found')
 
-
     last_camera_log = (
         CameraLogs.objects.filter(
             camera_id=pair_id,
@@ -205,11 +210,11 @@ def feed(request: HttpRequest, pair_id: int | None = None):
     )
 
     if not last_camera_log:
-        processed_image_url = ""
+        processed_image_url = ''
+        img_timestamp = ''
     else:
         processed_image_url = last_camera_log.processed_image_url
-
-
+        img_timestamp = elapsed_time(last_camera_log.timestamp)
 
     # Determines next/previous pair_id
     next_sensor_camera = (
@@ -241,6 +246,7 @@ def feed(request: HttpRequest, pair_id: int | None = None):
         'num_cats': sensor_camera.cat_count,
         'flood_level': sensor_camera.current_depth,
         'processed_image': processed_image_url,
+        'img_timestamp': img_timestamp,
         # For pagination
         'prev': prev_pair_id,
         'next': next_pair_id,
@@ -274,68 +280,125 @@ def list_monitors(request: HttpRequest):
 
     return render(request, 'core/config/main.html.j2', context)
 
-@csrf_exempt
+
+@csrf_protect
 def configure_monitor(request: HttpRequest, pair_id: int):
     # Check if Monitor Exists
     monitor: SensorCamera | None = SensorCamera.objects.filter(pair_id=pair_id).first()
-    
-    if (not monitor):
+
+    if not monitor:
         return HttpResponseNotFound('Monitor not found')
 
+    current_emails = RescuerContacts.objects.filter(
+        devices=SensorCamera.objects.get(pair_id=monitor.pair_id)
+    ).values_list('email_addr', flat=True)
+
+    string_current_emails = ','.join(current_emails)
+
     form = MonitorForm(
-        request.POST or None, 
+        request.POST or None,
         initial={
-            "pair_name":monitor.pair_name,
-            "threshold_depth":monitor.threshold_depth,
-            "pair_id":monitor.pair_id,
-            "token":monitor.token,
-            "location":monitor.location,
-        }
+            'pair_name': monitor.pair_name,
+            'threshold_depth': monitor.threshold_depth,
+            'pair_id': monitor.pair_id,
+            'token': monitor.token,
+            'location': monitor.location,
+            'emails': string_current_emails,
+        },
     )
 
     if request.method == 'POST':
-        if "delete-monitor" in request.POST:
+        if 'delete-monitor' in request.POST:
             # Delete Monitor from Database
             SensorCamera.objects.filter(pair_id=pair_id).delete()
             return redirect('/configure/')
         elif form.is_valid():
             # Update the Table Entry
             SensorCamera.objects.filter(pair_id=pair_id).update(
-                pair_name=form.cleaned_data["pair_name"],
-                threshold_depth=form.cleaned_data["threshold_depth"],
-                location=form.cleaned_data["location"]
+                pair_name=form.cleaned_data['pair_name'],
+                threshold_depth=form.cleaned_data['threshold_depth'],
+                location=form.cleaned_data['location'],
             )
-            return redirect('/configure/')
+            new_emails = form.cleaned_data['emails'].split(',')
+            remove_emails = [item for item in current_emails if item not in new_emails]
+            add_emails = [item for item in new_emails if item not in current_emails]
+
+            for email in remove_emails:
+                rescuer_contact = RescuerContacts.objects.filter(
+                    email_addr=email
+                ).first()
+                rescuer_contact.devices.remove(
+                    SensorCamera.objects.get(pair_id=monitor.pair_id)
+                )
+
+                if rescuer_contact.devices.count() == 0:
+                    rescuer_contact.delete()
+
+            for email in add_emails:
+                rescuer_contact = RescuerContacts.objects.filter(
+                    email_addr=email
+                ).first()
+                if not rescuer_contact:
+                    RescuerContacts.objects.create(email_addr=email)
+
+                rescuer_contact = RescuerContacts.objects.filter(
+                    email_addr=email
+                ).first()
+                rescuer_contact.devices.add(
+                    SensorCamera.objects.get(pair_id=monitor.pair_id)
+                )
+
+            # return redirect('/configure/')
 
     context = {
         'pair_id': pair_id,
-        'form' : form,
+        'form': form,
     }
 
     return render(request, 'core/config/configure.html.j2', context)
+
 
 @csrf_exempt
 def new_monitor(request: HttpRequest):
     form = MonitorForm(
         request.POST or None,
         initial={
-            "pair_name":"",
-            "threshold_depth":"",
-            "pair_id":"",
-            "token":"",
-            "location":""
-        }
+            'pair_name': '',
+            'threshold_depth': '',
+            'pair_id': '',
+            'token': '',
+            'location': '',
+            'emails': '',
+        },
     )
 
     if request.method == 'POST':
         print(form.is_valid())
         if form.is_valid():
-            pair_id, token = add_new_monitor(form.cleaned_data["pair_name"], form.cleaned_data["location"], form.cleaned_data["threshold_depth"])
-            form.cleaned_data["pair_id"] = pair_id
-            form.cleaned_data["token"] = token
+            pair_id, token = add_new_monitor(
+                form.cleaned_data['pair_name'],
+                form.cleaned_data['location'],
+                form.cleaned_data['threshold_depth'],
+            )
+            form.cleaned_data['pair_id'] = pair_id
+            form.cleaned_data['token'] = token
+
+            for email in form.cleaned_data['emails'].split(','):
+                rescuer_contact = RescuerContacts.objects.filter(
+                    email_addr=email
+                ).first()
+                if not rescuer_contact:
+                    RescuerContacts.objects.create(email_addr=email)
+
+                rescuer_contact = RescuerContacts.objects.filter(
+                    email_addr=email
+                ).first()
+                rescuer_contact.devices.add(
+                    SensorCamera.objects.get(pair_id=form.cleaned_data['pair_id'])
+                )
 
     context = {
-        'form' : form,
+        'form': form,
     }
 
     return render(request, 'core/config/new.html.j2', context)
@@ -598,23 +661,26 @@ def post_cam_health(request: HttpRequest, pair_id: int):
 
 # ============================================
 
+
 def add_new_monitor(input_pair_name, input_location, input_threshold_depth):
     # Generate New Pair ID
-    last_sensor_camera: SensorCamera | None = SensorCamera.objects.order_by('-pair_id').first()
+    last_sensor_camera: SensorCamera | None = SensorCamera.objects.order_by(
+        '-pair_id'
+    ).first()
     generated_pair_id = last_sensor_camera.pair_id + 1 if last_sensor_camera else 1
 
     # Generate Token
     generated_token = secrets.token_hex(32)
-    while (SensorCamera.objects.filter(token=generated_token).exists()):
+    while SensorCamera.objects.filter(token=generated_token).exists():
         generated_token = secrets.token_hex(32)
 
     # Create Table Entry
     SensorCamera.objects.create(
-            pair_id=generated_pair_id,
-            token=generated_token,
-            pair_name=input_pair_name,
-            location=input_location,
-            threshold_depth=input_threshold_depth     
-        )
-    
+        pair_id=generated_pair_id,
+        token=generated_token,
+        pair_name=input_pair_name,
+        location=input_location,
+        threshold_depth=input_threshold_depth,
+    )
+
     return generated_pair_id, generated_token

@@ -28,43 +28,53 @@
                             {{ form.threshold_depth }}
                         </fieldset>
                     </div>
-
                     <fieldset class="fieldset">
                         <legend class="fieldset-legend">{{ form.token.label }}</legend>
                         <div class="flex flex-row items-center">
                             {{ form.token }}
+                            <a href=""><span id="togglePassword"
+      class="block ml-[-35px] align-middle text-black mdi--eye-off size-5"></span></a>
                         </div>
-                        {# 
-                        <a href=""><span id="togglePassword" class="inline ml-[-40px] text-black mdi--eye-off size-5"></span></a>
                         <script>
-                        //    togglePassword = document.getElementById("togglePassword");
-                        //    togglePassword.addEventListener("click", ()=>{
-                        //        tokenField = document.getElementById("tokenField");
-                        //        if (tokenField.type == "text") {
-                        //            tokenField.type = "password";
-                        //        }
-                        //        else {
-                        //            tokenField.type = "text";
-                        //        }
-                        //        togglePassword.classList.toggle("mdi--eye");
-                        //        togglePassword.classList.toggle("mdi--eye-off");
-                        //    })
+                            togglePassword = document.getElementById("togglePassword");
+                            tokenField = document.getElementById("tokenField");
+                            togglePassword.addEventListener("click", (e)=>{
+                                e.preventDefault();
+                                if (tokenField.type == "text") {
+                                    togglePassword.classList.remove("mdi--eye");
+                                    togglePassword.classList.add("mdi--eye-off");
+                                    tokenField.type = "password";
+                                }
+                                else {
+                                    togglePassword.classList.remove("mdi--eye-off");
+                                    togglePassword.classList.add("mdi--eye");
+                                    tokenField.type = "text";
+                                }
+                            });
                         </script>
-                        #} 
                     </fieldset>
                     <fieldset class="fieldset">
                         <legend class="fieldset-legend">{{ form.location.label }}</legend>
                         {{ form.location }}
                         <p class="label text-wrap">Please include relevant details, such as landmarks and floor numbers, for easier access</p>
                     </fieldset>
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">{{ form.emails.label }}</legend>
+                        {{ form.emails }}
+                        <p class="label text-wrap">Include a list of emails separated by a comma.</p>
+                    </fieldset>
                     <div class="grid gap-3 md:grid-cols-2 mt-2">
-                        <button type="submit" name="save-changes" class="btn w-full">Save Changes</button></form>
-                        <form action="." method="post">
-                            <button type="submit" name="delete-monitor" class="btn btn-error w-full text-white">Delete Monitor</button>
-                        </form>
-                    </div> 
-                </form>
-            </div>
+                        <button type="submit" name="save-changes" class="btn w-full">Save Changes</button>
+                    </form>
+                    <form action="." method="post">
+                        {% csrf_token %}
+                        <button type="submit"
+                                name="delete-monitor"
+                                class="btn btn-error w-full text-white">Delete Monitor</button>
+                    </form>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 {% endblock content %}
