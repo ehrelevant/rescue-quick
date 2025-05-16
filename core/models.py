@@ -24,11 +24,7 @@ def elapsed_time(timestamp: datetime | None) -> str:
     delta = timezone.now() - timestamp
     s = delta.seconds
     d = delta.days
-    if d == 1:
-        return '1 day ago'
-    elif d > 1:
-        return f'{d} days ago'
-    elif d == 0 and s <= 1:
+    if d == 0 and s <= 1:
         return 'Just now'
     elif d == 0 and s < 60:
         return f'{s} seconds ago'
@@ -37,9 +33,14 @@ def elapsed_time(timestamp: datetime | None) -> str:
     elif d == 0 and s < 3600:
         return f'{s // 60} minutes ago'
     elif d == 0 and s < 7200:
-        return '1 hour ago'
+        mins = (s-3600)//60
+        mins_text = f"{mins} mins " if mins > 1 else ""
+        return f'1 hr {mins_text}ago'
     elif d == 0 and s < 86400:
-        return f'{s // 3600} hours ago'
+        hours = s//3600
+        mins = (s - 3600*hours) // 60
+        mins_text = f"{mins} mins " if mins > 1 else ""
+        return f'{hours} hrs {mins_text}ago'
     else:
         proper_time = timestamp.astimezone(pytz.timezone('Asia/Hong_Kong'))
         return proper_time.strftime(r'on %Y/%m/%d')
