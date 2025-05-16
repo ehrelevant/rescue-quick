@@ -14,7 +14,7 @@ def convert_time(delta: timedelta) -> str:
     elif d > 1:
         return f'{d} days'
     elif d == 0 and s <= 1:
-        return 'Just now'
+        return 'Less than a second'
     elif d == 0 and s < 60:
         return f'{s} seconds'
     elif d == 0 and s < 120:
