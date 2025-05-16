@@ -39,7 +39,7 @@ COPY . /app
 COPY --from=builder /app/core/static/core/css/output.css /app/core/static/core/css/output.css 
 
 # Collect static files
-RUN uv run --locked --no-dev --no-cache manage.py collectstatic --no-input -i input.css
+RUN uv run --locked --no-dev --no-cache manage.py collectstatic --clear --no-input -i input.css 
 
 # Expose port 3000 and serve via WSGI
 EXPOSE 3000
