@@ -43,6 +43,10 @@ def signal_rescue(request: HttpRequest):
         camera_name = request.POST.get('camera_name', 'unknown')
         time_elapsed = request.POST.get('time_elapsed', 'unknown')
         location = request.POST.get('location', 'unknown')
+        num_people = request.POST.get('num_people', '0')
+        num_dogs = request.POST.get('num_dogs', '0')
+        num_cats = request.POST.get('num_cats', '0')
+        flood_number = request.POST.get('flood_number', '1')
         site = request.POST.get('site', '/')
 
         rescuers = RescuerContacts.objects.filter(devices__pair_id=int(pair_id)).all()
@@ -51,6 +55,9 @@ def signal_rescue(request: HttpRequest):
             'camera_name': camera_name,
             'time_elapsed': time_elapsed,
             'location': location,
+            'num_people': num_people,
+            'num_dogs': num_dogs,
+            'num_cats': num_cats,
         }
 
         message = render_to_string('core/emails/new_flood_alert.html', context)
@@ -59,7 +66,7 @@ def signal_rescue(request: HttpRequest):
             {
                 'from': 'RescueQuick <send@rescue-quick.ehrencastillo.tech>',
                 'to': emails,
-                'subject': 'Hey! Listen!',
+                'subject': f'Immediate Rescue ({camera_name}:{flood_number})',
                 'html': message,
             }
         )
@@ -237,10 +244,12 @@ def feed(request: HttpRequest, pair_id: int | None = None):
         'pair_id': pair_id,
         'location': sensor_camera.location,
         'camera_name': sensor_camera.pair_name,
+        'flood_number': sensor_camera.flood_number,
         'date': sensor_camera.timestamp.strftime(r'%Y/%m/%d'),
         'marked_safe': sensor_camera.state_change_timestamp.strftime(
             r'%Y/%m/%d %H:%M:%S %p'
         ),
+        'time_elapsed': elapsed_time(sensor_camera.state_change_timestamp),
         'num_people': sensor_camera.person_count,
         'num_dogs': sensor_camera.dog_count,
         'num_cats': sensor_camera.cat_count,

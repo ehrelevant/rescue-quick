@@ -119,9 +119,9 @@
                     <div class="flex flex-col gap-3">
                         {% for operation in operations %}
                             {% if operation.is_long_time %}
-                                {% include 'core/components/op_timeout.html.j2' with pair_id=operation.pair_id camera_name=operation.camera_name time_elapsed=operation.time_elapsed location=operation.location %}
+                                {% include 'core/components/op_timeout.html.j2' with pair_id=operation.pair_id camera_name=operation.camera_name time_elapsed=operation.time_elapsed location=operation.location num_people=operation.num_people num_dogs=operation.num_dogs num_cats=operation.num_cats flood_number=operation.flood_number %}
                             {% else %}
-                                {% include 'core/components/op_new.html.j2' with pair_id=operation.pair_id camera_name=operation.camera_name time_elapsed=operation.time_elapsed location=operation.location %}
+                                {% include 'core/components/op_new.html.j2' with pair_id=operation.pair_id camera_name=operation.camera_name time_elapsed=operation.time_elapsed location=operation.location num_people=operation.num_people num_dogs=operation.num_dogs num_cats=operation.num_cats flood_number=operation.flood_number %}
                             {% endif %}
                         {% endfor %}
                         {# For scrolling #}
