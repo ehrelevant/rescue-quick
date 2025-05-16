@@ -10,13 +10,13 @@ class MonitorForm(forms.Form):
         ),
     )
 
-    threshold_depth = forms.IntegerField(
+    threshold_depth = forms.FloatField(
         label='Threshold Depth (Inches)',
         widget=forms.NumberInput(
             attrs={
                 'class': 'input w-full',
-                'placeholder': '0',
-                'min': '0',
+                'placeholder': '0.0',
+                'min': '0.0',
             }
         ),
     )
