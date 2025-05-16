@@ -13,7 +13,6 @@ services:
     working_dir: /app
     volumes:
       - .:/app
-      - /app/staticfiles/
       - /app/.venv/
     networks:
       - app-network
