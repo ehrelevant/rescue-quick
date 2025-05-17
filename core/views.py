@@ -225,6 +225,9 @@ def feed(request: HttpRequest, pair_id: int | None = None):
         processed_image_url = last_camera_log.processed_image_url
         img_timestamp = elapsed_time(last_camera_log.timestamp)
 
+    processed_image_url = 'https://i.natgeofe.com/k/7d906c71-1105-4048-b32b-a55b1b04e3bc/OG_Floods_KIDS_0922.jpg'
+    img_timestamp = '2 mins ago'
+
     # Determines next/previous pair_id
     next_sensor_camera = (
         SensorCamera.objects.filter(pair_id__gt=pair_id).first()

@@ -11,20 +11,21 @@
          hx-swap="morph:outerHTML"
          class="h-[calc(100vh-64px)] lg:h-[90vh] pt-2 p-3 lg:p-6 lg:pl-[5%] lg:pr-[5%]">
         <div class="overflow-y-auto lg:overflow-y-none lg:h-full w-full flex flex-col">
-            <div class="bg-white h-full grid grid-cols-10 gap-4 mb-4">
+            <div class="bg-white h-full grid grid-cols-10 gap-4 mb-4 lg:mb-[0]">
                 {# Container for the image #}
-                <div class="aspect-3/2 lg:aspect-auto col-span-10 lg:col-span-7 flex-shrink lg:flex-grow w-full bg-[#F2F4F8] flex items-center justify-center overflow-y-hidden">
+                <div class="aspect-3/2 lg:aspect-auto col-span-10 lg:col-span-7 flex-shrink lg:flex-grow w-full bg-[#F2F4F8] flex items-center justify-center overflow-y-hidden relative">
                     <div id="img-error"
                          class="text-gray flex flex-col items-center justify-center">
                         <span class="ic--baseline-image-not-supported size-6"></span>
                         <span>No image yet.</span>
                     </div>
-                    <div>
-                        <img id="processed-img"
-                             onload="checkImg();"
-                             class="hidden h-full object-contain"
-                             src="{{ processed_image }}">
-                        <p id="img-timestamp" class="hidden m-50">Captured {{ img_timestamp }}</p>
+                    <img id="processed-img"
+                            onload="checkImg();"
+                            class="hidden h-full object-contain"
+                            src="{{ processed_image }}">
+                    <div id="img-timestamp" role="alert" class="p-2 md:p-3 alert absolute bg-blue-100 absolute top-0 right-0 m-[10px] md:m-[20px] hidden text-xs md:text-sm shadow-lg">
+                        <span class="material-symbols--info-outline size-5 text-blue-500"></span>
+                        <span class="font-medium">Captured {{ img_timestamp }}</span>
                     </div>
                     <script>
                         function checkImg() {
@@ -113,16 +114,14 @@
                             </button>
                         </form>
                     </div>
-                    <div class="flex justify-center">
-                        <div class="flex items-center gap-4">
-                            <a href="/feed/{{ prev }}/" class="flex items-center hover:opacity-50">
-                                <span class="icon-park-solid--left-c size-6"></span>
-                            </a>
-                            <span class="p-2 pl-6 pr-6 text-gray font-medium bg-gray-light border-1 border-gray-200 rounded-md">{{ camera_name }}</span>
-                            <a href="/feed/{{ next }}/" class="flex items-center hover:opacity-50">
-                                <span class="icon-park-solid--right-c size-6"></span>
-                            </a>
-                        </div>
+                    <div class="flex flex-row gap-4 pl-6 pr-6">
+                        <a href="/feed/{{ prev }}/" class="flex items-center hover:opacity-50">
+                            <span class="icon-park-solid--left-c size-6"></span>
+                        </a>
+                        <span class="p-2 pl-6 pr-6 text-gray font-medium bg-gray-light border-1 border-gray-200 rounded-md flex-grow text-center">{{ camera_name }}</span>
+                        <a href="/feed/{{ next }}/" class="flex items-center hover:opacity-50">
+                            <span class="icon-park-solid--right-c size-6"></span>
+                        </a>
                     </div>
                 </div>
             </div>

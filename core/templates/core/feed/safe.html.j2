@@ -11,10 +11,41 @@
          hx-swap="morph:outerHTML"
          class="h-[calc(100vh-64px)] lg:h-[90vh] pt-2 p-3 lg:p-6 lg:pl-[5%] lg:pr-[5%]">
         <div class="overflow-y-auto lg:overflow-y-none lg:h-full w-full flex flex-col">
-            <div class="bg-white h-[90%] grid grid-cols-10 gap-4 mb-4">
+            <div class="bg-white h-full grid grid-cols-10 gap-4 mb-4 lg:mb-[0]">
                 {# Container for the image #}
-                <div class="aspect-3/2 lg:aspect-auto col-span-10 lg:col-span-7 flex-shrink lg:flex-grow w-full bg-[#F2F4F8] flex items-center justify-center overflow-y-hidden">
-                    <img class="h-full object-contain" src="{{ processed_image }}">
+                <div class="aspect-3/2 lg:aspect-auto col-span-10 lg:col-span-7 flex-shrink lg:flex-grow w-full bg-[#F2F4F8] flex items-center justify-center overflow-y-hidden relative">
+                    <div id="img-error"
+                         class="text-gray flex flex-col items-center justify-center">
+                        <span class="ic--baseline-image-not-supported size-6"></span>
+                        <span>No image yet.</span>
+                    </div>
+                    <img id="processed-img"
+                            onload="checkImg();"
+                            class="hidden h-full object-contain"
+                            src="{{ processed_image }}">
+                    <div id="img-timestamp" role="alert" class="p-2 md:p-3 alert absolute bg-blue-100 absolute top-0 right-0 m-[10px] md:m-[20px] hidden text-xs md:text-sm shadow-lg">
+                        <span class="material-symbols--info-outline size-5 text-blue-500"></span>
+                        <span class="font-medium">Captured {{ img_timestamp }}</span>
+                    </div>
+                    <script>
+                        function checkImg() {
+                            const img = document.getElementById("processed-img");
+                            const timestamp = document.getElementById('img-timestamp');
+                            const errorMessage = document.getElementById("img-error");
+                            if (img.complete) {
+                                console.log("remove hidden");
+                                errorMessage.classList.add("hidden");
+                                img.classList.remove("hidden");
+                                timestamp.classList.remove("hidden");
+                            }
+                            else {
+                                console.log("oh about that...");
+                                errorMessage.classList.remove("hidden");
+                                img.classList.add("hidden");
+                                timestamp.classList.add("hidden");
+                            }
+                        };
+                    </script>
                 </div>
                 {# Container for camera data #}
                 <div class="col-span-10 lg:col-span-3 h-full flex flex-col overflow-y-hidden">
@@ -42,85 +73,16 @@
                             </div>
                             <span class="lg:text-xl font-bold">{{ location }}</span>
                         </div>
-                        {# Action buttons #}
-                        <div class="col-span-2 tooltip tooltip-bottom grid grid-cols-2 gap-2"
-                             data-tip="Currently not in critical level">
-                            <button class="btn btn-disabled hover:shadow-md w-full">Signal Rescue</button>
-                            <button class="btn btn-disabled hover:shadow-md w-full">Mark as Safe</button>
-                        </div>
                     </div>
-                    {# Logs section #}
-                    {# Logs Section -- Larger Views #}
-                    <div class="hidden lg:block">
-                        <span class="text-lg font-bold mb-2">Logs</span>
-                        <div class="overflow-y-auto flex-grow flex flex-col gap-1">
-                            {% include 'core/components/log_detect.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
-                            {% include 'core/components/log_flood.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
-                        </div>
+                    <div class="flex flex-row gap-4 pl-6 pr-6">
+                        <a href="/feed/{{ prev }}/" class="flex items-center hover:opacity-50">
+                            <span class="icon-park-solid--left-c size-6"></span>
+                        </a>
+                        <span class="p-2 pl-6 pr-6 text-gray font-medium bg-gray-light border-1 border-gray-200 rounded-md flex-grow text-center">{{ camera_name }}</span>
+                        <a href="/feed/{{ next }}/" class="flex items-center hover:opacity-50">
+                            <span class="icon-park-solid--right-c size-6"></span>
+                        </a>
                     </div>
-                    {# Logs Section -- Smaller Views #}
-                    <button class="lg:hidden btn" onclick="my_modal_2.showModal()">
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                             width="24"
-                             height="24"
-                             class="size-5"
-                             viewBox="0 0 24 24">
-                            <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2m0 15c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1s1 .45 1 1v4c0 .55-.45 1-1 1m1-8h-2V7h2z" />
-                        </svg>
-                        Check Logs
-                    </button>
-                    <dialog id="my_modal_2" class="modal">
-                        <div class="modal-box max-h-[50vh]">
-                            <span class="text-lg font-bold mb-2">Logs</span>
-                            <div class="overflow-y-auto flex-grow flex flex-col gap-1">
-                                {% include 'core/components/log_detect.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
-                                {% include 'core/components/log_flood.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
-                                {% include 'core/components/log_detect.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
-                                {% include 'core/components/log_flood.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
-                                {% include 'core/components/log_detect.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
-                                {% include 'core/components/log_flood.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
-                                {% include 'core/components/log_detect.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
-                                {% include 'core/components/log_flood.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
-                                {% include 'core/components/log_detect.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
-                                {% include 'core/components/log_flood.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
-                                {% include 'core/components/log_detect.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
-                                {% include 'core/components/log_flood.html.j2' with message="Message Here" date="April 20, 2025" time="10:00 AM" %}
-                            </div>
-                        </div>
-                        <form method="dialog" class="modal-backdrop">
-                            <button>Close</button>
-                        </form>
-                    </dialog>
-                    <div></div>
-                </div>
-            </div>
-            <div class="flex-grow"></div>
-            {# Monitor Info #}
-            <div class="flex items-end justify-center mb-4 lg:mb-[0]">
-                <div class="flex items-center gap-4">
-                    <a href="/feed/{{ prev }}/" class="hover:opacity-50">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 48 48">
-                            <defs><mask id="ipSLeftC0">
-                            <g fill="none" stroke-linejoin="round" stroke-width="4">
-                            <path fill="#fff" stroke="#fff" d="M24 44c11.046 0 20-8.954 20-20S35.046 4 24 4S4 12.954 4 24s8.954 20 20 20Z" />
-                            <path stroke="#000" stroke-linecap="round" d="m27 33l-9-9l9-9" />
-                            </g>
-                            </mask></defs>
-                            <path fill="currentColor" d="M0 0h48v48H0z" mask="url(#ipSLeftC0)" />
-                        </svg>
-                    </a>
-                    <span class="p-2 pl-6 pr-6 text-gray font-medium bg-gray-light border-1 border-gray-200 rounded-md">{{ camera_name }}</span>
-                    <a href="/feed/{{ next }}/" class="hover:opacity-50">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 48 48">
-                            <defs><mask id="ipSRightC0">
-                            <g fill="none" stroke-linejoin="round" stroke-width="4">
-                            <path fill="#fff" stroke="#fff" d="M24 44c11.046 0 20-8.954 20-20S35.046 4 24 4S4 12.954 4 24s8.954 20 20 20Z" />
-                            <path stroke="#000" stroke-linecap="round" d="m21 33l9-9l-9-9" />
-                            </g>
-                            </mask></defs>
-                            <path fill="currentColor" d="M0 0h48v48H0z" mask="url(#ipSRightC0)" />
-                        </svg>
-                    </a>
                 </div>
             </div>
         </div>
