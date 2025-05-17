@@ -102,8 +102,8 @@ def check_health():
             sensor_camera.monitor_state = SensorCamera.MonitorState.UNRESPONSIVE_BOTH
         elif sensor_time.seconds > seconds_threshold:
             sensor_camera.monitor_state = SensorCamera.MonitorState.UNRESPONSIVE_SENSOR
-        #elif camera_time.seconds > seconds_threshold:
-        #    sensor_camera.monitor_state = SensorCamera.MonitorState.UNRESPONSIVE_CAMERA
+        elif camera_time.seconds > seconds_threshold:
+           sensor_camera.monitor_state = SensorCamera.MonitorState.UNRESPONSIVE_CAMERA
         sensor_camera.save()
 
 
@@ -212,7 +212,7 @@ def feed(request: HttpRequest, pair_id: int | None = None):
     last_camera_log = (
         CameraLogs.objects.filter(
             camera_id=pair_id,
-            # flood_number=sensor_camera.flood_number
+            flood_number=sensor_camera.flood_number,
         )
         .order_by('-timestamp')
         .first()
@@ -224,9 +224,6 @@ def feed(request: HttpRequest, pair_id: int | None = None):
     else:
         processed_image_url = last_camera_log.processed_image_url
         img_timestamp = elapsed_time(last_camera_log.timestamp)
-
-    processed_image_url = 'https://i.natgeofe.com/k/7d906c71-1105-4048-b32b-a55b1b04e3bc/OG_Floods_KIDS_0922.jpg'
-    img_timestamp = '2 mins ago'
 
     # Determines next/previous pair_id
     next_sensor_camera = (
@@ -338,7 +335,7 @@ def configure_monitor(request: HttpRequest, pair_id: int):
                 threshold_depth=form.cleaned_data['threshold_depth'],
                 location=form.cleaned_data['location'],
             )
-            new_emails = form.cleaned_data['emails'].split(',')
+            new_emails = form.cleaned_data['emails'].replace(" ", '').split(',')
             remove_emails = [item for item in current_emails if item not in new_emails]
             add_emails = [item for item in new_emails if item not in current_emails]
 
