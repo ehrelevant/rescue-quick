@@ -43,6 +43,10 @@ def signal_rescue(request: HttpRequest):
         camera_name = request.POST.get('camera_name', 'unknown')
         time_elapsed = request.POST.get('time_elapsed', 'unknown')
         location = request.POST.get('location', 'unknown')
+        num_people = request.POST.get('num_people', '0')
+        num_dogs = request.POST.get('num_dogs', '0')
+        num_cats = request.POST.get('num_cats', '0')
+        flood_number = request.POST.get('flood_number', '1')
         site = request.POST.get('site', '/')
 
         rescuers = RescuerContacts.objects.filter(devices__pair_id=int(pair_id)).all()
@@ -51,6 +55,9 @@ def signal_rescue(request: HttpRequest):
             'camera_name': camera_name,
             'time_elapsed': time_elapsed,
             'location': location,
+            'num_people': num_people,
+            'num_dogs': num_dogs,
+            'num_cats': num_cats,
         }
 
         message = render_to_string('core/emails/new_flood_alert.html', context)
@@ -59,7 +66,7 @@ def signal_rescue(request: HttpRequest):
             {
                 'from': 'RescueQuick <send@rescue-quick.ehrencastillo.tech>',
                 'to': emails,
-                'subject': 'Hey! Listen!',
+                'subject': f'Immediate Rescue ({camera_name}:{flood_number})',
                 'html': message,
             }
         )
@@ -72,7 +79,7 @@ def signal_rescue(request: HttpRequest):
 
 
 def check_health():
-    seconds_threshold = 5  # 5 Seconds
+    seconds_threshold = 30  # 30 Seconds
     for sensor_camera in SensorCamera.objects.all():
         if not sensor_camera.last_sensor_report:
             sensor_time = timezone.now() - timezone.make_aware(
@@ -93,8 +100,8 @@ def check_health():
             sensor_camera.monitor_state = SensorCamera.MonitorState.UNRESPONSIVE_BOTH
         elif sensor_time.seconds > seconds_threshold:
             sensor_camera.monitor_state = SensorCamera.MonitorState.UNRESPONSIVE_SENSOR
-        elif camera_time.seconds > seconds_threshold:
-            sensor_camera.monitor_state = SensorCamera.MonitorState.UNRESPONSIVE_CAMERA
+        #elif camera_time.seconds > seconds_threshold:
+        #    sensor_camera.monitor_state = SensorCamera.MonitorState.UNRESPONSIVE_CAMERA
         sensor_camera.save()
 
 
@@ -103,22 +110,22 @@ def index(request: HttpRequest):
 
     dangerous_sensor_cameras = SensorCamera.objects.filter(
         monitor_state=SensorCamera.MonitorState.DANGEROUS
-    ).all()
+    ).all().order_by('pair_id')
     caution_sensor_cameras = SensorCamera.objects.filter(
         monitor_state=SensorCamera.MonitorState.CAUTION
-    ).all()
+    ).all().order_by('pair_id')
     safe_sensor_cameras = SensorCamera.objects.filter(
         monitor_state=SensorCamera.MonitorState.SAFE
-    ).all()
+    ).all().order_by('pair_id')
     unresponsive_sensor_cameras = SensorCamera.objects.filter(
         monitor_state=SensorCamera.MonitorState.UNRESPONSIVE_BOTH
-    ).all()
+    ).all().order_by('pair_id')
     unresponsive_sensors = SensorCamera.objects.filter(
         monitor_state=SensorCamera.MonitorState.UNRESPONSIVE_SENSOR
-    ).all()
+    ).all().order_by('pair_id')
     unresponsive_cameras = SensorCamera.objects.filter(
         monitor_state=SensorCamera.MonitorState.UNRESPONSIVE_CAMERA
-    ).all()
+    ).all().order_by('pair_id')
 
     def collect_monitors(
         sensor_cameras: QuerySet[SensorCamera],
@@ -237,10 +244,12 @@ def feed(request: HttpRequest, pair_id: int | None = None):
         'pair_id': pair_id,
         'location': sensor_camera.location,
         'camera_name': sensor_camera.pair_name,
+        'flood_number': sensor_camera.flood_number,
         'date': sensor_camera.timestamp.strftime(r'%Y/%m/%d'),
         'marked_safe': sensor_camera.state_change_timestamp.strftime(
             r'%Y/%m/%d %H:%M:%S %p'
         ),
+        'time_elapsed': elapsed_time(sensor_camera.state_change_timestamp),
         'num_people': sensor_camera.person_count,
         'num_dogs': sensor_camera.dog_count,
         'num_cats': sensor_camera.cat_count,
@@ -257,7 +266,7 @@ def feed(request: HttpRequest, pair_id: int | None = None):
     elif sensor_camera.monitor_state == SensorCamera.MonitorState.CAUTION:
         return render(request, 'core/feed/caution.html.j2', context)
     else:
-        return render(request, 'core/feed/danger.html.j2', context)
+        return render(request, 'core/feed/safe.html.j2', context)
 
 
 def list_monitors(request: HttpRequest):
@@ -274,7 +283,7 @@ def list_monitors(request: HttpRequest):
             for sensor_camera in sensor_cameras
         ]
 
-    monitors: typing.Any = collect_monitors(SensorCamera.objects.all())
+    monitors: typing.Any = collect_monitors(SensorCamera.objects.all().order_by('pair_id'))
 
     context = {'monitors': monitors}
 
@@ -348,7 +357,7 @@ def configure_monitor(request: HttpRequest, pair_id: int):
                     SensorCamera.objects.get(pair_id=monitor.pair_id)
                 )
 
-            # return redirect('/configure/')
+        return redirect('/configure/')
 
     context = {
         'pair_id': pair_id,
@@ -411,22 +420,16 @@ def new_monitor(request: HttpRequest):
 def post_sensor_data(request: HttpRequest, pair_id: int):
     try:
         data = json.loads(request.body)
-
-        sensor_camera, _ = SensorCamera.objects.update_or_create(
-            pair_id=pair_id,
-            defaults={
-                'current_depth': max(data['current_depth'], 0),
-                'last_sensor_report': timezone.now(),
-                'is_wet': data['is_wet'],
-            },
-            create_defaults={
-                'pair_name': f'Camera {pair_id}',
-                'current_depth': max(data['current_depth'], 0),
-                'location': f'Location {pair_id}',
-                'monitor_state': SensorCamera.MonitorState.SAFE,
-                'is_wet': data['is_wet'],
-            },
+        # Check if Sensor_Camera exists
+        sensor_camera = SensorCamera.objects.filter(pair_id=pair_id).first()
+    
+        # Update Sensor Camera fields
+        SensorCamera.objects.filter(pair_id=pair_id).update(
+            current_depth=max(data['current_depth'], 0),
+            last_sensor_report=timezone.now(),
+            is_wet=data['is_wet'],
         )
+    
         # Update Monitor State
         if (
             sensor_camera.current_depth > sensor_camera.threshold_depth
@@ -496,10 +499,13 @@ def get_flood_status(request: HttpRequest):
                 )
 
             # Get the latest indicator
-            indicator: str = str(
-                sensor_cam.current_depth >= sensor_cam.threshold_depth
-                and sensor_cam.is_wet
-            ).lower()
+            if sensor_cam.current_depth:
+                indicator: str = str(
+                    sensor_cam.current_depth >= sensor_cam.threshold_depth
+                    and sensor_cam.is_wet
+                ).lower()
+            else: 
+                indicator: str = "false"
 
             # Return as a JSON Response
             return JsonResponse({'status': 'success', 'indicator': indicator})

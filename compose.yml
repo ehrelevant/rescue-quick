@@ -13,8 +13,7 @@ services:
     working_dir: /app
     volumes:
       - .:/app
-      - staticfiles:/app/staticfiles
-      - /app/.venv/
+      - venv:/app/.venv
     networks:
       - app-network
 
@@ -47,6 +46,5 @@ services:
 networks:
   app-network:
     driver: bridge
-
 volumes:
-  staticfiles:
+  venv:

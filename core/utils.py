@@ -11,10 +11,10 @@ def convert_time(delta: timedelta) -> str:
 
     if d == 1:
         return '1 day'
-    elif d > 1:
+    elif d > 1 and d <= 30:
         return f'{d} days'
     elif d == 0 and s <= 1:
-        return 'Just now'
+        return 'Less than a second'
     elif d == 0 and s < 60:
         return f'{s} seconds'
     elif d == 0 and s < 120:
@@ -22,9 +22,14 @@ def convert_time(delta: timedelta) -> str:
     elif d == 0 and s < 3600:
         return f'{s // 60} minutes'
     elif d == 0 and s < 7200:
-        return '1 hour'
+        mins = (s-3600)//60
+        mins_text = f"{mins} minutes " if mins > 1 else ""
+        return f'1 hour {mins_text}'
     elif d == 0 and s < 86400:
-        return f'{s // 3600} hours'
+        hours = s//3600
+        mins = (s - 3600*hours) // 60
+        mins_text = f"{mins} minutes " if mins > 1 else ""
+        return f'{hours} hours {mins_text}'
     else:
         return str(delta)
 

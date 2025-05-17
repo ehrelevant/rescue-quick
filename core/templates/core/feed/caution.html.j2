@@ -24,7 +24,7 @@
                              onload="checkImg();"
                              class="hidden h-full object-contain"
                              src="{{ processed_image }}">
-                        <p id="img-timestamp" class="hidden m-50">{{ img_timestamp }}</p>
+                        <p id="img-timestamp" class="hidden m-50">Captured {{ img_timestamp }}</p>
                     </div>
                     <script>
                         function checkImg() {
@@ -100,8 +100,12 @@
                               class="col-span-2 bg-white text-red hover:shadow-md w-full">
                             <input type="hidden" name="pair_id" value="{{ pair_id }}">
                             <input type="hidden" name="camera_name" value="{{ camera_name }}">
+                            <input type="hidden" name="flood_number" value="{{ flood_number }}">
                             <input type="hidden" name="time_elapsed" value="{{ time_elapsed }}">
                             <input type="hidden" name="location" value="{{ location }}">
+                            <input type="hidden" name="num_people" value="{{ num_people }}">
+                            <input type="hidden" name="num_dogs" value="{{ num_dogs }}">
+                            <input type="hidden" name="num_cats" value="{{ num_cats }}">
                             <input type="hidden" name="site" value="/feed/{{ pair_id }}">
                             <button type="submit"
                                     class="col-span-2 btn bg-yellow text-black border-yellow hover:shadow-md w-full">
