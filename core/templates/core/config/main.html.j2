@@ -18,6 +18,22 @@
                     </button>
                 </a>
             </div>
+            {% if messages %}
+                {% for message in messages %}
+                    <div role="alert" class="alert shadow-none bg-blue-100 flex flex-row w-full break-words">
+                        <span class="gg--check-o text-primary size-5"></span>
+                        <div class="flex flex-col w-full break-words">
+                            {% if message|stringformat:"s" == "A new monitor has been created." %}
+                                <span>{{ message }}</span>   
+                                <span class="text-xs"><b>ID:</b> <span class="font-mono">{{last_id}}</span></span>
+                                <span class="text-xs"><b>Token:</b> {{last_token}}</span>
+                            {% else %}
+                                <span>{{ message }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
             <div class="flex-grow overflow-y-auto">
                 {% for monitor in monitors %}
                     <div class="flex flex-col lg:flex-row lg:items-end border-b-1 border-gray-200 pt-4 pb-4">

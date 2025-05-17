@@ -34,6 +34,8 @@ from django.template.loader import render_to_string
 
 from .forms import MonitorForm
 
+from django.contrib import messages
+
 
 @csrf_exempt
 @require_POST
@@ -285,7 +287,11 @@ def list_monitors(request: HttpRequest):
 
     monitors: typing.Any = collect_monitors(SensorCamera.objects.all().order_by('pair_id'))
 
-    context = {'monitors': monitors}
+    context = {
+        'monitors': monitors,
+        'last_id' : request.session.get("last_id", ""),
+        'last_token' : request.session.get("last_token", ""),
+    }
 
     return render(request, 'core/config/main.html.j2', context)
 
@@ -320,6 +326,7 @@ def configure_monitor(request: HttpRequest, pair_id: int):
         if 'delete-monitor' in request.POST:
             # Delete Monitor from Database
             SensorCamera.objects.filter(pair_id=pair_id).delete()
+            messages.success(request, f"Monitor (ID: {pair_id}) has been deleted.")
             return redirect('/configure/')
         elif form.is_valid():
             # Update the Table Entry
@@ -356,7 +363,8 @@ def configure_monitor(request: HttpRequest, pair_id: int):
                 rescuer_contact.devices.add(
                     SensorCamera.objects.get(pair_id=monitor.pair_id)
                 )
-
+        
+        messages.success(request, f"Monitor (ID: {pair_id}) details updated.")
         return redirect('/configure/')
 
     context = {
@@ -405,6 +413,12 @@ def new_monitor(request: HttpRequest):
                 rescuer_contact.devices.add(
                     SensorCamera.objects.get(pair_id=form.cleaned_data['pair_id'])
                 )
+            
+            request.session["last_id"] = pair_id
+            request.session["last_token"] = token
+
+            messages.success(request, "A new monitor has been created.")
+            return redirect('/configure/')
 
     context = {
         'form': form,
