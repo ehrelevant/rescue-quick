@@ -23,7 +23,7 @@ jobs:
             cd ~/programs/rescue-quick
             docker compose down
             GIT_SSH_COMMAND='ssh -i ~/.ssh/id_ed25519_rescue_quick -o IdentitiesOnly=yes' git fetch
-            GIT_SSH_COMMAND='ssh -i ~/.ssh/id_ed25519_rescue_quick -o IdentitiesOnly=yes' git reset --hard origin/master
+            GIT_SSH_COMMAND='ssh -i ~/.ssh/id_ed25519_rescue_quick -o IdentitiesOnly=yes' git reset --hard origin/main
             docker compose up -d
             echo "Deployed to server!"
         
