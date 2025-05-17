@@ -24,7 +24,11 @@ def elapsed_time(timestamp: datetime | None) -> str:
     delta = timezone.now() - timestamp
     s = delta.seconds
     d = delta.days
-    if d == 0 and s <= 1:
+    if d == 1:
+        return '1 day ago'
+    elif d > 1 and d <= 30:
+        return f'{d} days ago'
+    elif d == 0 and s <= 1:
         return 'Just now'
     elif d == 0 and s < 60:
         return f'{s} seconds ago'
