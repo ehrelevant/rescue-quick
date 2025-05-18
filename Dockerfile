@@ -1,3 +1,13 @@
+FROM node:lts AS install
+
+WORKDIR /app
+
+# Copy npm lockfiles
+COPY package-lock.json package.json /app/
+
+# Install Node dependencies
+RUN npm install
+
 FROM ghcr.io/astral-sh/uv:debian
 
 WORKDIR /app
@@ -8,18 +18,7 @@ ENV DEBUG=$DEBUG
 
 # Install system dependencies
 RUN apt-get update && \
-    apt-get install ffmpeg libsm6 libxext6 curl -y
-
-# Install npm
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
-    apt-get install -y nodejs && \
-    curl -fsSL https://www.npmjs.com/install.sh | sh
-
-# Copy npm lockfiles
-COPY package-lock.json package.json /app/
-
-# Install Node dependencies
-RUN npm install
+    apt-get install ffmpeg libsm6 libxext6 -y
 
 # Copy uv lockfiles
 COPY uv.lock pyproject.toml /app/
@@ -34,6 +33,9 @@ RUN if [ "$DEBUG" = "false" ] ; then \
         
 # Copy all of the other project files
 COPY . /app
+
+# Copy node_modules
+COPY --from=install /app/node_modules ./node_modules
 
 # Set entrypoint to be executable
 RUN chmod +x /app/entrypoint.sh

@@ -3,7 +3,7 @@ set -e
 
 # Build Tailwind CSS files
 echo "Building Tailwind files..."
-npm run build:tailwind
+./node_modules/.bin/tailwindcss -i ./core/static/core/css/input.css -o ./core/static/core/css/output.css
 
 # Collect static files
 echo "Collecting static files..."
