@@ -8,10 +8,12 @@ ENV DEBUG=$DEBUG
 
 # Install system dependencies
 RUN apt-get update && \
-    apt-get install ffmpeg libsm6 libxext6 curl -y \
-    curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
+    apt-get install ffmpeg libsm6 libxext6 curl -y
+
+# Install npm
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
     apt-get install -y nodejs && \
-    npm install -g npm
+    curl -fsSL https://www.npmjs.com/install.sh | sh
 
 # Copy npm lockfiles
 COPY package-lock.json package.json /app/
