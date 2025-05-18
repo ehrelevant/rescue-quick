@@ -26,7 +26,7 @@ COPY uv.lock pyproject.toml /app/
 
 # Install Python dependencies
 # Cache is not saved to save space on the production server
-RUN if [ "$DEBUG" = "False" ] ; then \
+RUN if [ "$DEBUG" = "false" ] ; then \
         uv sync --locked --no-dev --no-cache; \
     else \
         uv sync --locked --no-cache; \
