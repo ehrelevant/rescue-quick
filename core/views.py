@@ -565,6 +565,9 @@ def post_image(request: HttpRequest, pair_id: int):
         pil_image = Image.open(BytesIO(decoded_img)).convert('RGB')
         img_array = np.array(pil_image)
 
+        # Denoise the image
+        img_array = cv2.fastNlMeansDenoisingColored(img_array, None, 10, 10, 7, 21)
+
         # Choose and apply model
         model = YOLO('yolo11n.pt')
         model_results = model(img_array, classes=[0, 15, 16])
@@ -628,11 +631,12 @@ def post_image(request: HttpRequest, pair_id: int):
                 monitor_state=SensorCamera.MonitorState.CAUTION
             )
 
-        # Update CameraSensor with the number of victims
+        # Update CameraSensor with the number of victims and last camera report
         SensorCamera.objects.filter(pair_id=pair_id).update(
             person_count=class_counts.get(0, 0),
             dog_count=class_counts.get(16, 0),
             cat_count=class_counts.get(15, 0),
+            last_camera_report=timezone.now(),
         )
 
         return JsonResponse(
