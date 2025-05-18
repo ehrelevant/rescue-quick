@@ -3,16 +3,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        DEBUG: False
     container_name: app
     restart: unless-stopped
     tty: true
     environment:
       SERVICE_NAME: app
       SERVICE_TAGS: dev
-      DEBUG: False
     working_dir: /app
     volumes:
       - .:/app
+      - venv:/app/.venv
     networks:
       - app-network
 
@@ -45,3 +47,5 @@ services:
 networks:
   app-network:
     driver: bridge
+volumes:
+  venv:
