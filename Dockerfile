@@ -1,47 +1,47 @@
-FROM node:lts AS builder
+FROM ghcr.io/astral-sh/uv:debian
 
 WORKDIR /app
 
-# Copy lockfiles
+# Set DEBUG to passed DEBUG argument
+ARG DEBUG
+ENV DEBUG=$DEBUG
+
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install ffmpeg libsm6 libxext6 curl -y
+
+# Install npm
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get install -y nodejs && \
+    curl -fsSL https://www.npmjs.com/install.sh | sh
+
+# Copy npm lockfiles
 COPY package-lock.json package.json /app/
 
 # Install Node dependencies
 RUN npm install
 
-# Copy other files
-COPY ./core /app/core
-
-# Run Tailwind build script
-RUN npm run build:tailwind
-
-FROM ghcr.io/astral-sh/uv:debian
-
-WORKDIR /app
-
-# Set DEBUG to False to indicate a production environment on build
-# This is also done to avoid unnecessary installation of django-browser-reload
-ENV DEBUG=False
-
-# Install system dependencies
-RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
-
-# Copy lockfiles
+# Copy uv lockfiles
 COPY uv.lock pyproject.toml /app/
 
 # Install Python dependencies
 # Cache is not saved to save space on the production server
-RUN uv sync --locked --no-dev --no-cache
-
+RUN if [ "$DEBUG" = "false" ] ; then \
+        uv sync --locked --no-dev --no-cache; \
+    else \
+        uv sync --locked --no-cache; \
+    fi
+        
 # Copy all of the other project files
 COPY . /app
 
-# Copy Tailwind output file
-COPY --from=builder /app/core/static/core/css/output.css /app/core/static/core/css/output.css 
-
-# Collect static files
-RUN uv run --locked --no-dev --no-cache manage.py collectstatic --clear --no-input -i input.css 
+# Set entrypoint to be executable
+RUN chmod +x /app/entrypoint.sh
 
 # Expose port 3000 and serve via WSGI
 EXPOSE 3000
+
+# Use entrypoint script
+ENTRYPOINT ["/app/entrypoint.sh"]
 
 CMD uv run --locked --no-dev --no-cache gunicorn config.wsgi:application --bind 0.0.0.0:3000

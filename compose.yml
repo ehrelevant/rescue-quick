@@ -3,13 +3,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        DEBUG: False
     container_name: app
     restart: unless-stopped
     tty: true
     environment:
       SERVICE_NAME: app
       SERVICE_TAGS: dev
-      DEBUG: False
     working_dir: /app
     volumes:
       - .:/app
