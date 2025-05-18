@@ -51,6 +51,9 @@ def signal_rescue(request: HttpRequest):
         flood_number = request.POST.get('flood_number', '1')
         site = request.POST.get('site', '/')
 
+        if "on" in time_elapsed:
+            time_elapsed = time_elapsed[3:]
+
         rescuers = RescuerContacts.objects.filter(devices__pair_id=int(pair_id)).all()
         emails = [rescuer.email_addr for rescuer in rescuers]
         context = {
