@@ -37,7 +37,7 @@ from .forms import MonitorForm
 from django.contrib import messages
 
 
-@csrf_exempt
+@csrf_protect
 @require_POST
 def signal_rescue(request: HttpRequest):
     try:

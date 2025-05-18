@@ -14,6 +14,7 @@
         <form method="post"
               action="{% url 'signal_rescue' %}"
               class="col-span-2 bg-white text-red hover:shadow-md w-full">
+            {% csrf_token %}
             <input type="hidden" name="pair_id" value="{{ pair_id }}">
             <input type="hidden" name="camera_name" value="{{ camera_name }}">
             <input type="hidden" name="flood_number" value="{{ flood_number }}">
