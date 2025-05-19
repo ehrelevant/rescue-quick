@@ -256,6 +256,7 @@ def feed(request: HttpRequest, pair_id: int | None = None):
         'num_dogs': sensor_camera.dog_count,
         'num_cats': sensor_camera.cat_count,
         'flood_level': sensor_camera.current_depth,
+        'max_flood_level' : sensor_camera.threshold_depth,
         'processed_image': processed_image_url,
         'img_timestamp': img_timestamp,
         # For pagination
