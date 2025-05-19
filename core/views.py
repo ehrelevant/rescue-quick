@@ -37,7 +37,7 @@ from .forms import MonitorForm
 from django.contrib import messages
 
 
-@csrf_exempt
+@csrf_protect
 @require_POST
 def signal_rescue(request: HttpRequest):
     try:
@@ -50,6 +50,9 @@ def signal_rescue(request: HttpRequest):
         num_cats = request.POST.get('num_cats', '0')
         flood_number = request.POST.get('flood_number', '1')
         site = request.POST.get('site', '/')
+
+        if "on" in time_elapsed:
+            time_elapsed = time_elapsed[3:]
 
         rescuers = RescuerContacts.objects.filter(devices__pair_id=int(pair_id)).all()
         emails = [rescuer.email_addr for rescuer in rescuers]
@@ -376,7 +379,7 @@ def configure_monitor(request: HttpRequest, pair_id: int):
     return render(request, 'core/config/configure.html.j2', context)
 
 
-@csrf_exempt
+@csrf_protect
 def new_monitor(request: HttpRequest):
     form = MonitorForm(
         request.POST or None,
