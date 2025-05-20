@@ -103,8 +103,10 @@ def check_health():
             and camera_time.seconds > seconds_threshold
         ):
             sensor_camera.monitor_state = SensorCamera.MonitorState.UNRESPONSIVE_BOTH
+            sensor_camera.current_depth = 0
         elif sensor_time.seconds > seconds_threshold:
             sensor_camera.monitor_state = SensorCamera.MonitorState.UNRESPONSIVE_SENSOR
+            sensor_camera.current_depth = 0
         elif camera_time.seconds > seconds_threshold:
            sensor_camera.monitor_state = SensorCamera.MonitorState.UNRESPONSIVE_CAMERA
         sensor_camera.save()
@@ -520,7 +522,7 @@ def get_flood_status(request: HttpRequest):
             if sensor_cam.current_depth:
                 indicator: str = str(
                     sensor_cam.current_depth >= sensor_cam.threshold_depth
-                    and sensor_cam.is_wet
+                    and sensor_cam.is_wet and sensor_cam.MonitorState != SensorCamera.MonitorState.UNRESPONSIVE_SENSOR
                 ).lower()
             else: 
                 indicator: str = "false"
