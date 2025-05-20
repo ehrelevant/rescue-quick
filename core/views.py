@@ -469,9 +469,18 @@ def post_sensor_data(request: HttpRequest, pair_id: int):
             or sensor_camera.monitor_state
             == SensorCamera.MonitorState.UNRESPONSIVE_SENSOR
         ):
-            SensorCamera.objects.filter(pair_id=pair_id).update(
-                monitor_state=SensorCamera.MonitorState.SAFE
-            )
+            if (
+                sensor_camera.monitor_state == SensorCamera.MonitorState.CAUTION
+                or sensor_camera.monitor_state == SensorCamera.MonitorState.DANGEROUS
+            ):
+                SensorCamera.objects.filter(pair_id=pair_id).update(
+                    monitor_state=SensorCamera.MonitorState.SAFE,
+                    flood_number=sensor_camera.flood_number + 1
+                )
+            else:            
+                SensorCamera.objects.filter(pair_id=pair_id).update(
+                    monitor_state=SensorCamera.MonitorState.SAFE
+                )
 
         # Log Sensor Data if CAUTION or DANGEROUS
         if (
