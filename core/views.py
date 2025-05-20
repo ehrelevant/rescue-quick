@@ -577,7 +577,7 @@ def post_image(request: HttpRequest, pair_id: int):
 
         # Choose and apply model
         model = YOLO('yolo11n.pt')
-        model_results = model(img_array, classes=[0, 15, 16])
+        model_results = model(rotated_img, classes=[0, 15, 16])
         detections = model_results[0]
         rendered_img = model_results[0].plot()
 
