@@ -406,7 +406,7 @@ def new_monitor(request: HttpRequest):
             form.cleaned_data['pair_id'] = pair_id
             form.cleaned_data['token'] = token
 
-            for email in form.cleaned_data['emails'].split(','):
+            for email in form.cleaned_data['emails'].replace(" ", '').split(','):
                 rescuer_contact = RescuerContacts.objects.filter(
                     email_addr=email
                 ).first()
