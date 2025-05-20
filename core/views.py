@@ -573,6 +573,7 @@ def post_image(request: HttpRequest, pair_id: int):
 
         # Denoise the image
         img_array = cv2.fastNlMeansDenoisingColored(img_array, None, 10, 10, 7, 21)
+        rotated_img = cv2.rotate(img_array, cv2.ROTATE_180)
 
         # Choose and apply model
         model = YOLO('yolo11n.pt')
