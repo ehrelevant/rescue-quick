@@ -66,6 +66,7 @@
                         <p class="label text-wrap">Include a list of emails separated by a comma.</p>
                     </fieldset>
                     <div class="grid gap-3 md:grid-cols-2 mt-2">
+                        {% if pair_id != 1 %}
                         <button type="submit" name="save-changes" class="btn w-full">Save Changes</button>
                         <button type="button"
                                 class="btn btn-error w-full text-white"
@@ -89,6 +90,7 @@
                                 </div>
                             </div>
                         </dialog>
+                        {% endif %}
                     </div>
                 </form>
             </div>
