@@ -457,7 +457,8 @@ def post_sensor_data(request: HttpRequest, pair_id: int):
             and sensor_camera.monitor_state == SensorCamera.MonitorState.SAFE
         ):
             SensorCamera.objects.filter(pair_id=pair_id).update(
-                monitor_state=SensorCamera.MonitorState.CAUTION
+                monitor_state=SensorCamera.MonitorState.CAUTION,
+                state_change_timestamp = timezone.now()
             )
         elif (
             sensor_camera.current_depth <= sensor_camera.threshold_depth
@@ -475,11 +476,13 @@ def post_sensor_data(request: HttpRequest, pair_id: int):
             ):
                 SensorCamera.objects.filter(pair_id=pair_id).update(
                     monitor_state=SensorCamera.MonitorState.SAFE,
-                    flood_number=sensor_camera.flood_number + 1
+                    flood_number=sensor_camera.flood_number + 1,
+                    state_change_timestamp = timezone.now()
                 )
             else:            
                 SensorCamera.objects.filter(pair_id=pair_id).update(
-                    monitor_state=SensorCamera.MonitorState.SAFE
+                    monitor_state=SensorCamera.MonitorState.SAFE,
+                    state_change_timestamp = timezone.now()
                 )
 
         # Log Sensor Data if CAUTION or DANGEROUS
@@ -630,7 +633,8 @@ def post_image(request: HttpRequest, pair_id: int):
             and sensor_cam.monitor_state == SensorCamera.MonitorState.CAUTION
         ):
             SensorCamera.objects.filter(pair_id=pair_id).update(
-                monitor_state=SensorCamera.MonitorState.DANGEROUS
+                monitor_state=SensorCamera.MonitorState.DANGEROUS,
+                state_change_timestamp = timezone.now()
             )
         elif (
             sum(
@@ -644,7 +648,8 @@ def post_image(request: HttpRequest, pair_id: int):
             and sensor_cam.monitor_state == SensorCamera.MonitorState.DANGEROUS
         ):
             SensorCamera.objects.filter(pair_id=pair_id).update(
-                monitor_state=SensorCamera.MonitorState.CAUTION
+                monitor_state=SensorCamera.MonitorState.CAUTION,
+                state_change_timestamp = timezone.now()
             )
 
         # Update CameraSensor with the number of victims and last camera report
