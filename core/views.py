@@ -194,6 +194,8 @@ def index(request: HttpRequest):
 
 
 def feed(request: HttpRequest, pair_id: int | None = None):
+    check_health()
+    
     sensor_camera: SensorCamera | None = SensorCamera.objects.filter(
         pair_id=pair_id
     ).first()
